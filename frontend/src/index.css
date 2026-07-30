@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.senn-text-watermark {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    font-size: 15vw; /* Responsive font size */
+    font-weight: 900;
+    color: rgba(0, 71, 68, 0.02);
+    pointer-events: none;
+    z-index: -1;
+    user-select: none;
+}
+body {
+    min-height: 100dvh;
+    background-color: #fcf9f1;
+    color: #1c1c17;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.dark body, body.dark, html.dark body {
+    background-color: #0f2322 !important;
+    color: #f4f0e8 !important;
+}
+
+/* Sobrescribir textos de color verde oscuro/medio en modo oscuro a blanco/crema para legibilidad */
+.dark .text-primary,
+.dark .text-primary\/90,
+.dark .text-primary\/85,
+.dark .text-primary\/80,
+.dark .text-primary\/70,
+.dark .text-primary\/60,
+.dark .text-secondary,
+.dark .text-secondary\/90,
+.dark .text-secondary\/85,
+.dark .text-secondary\/80,
+.dark .text-secondary\/70 {
+    color: #f4f0e8 !important;
+}
+
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* --- Estilos de Leaflet para Modo Oscuro (Premium Dark Mode support) --- */
+.dark .leaflet-bar {
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    box-shadow: none !important;
+}
+
+.dark .leaflet-bar a, 
+.dark .leaflet-control-layers {
+    background-color: #0f2322 !important; /* bg-background-dark */
+    color: #e2e8f0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.dark .leaflet-bar a:hover {
+    background-color: #1a3534 !important;
+    color: #fff !important;
+}
+
+.dark .leaflet-bar a.leaflet-disabled {
+    background-color: #0b1a19 !important;
+    color: #475569 !important;
+}
+
+.dark .leaflet-control-layers-toggle {
+    filter: invert(1) brightness(0.9);
+}
+
+.dark .leaflet-popup-content-wrapper, 
+.dark .leaflet-popup-tip {
+    background-color: #0f2322 !important;
+    color: #e2e8f0 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.dark .leaflet-popup-content {
+    color: #e2e8f0 !important;
+}
+
+/* --- Animación Premium de Feedback --- */
+@keyframes slideDownBounce {
+  0% { transform: translateY(-16px) scale(0.95); opacity: 0; }
+  70% { transform: translateY(2px) scale(1.01); opacity: 0.9; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.animate-feedback {
+  animation: slideDownBounce 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Animación global de entrada de página */
+@keyframes fadeInUp {
+  from { transform: translateY(10px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-page-entry {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Micro-escalado interactivo para tarjetas y botones */
+.hover-interactive {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+}
+
+.hover-interactive:hover {
+  transform: translateY(-2px) scale(1.015);
+}
+
+.hover-interactive:active {
+  transform: scale(0.98);
+}
+
+/* --- Animación de Toast de Notificación --- */
+@keyframes slideInRight {
+  0% { transform: translateX(120%) scale(0.9); opacity: 0; }
+  70% { transform: translateX(-5px) scale(1.02); opacity: 0.95; }
+  100% { transform: translateX(0) scale(1); opacity: 1; }
+}
+
+@keyframes slideOutRight {
+  0% { transform: translateX(0) scale(1); opacity: 1; }
+  100% { transform: translateX(120%) scale(0.9); opacity: 0; }
+}
+
+.animate-toast-in {
+  animation: slideInRight 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-toast-out {
+  animation: slideOutRight 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* --- Marcadores personalizados de Leaflet (Foto de perfil del Profesional) --- */
+.custom-pro-marker-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+
+

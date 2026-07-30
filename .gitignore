@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Local databases and SQLite
+*.db
+backend/senn.db
+
+# Environment files
+.env
+.env.local
+.env.*.local
+backend/.env
+frontend/.env
+
+# Production builds
+dist/
+**/dist/
+
+# Uploads and temporary files
+backend/uploads/*
+!backend/uploads/.gitkeep
+backend/private_uploads/*
+!backend/private_uploads/.gitkeep
+
+# Large Media / Video files (Optional, uncomment if you don't want to track them in git)
+*.mp4
+# *.png
+# *.svg
