@@ -32,7 +32,7 @@ function UserDashboard({ user, login, logout }) {
 
   const fetchPortfolio = async () => {
     try {
-      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/professionals/my-portfolio', {
+      const response = await fetch(window.API_URL + '/api/professionals/my-portfolio', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       if (response.ok) {
@@ -61,7 +61,7 @@ function UserDashboard({ user, login, logout }) {
     formData.append('portfolioPhoto', file);
 
     try {
-      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/professionals/portfolio', {
+      const response = await fetch(window.API_URL + '/api/professionals/portfolio', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
         body: formData
@@ -81,7 +81,7 @@ function UserDashboard({ user, login, logout }) {
   const handleDeletePhoto = async (photoId) => {
     if (!window.confirm('¿Estás seguro de eliminar esta foto de tu portafolio?')) return;
     try {
-      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals/portfolio/${photoId}`, {
+      const response = await fetch(`${window.API_URL}/api/professionals/portfolio/${photoId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
@@ -105,7 +105,7 @@ function UserDashboard({ user, login, logout }) {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/users/delete-account', {
+      const response = await fetch(window.API_URL + '/api/users/delete-account', {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
@@ -143,7 +143,7 @@ function UserDashboard({ user, login, logout }) {
     }
 
     try {
-      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/users/profile', {
+      const response = await fetch(window.API_URL + '/api/users/profile', {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
         body: formData

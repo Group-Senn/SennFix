@@ -215,7 +215,7 @@ function RegisterProfessionalPage() {
     }
 
     try {
-      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/register-professional', {
+      const response = await fetch(window.API_URL + '/api/register-professional', {
         method: 'POST',
         // No establecemos 'Content-Type', el navegador lo hará por nosotros con FormData
         body: submissionData,

@@ -1,5 +1,5 @@
 // Helper para la gestión de imágenes y URLs en producción (SENN FIX)
-const API_URL = import.meta.env.VITE_API_URL || 'https://senn-fix-backend-api.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL || window.API_URL + '';
 const DEFAULT_AVATAR = 'https://ui-avatars.com/api/?name=Senn+Fix&background=004744&color=fff&size=128';
 
 /**

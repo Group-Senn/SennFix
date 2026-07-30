@@ -19,7 +19,7 @@ function SearchResults() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/search?q=${encodeURIComponent(query)}`);
+        const response = await fetch(`${window.API_URL}/api/search?q=${encodeURIComponent(query)}`);
         if (!response.ok) {
           throw new Error('Error en la búsqueda');
         }

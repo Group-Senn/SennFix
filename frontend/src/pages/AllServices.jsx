@@ -8,7 +8,7 @@ function AllServices() {
   useEffect(() => {
     const fetchAllServices = async () => {
       try {
-        const response = await fetch('https://senn-fix-backend-api.onrender.com/api/services');
+        const response = await fetch(window.API_URL + '/api/services');
         const data = await response.json();
 
         // Agrupamos los servicios por categoría para mostrarlos ordenadamente

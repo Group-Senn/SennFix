@@ -17,7 +17,7 @@ export const NotificationProvider = ({ children }) => {
     if (!isAuthenticated) return;
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/notifications', {
+      const response = await fetch(window.API_URL + '/api/notifications', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -78,7 +78,7 @@ export const NotificationProvider = ({ children }) => {
   const markAsRead = async (notifId) => {
     const token = localStorage.getItem('token');
     try {
-      await fetch(`https://senn-fix-backend-api.onrender.com/api/notifications/${notifId}/read`, {
+      await fetch(`${window.API_URL}/api/notifications/${notifId}/read`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -95,7 +95,7 @@ export const NotificationProvider = ({ children }) => {
   const markAllAsRead = async () => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/notifications/read-all', {
+      const response = await fetch(window.API_URL + '/api/notifications/read-all', {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });

@@ -60,7 +60,7 @@ function Profile() {
     setChatError('');
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/chats/start', {
+      const response = await fetch(window.API_URL + '/api/chats/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ recipientId: professionalId })
@@ -81,7 +81,7 @@ function Profile() {
     try {
       setLoading(true);
       // Fetch professional details
-      const profResponse = await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals/${professionalId}`);
+      const profResponse = await fetch(`${window.API_URL}/api/professionals/${professionalId}`);
       if (!profResponse.ok) throw new Error('Profesional no encontrado');
       const profData = await profResponse.json();
 
@@ -99,13 +99,13 @@ function Profile() {
       setProfessional(profData);
 
       // Fetch reviews
-      const reviewsResponse = await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals/${professionalId}/reviews`);
+      const reviewsResponse = await fetch(`${window.API_URL}/api/professionals/${professionalId}/reviews`);
       if (!reviewsResponse.ok) throw new Error('No se pudieron cargar las reseñas.');
       const reviewsData = await reviewsResponse.json();
       setReviews(reviewsData);
 
       // Fetch portfolio photos
-      const portResponse = await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals/${professionalId}/portfolio`);
+      const portResponse = await fetch(`${window.API_URL}/api/professionals/${professionalId}/portfolio`);
       if (portResponse.ok) {
         const portData = await portResponse.json();
         setPortfolio(portData);

@@ -27,7 +27,7 @@ function IncidentReportButton({ reportedId, jobId, className = "" }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/complaints', {
+      const response = await fetch(window.API_URL + '/api/complaints', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

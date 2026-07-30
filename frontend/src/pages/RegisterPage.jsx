@@ -51,7 +51,7 @@ function RegisterPage() {
     if (pwdError) return setError(pwdError);
 
     try {
-      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/register', {
+      const response = await fetch(window.API_URL + '/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, phone_number: phoneNumber, birth_date: birthDate, identity_card: identityCard, user_type: userType }),

@@ -9,7 +9,7 @@ function NearbyProfessionals() {
     // Función asíncrona para obtener los datos desde nuestro backend
     const fetchProfessionals = async () => {
       try {
-        const response = await fetch('https://senn-fix-backend-api.onrender.com/api/professionals');
+        const response = await fetch(window.API_URL + '/api/professionals');
         const data = await response.json();
         setProfessionals(data);
       } catch (error) {

@@ -9,7 +9,7 @@ function MainServices() {
     const fetchMainServices = async () => {
       try {
         // Pedimos solo los servicios marcados como principales
-        const response = await fetch('https://senn-fix-backend-api.onrender.com/api/services?main=true');
+        const response = await fetch(window.API_URL + '/api/services?main=true');
         const data = await response.json();
         setServices(data);
       } catch (error) {

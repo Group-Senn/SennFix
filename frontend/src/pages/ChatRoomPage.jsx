@@ -67,7 +67,7 @@ function ChatRoomPage() {
     const fetchChatData = async () => {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/chats/${chatId}`, {
+        const response = await fetch(`${window.API_URL}/api/chats/${chatId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error('Error al cargar el chat.');
@@ -107,7 +107,7 @@ function ChatRoomPage() {
     setNewMessage('');
 
     try {
-      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/chats/${chatId}`, {
+      const response = await fetch(`${window.API_URL}/api/chats/${chatId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ content: contentToSend })
@@ -134,7 +134,7 @@ function ChatRoomPage() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals/${otherUser.id}/reviews`, {
+      const response = await fetch(`${window.API_URL}/api/professionals/${otherUser.id}/reviews`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -171,7 +171,7 @@ function ChatRoomPage() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/complaints`, {
+      const response = await fetch(`${window.API_URL}/api/complaints`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

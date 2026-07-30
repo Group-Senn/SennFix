@@ -25,7 +25,7 @@ function ExplorePage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/explore/posts');
+      const response = await fetch(window.API_URL + '/api/explore/posts');
       if (!response.ok) {
         throw new Error('No se pudieron cargar las publicaciones del Explorar.');
       }
@@ -50,7 +50,7 @@ function ExplorePage() {
     }
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/chats/start', {
+      const response = await fetch(window.API_URL + '/api/chats/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ recipientId: proId })
@@ -67,7 +67,7 @@ function ExplorePage() {
 
   const handleLikePost = async (postId) => {
     try {
-      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/explore/posts/${postId}/like`, {
+      const response = await fetch(`${window.API_URL}/api/explore/posts/${postId}/like`, {
         method: 'POST'
       });
       if (response.ok) {
@@ -105,7 +105,7 @@ function ExplorePage() {
     formData.append('description', uploadDescription);
 
     try {
-      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/explore/posts', {
+      const response = await fetch(window.API_URL + '/api/explore/posts', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData

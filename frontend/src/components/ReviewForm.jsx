@@ -41,7 +41,7 @@ function ReviewForm({ professionalId, onClose, onReviewSubmit }) {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals/${professionalId}/reviews`, {
+      const response = await fetch(`${window.API_URL}/api/professionals/${professionalId}/reviews`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

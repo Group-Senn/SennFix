@@ -2156,10 +2156,10 @@ app.post('/api/chats/start', authMiddleware, async (req, res) => {
 app.post('/api/chats/support', authMiddleware, async (req, res) => {
   const senderId = req.user.id;
   try {
-    // Buscar al primer usuario de tipo 'admin' en la base de datos
-    const { rows: [adminUser] } = await db.query("SELECT id FROM users WHERE user_type = 'admin' LIMIT 1");
+    // Buscar al usuario administrador con correo admin@gmail.com para soporte
+    const { rows: [adminUser] } = await db.query("SELECT id FROM users WHERE email = 'admin@gmail.com' LIMIT 1");
     if (!adminUser) {
-      return res.status(404).json({ message: 'No se encontró un administrador configurado para soporte.' });
+      return res.status(404).json({ message: 'No se encontró el administrador con correo admin@gmail.com para soporte.' });
     }
 
     const recipientId = adminUser.id;

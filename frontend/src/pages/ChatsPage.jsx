@@ -11,7 +11,7 @@ function ChatsPage() {
     const fetchConversations = async () => {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch('https://senn-fix-backend-api.onrender.com/api/chats', {
+        const response = await fetch(window.API_URL + '/api/chats', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error('No se pudieron cargar los chats.');
