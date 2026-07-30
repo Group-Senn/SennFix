@@ -11,29 +11,17 @@ export const useTheme = () => {
 };
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState(() => {
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      return savedTheme;
-    }
-    // Si no hay tema guardado, usamos la preferencia del sistema operativo
-    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-  });
+  const theme = 'light';
 
   useEffect(() => {
     const root = window.document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-      document.body.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-      document.body.classList.remove('dark');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+    root.classList.remove('dark');
+    document.body.classList.remove('dark');
+    localStorage.setItem('theme', 'light');
+  }, []);
 
   const toggleTheme = () => {
-    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+    // No-op: El modo oscuro está completamente desactivado
   };
 
   return (
