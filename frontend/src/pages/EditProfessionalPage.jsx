@@ -25,7 +25,7 @@ function EditProfessionalPage() {
 
     const fetchProfileData = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/api/professionals/${id}`);
+        const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals/${id}`);
         if (!response.ok) throw new Error('No se pudo cargar la información del perfil.');
         const data = await response.json();
         setFormData(data);
@@ -64,7 +64,7 @@ function EditProfessionalPage() {
         async (position) => {
           const { latitude, longitude } = position.coords;
           try {
-            await fetch(`http://localhost:3000/api/professionals/${professionalId}/location`, {
+            await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals/${professionalId}/location`, {
               method: 'PUT',
               headers: {
                 'Content-Type': 'application/json',
@@ -101,7 +101,7 @@ function EditProfessionalPage() {
     setError('');
     try {
       const authToken = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/api/professionals/${id}/online-status`, {
+      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals/${id}/online-status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` },
         body: JSON.stringify({ is_online: newIsOnline })
@@ -156,7 +156,7 @@ function EditProfessionalPage() {
 
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:3000/api/professionals/${id}`, {
+      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals/${id}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` },
         body: submissionData,

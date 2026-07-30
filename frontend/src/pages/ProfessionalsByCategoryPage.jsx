@@ -14,7 +14,7 @@ function ProfessionalsByCategoryPage() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch(`http://localhost:3000/api/professionals?specialty=${encodeURIComponent(categoryName)}`);
+        const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals?specialty=${encodeURIComponent(categoryName)}`);
         if (!response.ok) {
           throw new Error('No se pudieron cargar los profesionales para esta categoría.');
         }

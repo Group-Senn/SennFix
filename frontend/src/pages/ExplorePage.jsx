@@ -24,7 +24,7 @@ function ExplorePage() {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:3000/api/explore/posts');
+      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/explore/posts');
       if (!response.ok) {
         throw new Error('No se pudieron cargar las publicaciones del Explorar.');
       }
@@ -49,7 +49,7 @@ function ExplorePage() {
     }
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch('http://localhost:3000/api/chats/start', {
+      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/chats/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ recipientId: proId })
@@ -66,7 +66,7 @@ function ExplorePage() {
 
   const handleLikePost = async (postId) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/explore/posts/${postId}/like`, {
+      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/explore/posts/${postId}/like`, {
         method: 'POST'
       });
       if (response.ok) {
@@ -104,7 +104,7 @@ function ExplorePage() {
     formData.append('description', uploadDescription);
 
     try {
-      const response = await fetch('http://localhost:3000/api/explore/posts', {
+      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/explore/posts', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` },
         body: formData
@@ -200,7 +200,7 @@ function ExplorePage() {
               >
                 {/* Image */}
                 <img
-                  src={`http://localhost:3000/${post.image_url}`}
+                  src={`https://senn-fix-backend-api.onrender.com/${post.image_url}`}
                   alt={post.description}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
@@ -256,7 +256,7 @@ function ExplorePage() {
               {/* Image Side */}
               <div className="w-full md:w-1/2 bg-slate-900 flex items-center justify-center overflow-hidden relative min-h-[220px] md:min-h-0">
                 <img
-                  src={`http://localhost:3000/${selectedPost.image_url}`}
+                  src={`https://senn-fix-backend-api.onrender.com/${selectedPost.image_url}`}
                   alt="Post Detail"
                   className="w-full h-full object-cover"
                 />

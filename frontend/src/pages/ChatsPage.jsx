@@ -10,7 +10,7 @@ function ChatsPage() {
     const fetchConversations = async () => {
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch('http://localhost:3000/api/chats', {
+        const response = await fetch('https://senn-fix-backend-api.onrender.com/api/chats', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error('No se pudieron cargar los chats.');
@@ -50,7 +50,7 @@ function ChatsPage() {
                         ? 'https://ui-avatars.com/api/?name=User'
                         : chat.other_user_avatar.startsWith('http')
                         ? chat.other_user_avatar
-                        : `http://localhost:3000/${chat.other_user_avatar}`
+                        : `https://senn-fix-backend-api.onrender.com/${chat.other_user_avatar}`
                     } 
                     alt={chat.other_user_name} 
                     className="w-14 h-14 rounded-full object-cover" 

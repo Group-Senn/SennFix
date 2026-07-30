@@ -86,7 +86,7 @@ function AdminDashboardPage() {
         formData.append('adminAvatar', adminProfileFile);
       }
 
-      const response = await fetch('http://localhost:3000/api/admin/profile', {
+      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/admin/profile', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -132,7 +132,7 @@ function AdminDashboardPage() {
     setError(null);
     try {
       // 1. Estadísticas
-      const resStats = await fetch('http://localhost:3000/api/admin/stats', {
+      const resStats = await fetch('https://senn-fix-backend-api.onrender.com/api/admin/stats', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!resStats.ok) throw new Error('Error al cargar estadísticas.');
@@ -140,35 +140,35 @@ function AdminDashboardPage() {
       setStats(dataStats);
 
       // 2. Cola de Verificaciones
-      const resPendingPros = await fetch('http://localhost:3000/api/admin/pending-professionals', {
+      const resPendingPros = await fetch('https://senn-fix-backend-api.onrender.com/api/admin/pending-professionals', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!resPendingPros.ok) throw new Error('Error al cargar profesionales pendientes.');
       const dataPendingPros = await resPendingPros.json();
       setPendingProfessionals(dataPendingPros);
 
-      const resPendingClients = await fetch('http://localhost:3000/api/admin/pending-clients', {
+      const resPendingClients = await fetch('https://senn-fix-backend-api.onrender.com/api/admin/pending-clients', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!resPendingClients.ok) throw new Error('Error al cargar clientes menores pendientes.');
       const dataPendingClients = await resPendingClients.json();
       setPendingClients(dataPendingClients);
 
-      const resApprovedPros = await fetch('http://localhost:3000/api/admin/verified-professionals', {
+      const resApprovedPros = await fetch('https://senn-fix-backend-api.onrender.com/api/admin/verified-professionals', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!resApprovedPros.ok) throw new Error('Error al cargar profesionales aprobados.');
       const dataApprovedPros = await resApprovedPros.json();
       setApprovedProfessionals(dataApprovedPros);
 
-      const resSuspended = await fetch('http://localhost:3000/api/admin/suspended-users', {
+      const resSuspended = await fetch('https://senn-fix-backend-api.onrender.com/api/admin/suspended-users', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!resSuspended.ok) throw new Error('Error al cargar usuarios suspendidos.');
       const dataSuspended = await resSuspended.json();
       setSuspendedUsers(dataSuspended);
 
-      const resActiveClients = await fetch('http://localhost:3000/api/admin/active-clients', {
+      const resActiveClients = await fetch('https://senn-fix-backend-api.onrender.com/api/admin/active-clients', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!resActiveClients.ok) throw new Error('Error al cargar clientes activos.');
@@ -176,7 +176,7 @@ function AdminDashboardPage() {
       setActiveClients(dataActiveClients);
 
       // 3. Reclamos
-      const resComplaints = await fetch('http://localhost:3000/api/admin/complaints', {
+      const resComplaints = await fetch('https://senn-fix-backend-api.onrender.com/api/admin/complaints', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!resComplaints.ok) throw new Error('Error al cargar los reclamos de soporte.');
@@ -184,7 +184,7 @@ function AdminDashboardPage() {
       setComplaints(dataComplaints);
 
       // 4. Historial de Trabajos
-      const resJobs = await fetch('http://localhost:3000/api/admin/jobs', {
+      const resJobs = await fetch('https://senn-fix-backend-api.onrender.com/api/admin/jobs', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!resJobs.ok) throw new Error('Error al cargar trabajos.');
@@ -192,7 +192,7 @@ function AdminDashboardPage() {
       setJobs(dataJobs);
 
       // 5. Todos los profesionales para el chat
-      const resAllPros = await fetch('http://localhost:3000/api/admin/professionals', {
+      const resAllPros = await fetch('https://senn-fix-backend-api.onrender.com/api/admin/professionals', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!resAllPros.ok) throw new Error('Error al cargar listado de profesionales.');
@@ -200,7 +200,7 @@ function AdminDashboardPage() {
       setAllProfessionals(dataAllPros);
 
       // 6. Fotos de portafolio pendientes
-      const resPendingPort = await fetch('http://localhost:3000/api/admin/pending-portfolio', {
+      const resPendingPort = await fetch('https://senn-fix-backend-api.onrender.com/api/admin/pending-portfolio', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!resPendingPort.ok) throw new Error('Error al cargar portafolios pendientes.');
@@ -208,7 +208,7 @@ function AdminDashboardPage() {
       setPendingPortfolio(dataPendingPort);
 
       // 7. Alertas de seguridad
-      const resAlerts = await fetch('http://localhost:3000/api/admin/security-alerts', {
+      const resAlerts = await fetch('https://senn-fix-backend-api.onrender.com/api/admin/security-alerts', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (!resAlerts.ok) throw new Error('Error al cargar alertas de seguridad.');
@@ -225,7 +225,7 @@ function AdminDashboardPage() {
   // Cargar lista de chats del administrador
   const fetchAdminChats = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/chats', {
+      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/chats', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       if (response.ok) {
@@ -261,7 +261,7 @@ function AdminDashboardPage() {
 
     const fetchMessages = async () => {
       try {
-        const response = await fetch(`http://localhost:3000/api/chats/${activeConversationId}`, {
+        const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/chats/${activeConversationId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (response.ok) {
@@ -314,7 +314,7 @@ function AdminDashboardPage() {
 
   const handleVerifyProfessional = async (professionalId) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/admin/verify-professional/${professionalId}`, {
+      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/admin/verify-professional/${professionalId}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -327,7 +327,7 @@ function AdminDashboardPage() {
 
   const handleVerifyClient = async (clientId) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/admin/verify-client/${clientId}`, {
+      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/admin/verify-client/${clientId}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -343,7 +343,7 @@ function AdminDashboardPage() {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:3000/api/admin/suspend-user/${userId}`, {
+      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/admin/suspend-user/${userId}`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -356,7 +356,7 @@ function AdminDashboardPage() {
 
   const handleResolveComplaint = async (complaintId) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/admin/complaints/${complaintId}/resolve`, {
+      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/admin/complaints/${complaintId}/resolve`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -369,7 +369,7 @@ function AdminDashboardPage() {
 
   const handleResolveAlert = async (alertId) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/admin/security-alerts/${alertId}/resolve`, {
+      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/admin/security-alerts/${alertId}/resolve`, {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${token}` }
       });
@@ -383,7 +383,7 @@ function AdminDashboardPage() {
   // Iniciar conversación directa desde Reclamos o Buscador
   const handleStartChatWithUser = async (recipientId) => {
     try {
-      const response = await fetch('http://localhost:3000/api/chats/start', {
+      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/chats/start', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -410,7 +410,7 @@ function AdminDashboardPage() {
     setMessageInput('');
 
     try {
-      const response = await fetch(`http://localhost:3000/api/chats/${activeConversationId}`, {
+      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/chats/${activeConversationId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -420,7 +420,7 @@ function AdminDashboardPage() {
       });
       if (response.ok) {
         // Recargar mensajes inmediatamente
-        const resData = await fetch(`http://localhost:3000/api/chats/${activeConversationId}`, {
+        const resData = await fetch(`https://senn-fix-backend-api.onrender.com/api/chats/${activeConversationId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (resData.ok) {
@@ -441,7 +441,7 @@ function AdminDashboardPage() {
 
   const handleVerifyPortfolioPhoto = async (photoId, status) => {
     try {
-      const response = await fetch(`http://localhost:3000/api/admin/portfolio/${photoId}/verify`, {
+      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/admin/portfolio/${photoId}/verify`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -1045,7 +1045,7 @@ function AdminDashboardPage() {
                               {selectedVerificationItem.ci_front_url ? (
                                 <img
                                   className="w-full h-full object-cover"
-                                  src={selectedVerificationItem.ci_front_url.startsWith('http') ? selectedVerificationItem.ci_front_url : `http://localhost:3000/${selectedVerificationItem.ci_front_url}?token=${token}`}
+                                  src={selectedVerificationItem.ci_front_url.startsWith('http') ? selectedVerificationItem.ci_front_url : `https://senn-fix-backend-api.onrender.com/${selectedVerificationItem.ci_front_url}?token=${token}`}
                                   alt="Anverso CI"
                                 />
                               ) : (
@@ -1090,7 +1090,7 @@ function AdminDashboardPage() {
                               {selectedVerificationItem.ci_back_url ? (
                                 <img
                                   className="w-full h-full object-cover"
-                                  src={selectedVerificationItem.ci_back_url.startsWith('http') ? selectedVerificationItem.ci_back_url : `http://localhost:3000/${selectedVerificationItem.ci_back_url}?token=${token}`}
+                                  src={selectedVerificationItem.ci_back_url.startsWith('http') ? selectedVerificationItem.ci_back_url : `https://senn-fix-backend-api.onrender.com/${selectedVerificationItem.ci_back_url}?token=${token}`}
                                   alt="Reverso CI"
                                 />
                               ) : (
@@ -1133,7 +1133,7 @@ function AdminDashboardPage() {
 
                             {selectedVerificationItem.felcc_rejap_url ? (
                               <a
-                                href={selectedVerificationItem.felcc_rejap_url.startsWith('http') ? selectedVerificationItem.felcc_rejap_url : `http://localhost:3000/${selectedVerificationItem.felcc_rejap_url}?token=${token}`}
+                                href={selectedVerificationItem.felcc_rejap_url.startsWith('http') ? selectedVerificationItem.felcc_rejap_url : `https://senn-fix-backend-api.onrender.com/${selectedVerificationItem.felcc_rejap_url}?token=${token}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-full h-24 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-outline-variant/40 flex flex-col items-center justify-center gap-1 hover:bg-primary/5 transition-colors cursor-pointer"
@@ -1205,7 +1205,7 @@ function AdminDashboardPage() {
                         </div>
                         {selectedVerificationItem.defensoria_permit_url ? (
                           <a
-                            href={selectedVerificationItem.defensoria_permit_url.startsWith('http') ? selectedVerificationItem.defensoria_permit_url : `http://localhost:3000/${selectedVerificationItem.defensoria_permit_url}?token=${token}`}
+                            href={selectedVerificationItem.defensoria_permit_url.startsWith('http') ? selectedVerificationItem.defensoria_permit_url : `https://senn-fix-backend-api.onrender.com/${selectedVerificationItem.defensoria_permit_url}?token=${token}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full h-16 bg-amber-500/5 hover:bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded-lg border border-dashed border-amber-500/20 flex items-center justify-center gap-2 transition-colors cursor-pointer text-xs font-semibold"
@@ -1327,10 +1327,10 @@ function AdminDashboardPage() {
                         
                         <div className="relative aspect-video bg-slate-50 dark:bg-slate-950 overflow-hidden flex items-center justify-center">
                           <img 
-                            src={`http://localhost:3000/${photo.image_url}`} 
+                            src={`https://senn-fix-backend-api.onrender.com/${photo.image_url}`} 
                             alt="Trabajo" 
                             className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform" 
-                            onClick={() => window.open(`http://localhost:3000/${photo.image_url}`, '_blank')}
+                            onClick={() => window.open(`https://senn-fix-backend-api.onrender.com/${photo.image_url}`, '_blank')}
                           />
                         </div>
 
@@ -1777,7 +1777,7 @@ function AdminDashboardPage() {
                     <div className="flex items-center gap-4">
                       {user?.imageUrl && (
                         <img 
-                          src={user.imageUrl.startsWith('http') ? user.imageUrl : `http://localhost:3000/${user.imageUrl}`} 
+                          src={user.imageUrl.startsWith('http') ? user.imageUrl : `https://senn-fix-backend-api.onrender.com/${user.imageUrl}`} 
                           alt="Admin Avatar" 
                           className="size-16 rounded-full object-cover border-2 border-primary" 
                         />

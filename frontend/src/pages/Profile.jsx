@@ -59,7 +59,7 @@ function Profile() {
     setChatError('');
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch('http://localhost:3000/api/chats/start', {
+      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/chats/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ recipientId: professionalId })
@@ -80,7 +80,7 @@ function Profile() {
     try {
       setLoading(true);
       // Fetch professional details
-      const profResponse = await fetch(`http://localhost:3000/api/professionals/${professionalId}`);
+      const profResponse = await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals/${professionalId}`);
       if (!profResponse.ok) throw new Error('Profesional no encontrado');
       const profData = await profResponse.json();
 
@@ -98,13 +98,13 @@ function Profile() {
       setProfessional(profData);
 
       // Fetch reviews
-      const reviewsResponse = await fetch(`http://localhost:3000/api/professionals/${professionalId}/reviews`);
+      const reviewsResponse = await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals/${professionalId}/reviews`);
       if (!reviewsResponse.ok) throw new Error('No se pudieron cargar las reseñas.');
       const reviewsData = await reviewsResponse.json();
       setReviews(reviewsData);
 
       // Fetch portfolio photos
-      const portResponse = await fetch(`http://localhost:3000/api/professionals/${professionalId}/portfolio`);
+      const portResponse = await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals/${professionalId}/portfolio`);
       if (portResponse.ok) {
         const portData = await portResponse.json();
         setPortfolio(portData);
@@ -231,10 +231,10 @@ function Profile() {
               {portfolio.map(photo => (
                 <div 
                   key={photo.id} 
-                  onClick={() => setLightboxImage(`http://localhost:3000/${photo.image_url}`)}
+                  onClick={() => setLightboxImage(`https://senn-fix-backend-api.onrender.com/${photo.image_url}`)}
                   className="aspect-square rounded-2xl overflow-hidden border border-primary/10 cursor-pointer hover:opacity-95 hover:scale-[1.01] transition-all relative group bg-slate-50 dark:bg-slate-900 shadow-sm"
                 >
-                  <img src={`http://localhost:3000/${photo.image_url}`} alt="Trabajo" className="w-full h-full object-cover" />
+                  <img src={`https://senn-fix-backend-api.onrender.com/${photo.image_url}`} alt="Trabajo" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <span className="material-symbols-outlined text-white text-3xl">zoom_in</span>
                   </div>

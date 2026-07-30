@@ -31,7 +31,7 @@ function UserDashboard({ user, login, logout }) {
 
   const fetchPortfolio = async () => {
     try {
-      const response = await fetch('http://localhost:3000/api/professionals/my-portfolio', {
+      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/professionals/my-portfolio', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       if (response.ok) {
@@ -60,7 +60,7 @@ function UserDashboard({ user, login, logout }) {
     formData.append('portfolioPhoto', file);
 
     try {
-      const response = await fetch('http://localhost:3000/api/professionals/portfolio', {
+      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/professionals/portfolio', {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
         body: formData
@@ -80,7 +80,7 @@ function UserDashboard({ user, login, logout }) {
   const handleDeletePhoto = async (photoId) => {
     if (!window.confirm('¿Estás seguro de eliminar esta foto de tu portafolio?')) return;
     try {
-      const response = await fetch(`http://localhost:3000/api/professionals/portfolio/${photoId}`, {
+      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals/portfolio/${photoId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
@@ -104,7 +104,7 @@ function UserDashboard({ user, login, logout }) {
     if (!confirmDelete) return;
 
     try {
-      const response = await fetch('http://localhost:3000/api/users/delete-account', {
+      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/users/delete-account', {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
@@ -142,7 +142,7 @@ function UserDashboard({ user, login, logout }) {
     }
 
     try {
-      const response = await fetch('http://localhost:3000/api/users/profile', {
+      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/users/profile', {
         method: 'PUT',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` },
         body: formData
@@ -177,7 +177,7 @@ function UserDashboard({ user, login, logout }) {
           <div className="inline-block relative mb-4">
             {user.imageUrl ? (
               <img 
-                src={user.imageUrl.startsWith('http') ? user.imageUrl : `http://localhost:3000/${user.imageUrl}`} 
+                src={user.imageUrl.startsWith('http') ? user.imageUrl : `https://senn-fix-backend-api.onrender.com/${user.imageUrl}`} 
                 alt={user.name} 
                 className="w-24 h-24 rounded-full object-cover ring-4 ring-primary/20 shadow-xl" 
               />
@@ -209,7 +209,7 @@ function UserDashboard({ user, login, logout }) {
                     {editPreview ? (
                       <img src={editPreview} alt="Preview" className="w-full h-full object-cover" />
                     ) : user.imageUrl ? (
-                      <img src={user.imageUrl.startsWith('http') ? user.imageUrl : `http://localhost:3000/${user.imageUrl}`} alt="Avatar" className="w-full h-full object-cover" />
+                      <img src={user.imageUrl.startsWith('http') ? user.imageUrl : `https://senn-fix-backend-api.onrender.com/${user.imageUrl}`} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
                       <span className="material-symbols-outlined text-4xl text-primary/45">add_a_photo</span>
                     )}
@@ -341,7 +341,7 @@ function UserDashboard({ user, login, logout }) {
 
                         return (
                           <div key={photo.id} className="relative aspect-square rounded-xl overflow-hidden border border-primary/10 group bg-slate-50 dark:bg-slate-900">
-                            <img src={`http://localhost:3000/${photo.image_url}`} alt="Trabajo" className="w-full h-full object-cover" />
+                            <img src={`https://senn-fix-backend-api.onrender.com/${photo.image_url}`} alt="Trabajo" className="w-full h-full object-cover" />
                             
                             {/* Badge de Estado */}
                             <span className={`absolute top-2 left-2 px-1.5 py-0.5 text-[9px] font-bold rounded shadow-sm ${badgeClass}`}>

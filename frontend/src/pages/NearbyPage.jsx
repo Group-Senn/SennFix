@@ -69,7 +69,7 @@ function NearbyPage() {
         try {
           const token = localStorage.getItem('token');
           const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-          const response = await fetch(`http://localhost:3000/api/professionals/nearby?lat=${latitude}&lon=${longitude}`, { headers });
+          const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals/nearby?lat=${latitude}&lon=${longitude}`, { headers });
           if (!response.ok) throw new Error('No se pudieron cargar los profesionales.');
           const data = await response.json();
           setProfessionals(data);

@@ -30,7 +30,7 @@ function Home() {
       return;
     }
     try {
-      const response = await fetch('http://localhost:3000/api/chats/support', {
+      const response = await fetch('https://senn-fix-backend-api.onrender.com/api/chats/support', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -66,7 +66,7 @@ function Home() {
         try {
           const token = localStorage.getItem('token');
           const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-          const profResponse = await fetch(`http://localhost:3000/api/professionals/nearby?lat=${latitude}&lon=${longitude}`, { headers });
+          const profResponse = await fetch(`https://senn-fix-backend-api.onrender.com/api/professionals/nearby?lat=${latitude}&lon=${longitude}`, { headers });
           if (!profResponse.ok) throw new Error('No se pudieron cargar los profesionales.');
           const profData = await profResponse.json();
           setNearbyProfessionals(profData);

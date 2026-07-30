@@ -10,7 +10,7 @@ function SpecialtyCombobox({ onSpecialtyChange }) {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/services');
+        const response = await fetch('https://senn-fix-backend-api.onrender.com/api/services');
         const data = await response.json();
         setServices(data);
       } catch (error) {

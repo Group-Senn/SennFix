@@ -65,7 +65,7 @@ function JobCompletionPage() {
       if (!user) return;
       const token = localStorage.getItem('token');
       try {
-        const response = await fetch(`http://localhost:3000/api/jobs/${jobId}`, {
+        const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/jobs/${jobId}`, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         if (!response.ok) throw new Error('No se pudo cargar la información del trabajo.');
@@ -120,7 +120,7 @@ function JobCompletionPage() {
     }
 
     try {
-      const response = await fetch(`http://localhost:3000/api/jobs/${jobId}/client-confirm`, {
+      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/jobs/${jobId}/client-confirm`, {
         method: 'POST',
         headers: { 
           'Authorization': `Bearer ${token}` 
@@ -146,7 +146,7 @@ function JobCompletionPage() {
     setMediationLoading(true);
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`http://localhost:3000/api/jobs/${jobId}/request-mediation`, {
+      const response = await fetch(`https://senn-fix-backend-api.onrender.com/api/jobs/${jobId}/request-mediation`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${token}` }
       });
