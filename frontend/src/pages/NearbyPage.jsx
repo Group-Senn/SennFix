@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, LayersControl } from 'react-leaflet';
 import { Link, useNavigate } from 'react-router-dom';
 import L from 'leaflet';
+import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
 import 'leaflet/dist/leaflet.css';
 
 // Icono personalizado para el usuario (rojo)
@@ -14,14 +15,14 @@ const userIcon = new L.Icon({
   shadowSize: [41, 41]
 });
 
-// Generador de icono personalizado con la foto de perfil del profesional
 const createProIcon = (imageUrl) => {
+  const absoluteUrl = getAbsoluteImageUrl(imageUrl);
   return L.divIcon({
     html: `
       <div class="relative flex flex-col items-center">
         <!-- Contenedor circular de foto con borde verde de la marca -->
         <div class="w-10 h-10 rounded-full border-2 border-primary bg-white shadow-lg overflow-hidden flex items-center justify-center transition-all duration-200 transform hover:scale-110 active:scale-95">
-          <img src="${imageUrl}" class="w-full h-full object-cover" />
+          <img src="${absoluteUrl}" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=Pro&background=004744&color=fff&size=128'" class="w-full h-full object-cover" />
         </div>
         <!-- Puntero triangular -->
         <div class="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-primary -mt-[1px]"></div>
@@ -147,7 +148,7 @@ function NearbyPage() {
                 >
                   <Popup>
                     <div className="flex items-center gap-3 text-slate-800 dark:text-slate-200">
-                      <img src={prof.imageUrl} alt={prof.name} className="w-12 h-12 rounded-full object-cover" />
+                      <img src={getAbsoluteImageUrl(prof.imageUrl)} onError={handleImageError} alt={prof.name} className="w-12 h-12 rounded-full object-cover" />
                       <div>
                         <h3 className="font-bold text-base text-slate-800 dark:text-slate-200 m-0">{prof.name}</h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400 m-0">{prof.specialty}</p>

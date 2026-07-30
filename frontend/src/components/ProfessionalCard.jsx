@@ -1,13 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import StarRating from './StarRating';
+import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
 
 function ProfessionalCard({ professional }) {
   return (
     <Link to={`/profile/${professional.id}`} className="block flex-shrink-0 w-40 md:w-48">
       <div className="relative overflow-hidden rounded-2xl shadow-lg group">
         <img
-          src={professional.imageUrl}
+          src={getAbsoluteImageUrl(professional.imageUrl)}
+          onError={handleImageError}
           alt={professional.name}
           className="w-full h-56 object-cover transition-transform duration-300 group-hover:scale-105"
         />

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
 
 function ChatsPage() {
   const [conversations, setConversations] = useState([]);
@@ -45,19 +46,10 @@ function ChatsPage() {
               <Link to={`/chats/${chat.id}`} key={chat.id} className="flex items-center gap-4 p-3 rounded-xl hover:bg-primary/5 transition-colors">
                 <div className="relative">
                   <img 
-                    src={
-                      !chat.other_user_avatar
-                        ? 'https://ui-avatars.com/api/?name=User'
-                        : chat.other_user_avatar.startsWith('http')
-                        ? chat.other_user_avatar
-                        : `https://senn-fix-backend-api.onrender.com/${chat.other_user_avatar}`
-                    } 
+                    src={getAbsoluteImageUrl(chat.other_user_avatar)} 
                     alt={chat.other_user_name} 
                     className="w-14 h-14 rounded-full object-cover" 
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(chat.other_user_name || 'User')}`;
-                    }}
+                    onError={handleImageError}
                   />
                 </div>
                 <div className="flex-1 overflow-hidden">

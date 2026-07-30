@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
 
 function ExplorePage() {
   const { isAuthenticated, user } = useAuth();
@@ -200,7 +201,8 @@ function ExplorePage() {
               >
                 {/* Image */}
                 <img
-                  src={`https://senn-fix-backend-api.onrender.com/${post.image_url}`}
+                  src={getAbsoluteImageUrl(post.image_url)}
+                  onError={handleImageError}
                   alt={post.description}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 />
@@ -256,7 +258,8 @@ function ExplorePage() {
               {/* Image Side */}
               <div className="w-full md:w-1/2 bg-slate-900 flex items-center justify-center overflow-hidden relative min-h-[220px] md:min-h-0">
                 <img
-                  src={`https://senn-fix-backend-api.onrender.com/${selectedPost.image_url}`}
+                  src={getAbsoluteImageUrl(selectedPost.image_url)}
+                  onError={handleImageError}
                   alt="Post Detail"
                   className="w-full h-full object-cover"
                 />
@@ -275,7 +278,8 @@ function ExplorePage() {
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-3">
                       <img
-                        src={selectedPost.professional_image || 'https://ui-avatars.com/api/?name=Pro'}
+                        src={getAbsoluteImageUrl(selectedPost.professional_image)}
+                        onError={handleImageError}
                         alt={selectedPost.professional_name}
                         className="w-10 h-10 rounded-full object-cover border-2 border-primary/25"
                       />

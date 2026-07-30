@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
 
 // Componente para la vista del usuario autenticado
 function UserDashboard({ user, login, logout }) {
@@ -177,7 +178,8 @@ function UserDashboard({ user, login, logout }) {
           <div className="inline-block relative mb-4">
             {user.imageUrl ? (
               <img 
-                src={user.imageUrl.startsWith('http') ? user.imageUrl : `https://senn-fix-backend-api.onrender.com/${user.imageUrl}`} 
+                src={getAbsoluteImageUrl(user.imageUrl)} 
+                onError={handleImageError}
                 alt={user.name} 
                 className="w-24 h-24 rounded-full object-cover ring-4 ring-primary/20 shadow-xl" 
               />
@@ -209,7 +211,7 @@ function UserDashboard({ user, login, logout }) {
                     {editPreview ? (
                       <img src={editPreview} alt="Preview" className="w-full h-full object-cover" />
                     ) : user.imageUrl ? (
-                      <img src={user.imageUrl.startsWith('http') ? user.imageUrl : `https://senn-fix-backend-api.onrender.com/${user.imageUrl}`} alt="Avatar" className="w-full h-full object-cover" />
+                      <img src={getAbsoluteImageUrl(user.imageUrl)} onError={handleImageError} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
                       <span className="material-symbols-outlined text-4xl text-primary/45">add_a_photo</span>
                     )}
@@ -341,7 +343,7 @@ function UserDashboard({ user, login, logout }) {
 
                         return (
                           <div key={photo.id} className="relative aspect-square rounded-xl overflow-hidden border border-primary/10 group bg-slate-50 dark:bg-slate-900">
-                            <img src={`https://senn-fix-backend-api.onrender.com/${photo.image_url}`} alt="Trabajo" className="w-full h-full object-cover" />
+                            <img src={getAbsoluteImageUrl(photo.image_url)} onError={handleImageError} alt="Trabajo" className="w-full h-full object-cover" />
                             
                             {/* Badge de Estado */}
                             <span className={`absolute top-2 left-2 px-1.5 py-0.5 text-[9px] font-bold rounded shadow-sm ${badgeClass}`}>

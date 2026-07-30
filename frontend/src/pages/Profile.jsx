@@ -8,6 +8,7 @@ import StarRating from '../components/StarRating';
 import ReviewForm from '../components/ReviewForm';
 import ProfileSkeleton from '../components/ProfileSkeleton';
 import MinorAlert from '../components/MinorAlert';
+import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
 
 // Icono personalizado para evitar que se rompa la imagen del marcador en móvil
 const customIcon = new L.Icon({
@@ -231,10 +232,10 @@ function Profile() {
               {portfolio.map(photo => (
                 <div 
                   key={photo.id} 
-                  onClick={() => setLightboxImage(`https://senn-fix-backend-api.onrender.com/${photo.image_url}`)}
+                  onClick={() => setLightboxImage(getAbsoluteImageUrl(photo.image_url))}
                   className="aspect-square rounded-2xl overflow-hidden border border-primary/10 cursor-pointer hover:opacity-95 hover:scale-[1.01] transition-all relative group bg-slate-50 dark:bg-slate-900 shadow-sm"
                 >
-                  <img src={`https://senn-fix-backend-api.onrender.com/${photo.image_url}`} alt="Trabajo" className="w-full h-full object-cover" />
+                  <img src={getAbsoluteImageUrl(photo.image_url)} onError={handleImageError} alt="Trabajo" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <span className="material-symbols-outlined text-white text-3xl">zoom_in</span>
                   </div>
@@ -259,7 +260,7 @@ function Profile() {
               reviews.slice(0, 3).map(review => ( // Mostramos solo las 3 primeras por ahora
                 <div key={review.id} className="bg-white/40 dark:bg-slate-800/40 p-4 rounded-xl border border-primary/5 dark:border-slate-700">
                   <div className="flex items-center gap-3 mb-2">
-                    <img src={review.clientImageUrl} alt={review.clientName} className="w-10 h-10 rounded-full object-cover" />
+                    <img src={getAbsoluteImageUrl(review.clientImageUrl)} onError={handleImageError} alt={review.clientName} className="w-10 h-10 rounded-full object-cover" />
                     <div>
                       <p className="font-bold text-primary/90 dark:text-slate-200">{review.clientName}</p>
                       <StarRating rating={review.rating} />
@@ -343,6 +344,7 @@ function Profile() {
             </button>
             <img 
               src={lightboxImage} 
+              onError={handleImageError}
               alt="Trabajo Ampliado" 
               className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl" 
             />
