@@ -212,6 +212,16 @@ function ChatRoomPage() {
           <p className="text-xs text-primary/60 dark:text-slate-450">En línea</p>
         </div>
         
+        {otherUser && (
+          <button
+            onClick={() => setShowReportModal(true)}
+            className="flex items-center gap-1.5 px-3 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-650 dark:text-red-400 font-bold text-xs rounded-xl border border-red-500/20 transition-colors cursor-pointer mr-2 shrink-0"
+          >
+            <span className="material-symbols-outlined text-[16px] text-red-600">report</span>
+            Reportar Incidente
+          </button>
+        )}
+
         {/* Botón de tres puntos */}
         <button 
           onClick={() => setIsMenuOpen(!isMenuOpen)}

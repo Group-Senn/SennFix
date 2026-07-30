@@ -106,6 +106,27 @@ async function notifyAdmins(type, details) {
   console.log('--- FIN DE ALERTA ---');
 }
 
+// --- File Upload Security Validations ---
+const ALLOWED_IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
+const ALLOWED_IMAGE_MIMETYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+function isValidImage(file) {
+  if (!file) return false;
+  const ext = path.extname(file.originalname).toLowerCase();
+  const mime = file.mimetype;
+  return ALLOWED_IMAGE_EXTENSIONS.includes(ext) && ALLOWED_IMAGE_MIMETYPES.includes(mime);
+}
+
+const ALLOWED_PRIVATE_EXTENSIONS = ['.pdf', '.jpg', '.jpeg', '.png', '.webp'];
+const ALLOWED_PRIVATE_MIMETYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+
+function isValidPrivateFile(file) {
+  if (!file) return false;
+  const ext = path.extname(file.originalname).toLowerCase();
+  const mime = file.mimetype;
+  return ALLOWED_PRIVATE_EXTENSIONS.includes(ext) && ALLOWED_PRIVATE_MIMETYPES.includes(mime);
+}
+
 // Endpoint para servir archivos privados con verificación de token de administrador (CPE Art. 21)
 app.get('/private_uploads/:filename', adminMiddleware, (req, res) => {
   const { filename } = req.params;
@@ -496,7 +517,192 @@ app.post('/api/jobs/:id/request-mediation', authMiddleware, async (req, res) => 
   }
 });
 
-// Endpoint para completar un trabajo (para clientes)
+// Endpoint para que el profesional marque el trabajo como finalizado (Check-out Fase 1)
+// Permite subir fotos opcionales del "Antes" y "Después"
+app.post('/api/jobs/:id/worker-complete', authMiddleware, upload.fields([
+  { name: 'photoBefore', maxCount: 1 },
+  { name: 'photoAfter', maxCount: 1 }
+]), async (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
+
+  try {
+    // 1. Verificar que el trabajo existe y que el usuario es el profesional del trabajo
+    const { rows: [job] } = await db.query(
+      'SELECT * FROM jobs WHERE id = $1',
+      [id]
+    );
+
+    if (!job) {
+      return res.status(404).json({ message: 'Trabajo no encontrado.' });
+    }
+
+    if (job.professional_id !== userId) {
+      return res.status(403).json({ message: 'No tienes permiso para marcar este trabajo como finalizado.' });
+    }
+
+    // 2. Procesar las fotos de antes y después si existen
+    let photoBeforeUrl = job.photo_before;
+    let photoAfterUrl = job.photo_after;
+
+    if (req.files) {
+      if (req.files.photoBefore) {
+        const file = req.files.photoBefore[0];
+        if (!isValidImage(file)) {
+          return res.status(400).json({ message: 'El archivo de la foto del antes no es una imagen válida.' });
+        }
+        const filename = `before-${Date.now()}${path.extname(file.originalname)}`;
+        await fs.promises.writeFile(path.join(uploadsDir, filename), file.buffer);
+        photoBeforeUrl = `uploads/${filename}`;
+      }
+      if (req.files.photoAfter) {
+        const file = req.files.photoAfter[0];
+        if (!isValidImage(file)) {
+          return res.status(400).json({ message: 'El archivo de la foto del después no es una imagen válida.' });
+        }
+        const filename = `after-${Date.now()}${path.extname(file.originalname)}`;
+        await fs.promises.writeFile(path.join(uploadsDir, filename), file.buffer);
+        photoAfterUrl = `uploads/${filename}`;
+      }
+    }
+
+    // 3. Actualizar el estado del trabajo a 'waiting_confirmation'
+    await db.query(
+      "UPDATE jobs SET status = 'waiting_confirmation', photo_before = $1, photo_after = $2, updated_at = CURRENT_TIMESTAMP WHERE id = $3",
+      [photoBeforeUrl, photoAfterUrl, id]
+    );
+
+    res.json({
+      status: 'waiting_confirmation',
+      message: 'Trabajo marcado como finalizado por el profesional. Esperando confirmación del cliente.',
+      photo_before: photoBeforeUrl,
+      photo_after: photoAfterUrl
+    });
+  } catch (error) {
+    console.error('Error al marcar trabajo como finalizado por profesional:', error);
+    res.status(500).json({ message: 'Error en el servidor al procesar la finalización del trabajo.' });
+  }
+});
+
+// Endpoint para que el cliente confirme la finalización y deje su reseña (Check-out Fase 2 - Camino A)
+app.post('/api/jobs/:id/client-confirm', authMiddleware, upload.single('reviewPhoto'), async (req, res) => {
+  const { id } = req.params;
+  const { rating, comment, tags } = req.body;
+  const userId = req.user.id;
+
+  if (!rating || rating < 1 || rating > 5) {
+    return res.status(400).json({ message: 'La calificación es obligatoria y debe estar entre 1 y 5.' });
+  }
+
+  const client = await db.connect();
+  try {
+    // 1. Verificar que el trabajo existe y que el usuario es el cliente del trabajo
+    const { rows: [job] } = await client.query(
+      'SELECT * FROM jobs WHERE id = $1',
+      [id]
+    );
+
+    if (!job) {
+      return res.status(404).json({ message: 'Trabajo no encontrado.' });
+    }
+
+    if (job.client_id !== userId) {
+      return res.status(403).json({ message: 'No tienes permiso para confirmar este trabajo.' });
+    }
+
+    await client.query('BEGIN');
+
+    // 2. Procesar la foto de la reseña si se sube
+    let reviewPhotoUrl = null;
+    if (req.file) {
+      const file = req.file;
+      if (!isValidImage(file)) {
+        await client.query('ROLLBACK');
+        return res.status(400).json({ message: 'El archivo de la reseña no es una imagen válida.' });
+      }
+      const filename = `review-${Date.now()}${path.extname(file.originalname)}`;
+      await fs.promises.writeFile(path.join(uploadsDir, filename), file.buffer);
+      reviewPhotoUrl = `uploads/${filename}`;
+    }
+
+    // 3. Actualizar el estado del trabajo a 'completed'
+    await client.query(
+      "UPDATE jobs SET status = 'completed', updated_at = CURRENT_TIMESTAMP WHERE id = $1",
+      [id]
+    );
+
+    // 4. Crear la reseña del cliente al profesional
+    let parsedTags = null;
+    if (tags) {
+      try {
+        parsedTags = typeof tags === 'string' ? JSON.parse(tags) : tags;
+      } catch (e) {
+        // Si no es JSON válido, guardarlo como un arreglo simple dividiendo por comas si es cadena
+        parsedTags = typeof tags === 'string' ? tags.split(',').map(t => t.trim()) : [tags];
+      }
+    }
+
+    await client.query(
+      `INSERT INTO reviews (job_id, reviewer_id, reviewee_id, rating, comment, review_photo, tags, brought_peace)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [
+        id,
+        job.client_id,
+        job.professional_id,
+        parseInt(rating),
+        comment || '',
+        reviewPhotoUrl,
+        parsedTags ? JSON.stringify(parsedTags) : null,
+        true // brought_peace = true para el flujo de confirmación exitosa
+      ]
+    );
+
+    // 5. Recalcular valoración promedio del profesional
+    const { rows: [stats] } = await client.query(
+      'SELECT AVG(rating) as "avgRating", COUNT(*) as "reviewCount" FROM reviews WHERE reviewee_id = $1',
+      [job.professional_id]
+    );
+    const avg = parseFloat(stats.avgRating);
+
+    await client.query(
+      'UPDATE professionals SET rating = $1, reviews = $2 WHERE id = $3',
+      [avg, stats.reviewCount, job.professional_id]
+    );
+
+    // 6. Si la calificación promedio cae por debajo de 3 estrellas, suspender al profesional
+    let professionalSuspended = false;
+    if (avg < 3.0 && stats.reviewCount >= 5) {
+      const { rows: [userToSuspend] } = await client.query('SELECT name, email FROM users WHERE id = $1', [job.professional_id]);
+      await client.query("UPDATE users SET account_status = 'suspended' WHERE id = $1", [job.professional_id]);
+      professionalSuspended = true;
+
+      const alertDetails = `El profesional ${userToSuspend.name} (${userToSuspend.email}) ha sido suspendido automáticamente tras una nueva reseña que bajó su promedio general a ${avg.toFixed(2)} estrellas.`;
+      await client.query(
+        "INSERT INTO admin_alerts (alert_type, user_id, details) VALUES ('low_rating', $1, $2)",
+        [job.professional_id, alertDetails]
+      );
+      await notifyAdmins('security_filter', { user_id: job.professional_id, details: alertDetails });
+    }
+
+    await client.query('COMMIT');
+
+    res.json({
+      status: 'completed',
+      message: '¡Misión cumplida! Gracias por confiar en SENN FIX. Tu espacio está en orden y nosotros estamos en paz.',
+      brand_message: 'Trabajo terminado, problema solucionado. Estás en paz con SENN FIX.',
+      professional_suspended: professionalSuspended
+    });
+
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('Error al confirmar y completar trabajo:', error);
+    res.status(500).json({ message: 'Error en el servidor al completar el trabajo.' });
+  } finally {
+    client.release();
+  }
+});
+
+// Endpoint para completar un trabajo (para clientes - Check-out Fase 2 - Compatibilidad)
 app.post('/api/jobs/:id/complete', authMiddleware, async (req, res) => {
   const { id } = req.params;
   const { broughtPeace } = req.body;
@@ -518,7 +724,8 @@ app.post('/api/jobs/:id/complete', authMiddleware, async (req, res) => {
     }
 
     // 2. Determinar el nuevo estado
-    const newStatus = broughtPeace === 'yes' ? 'completed' : 'needs_mediation';
+    // Si broughtPeace === 'yes', pasa a 'completed'. Si es 'no', pasa a 'dispute' (Mediación)
+    const newStatus = broughtPeace === 'yes' ? 'completed' : 'dispute';
 
     // 3. Actualizar el trabajo en la base de datos
     await db.query(
@@ -530,13 +737,69 @@ app.post('/api/jobs/:id/complete', authMiddleware, async (req, res) => {
     if (newStatus === 'completed') {
       message = 'El trabajo ha sido marcado como completado con éxito. Gracias por usar SENN.';
     } else {
-      message = 'Lamentamos que el servicio no haya traído paz. Puedes iniciar un proceso de mediación para que nuestro equipo te ayude.';
+      message = 'Lamentamos que el servicio no haya traído satisfacción. Se ha abierto un proceso de mediación para que nuestro equipo te ayude.';
+      // Notificar a los administradores de la mediación / disputa
+      await notifyAdmins('dispute', {
+        jobId: id,
+        reporterName: req.user.name,
+        reason: 'El cliente rechazó el cierre del trabajo y marcó: No satisfecho'
+      });
     }
 
     res.json({ status: newStatus, message });
   } catch (error) {
     console.error('Error al completar el trabajo:', error);
     res.status(500).json({ message: 'Error en el servidor al completar el trabajo.' });
+  }
+});
+
+// Endpoint para registro continuo de ubicación GPS del profesional durante el trabajo (Evidencia Operativa)
+app.post('/api/jobs/:id/work-order-gps', authMiddleware, async (req, res) => {
+  const { id } = req.params;
+  const { latitude, longitude } = req.body;
+  const professionalId = req.user.id;
+
+  const jobId = parseInt(id, 10);
+  if (isNaN(jobId)) {
+    return res.status(400).json({ message: 'ID de trabajo inválido.' });
+  }
+
+  if (latitude === undefined || longitude === undefined || isNaN(parseFloat(latitude)) || isNaN(parseFloat(longitude))) {
+    return res.status(400).json({ message: 'Coordenadas GPS válidas (latitude y longitude) son obligatorias.' });
+  }
+
+  try {
+    // Consulta directa y ligera sin JOINs innecesarios para validar estado y propiedad
+    const { rows: [job] } = await db.query(
+      'SELECT professional_id, status FROM jobs WHERE id = $1',
+      [jobId]
+    );
+
+    if (!job) {
+      return res.status(404).json({ message: 'Orden de trabajo no encontrada.' });
+    }
+
+    // Seguridad: Validar que el emisor sea el profesional asignado
+    if (job.professional_id !== professionalId) {
+      return res.status(403).json({ message: 'Acceso denegado. No eres el profesional asignado a este trabajo.' });
+    }
+
+    // Regla de negocio: El tracking solo es válido para trabajos en estado 'in_progress'
+    if (job.status !== 'in_progress') {
+      return res.status(403).json({ message: 'Acceso denegado. El rastreo GPS solo está activo para trabajos en progreso.' });
+    }
+
+    // Inserción directa y ligera
+    await db.query(
+      'INSERT INTO work_order_gps (job_id, latitude, longitude) VALUES ($1, $2, $3)',
+      [jobId, parseFloat(latitude), parseFloat(longitude)]
+    );
+
+    // Respuesta rápida de baja latencia
+    res.json({ success: true });
+  } catch (error) {
+    console.error(`Error al registrar ubicación GPS para trabajo ${jobId}:`, error);
+    res.status(500).json({ message: 'Error interno en el servidor al registrar ubicación GPS.' });
   }
 });
 
@@ -1036,6 +1299,9 @@ app.put('/api/admin/profile', adminMiddleware, upload.single('adminAvatar'), asy
   try {
     let imageUrl = null;
     if (req.file) {
+      if (!isValidImage(req.file)) {
+        return res.status(400).json({ message: 'El archivo del avatar no es una imagen válida.' });
+      }
       const filename = `admin-${adminId}-${Date.now()}${path.extname(req.file.originalname)}`;
       await fs.promises.writeFile(path.join(uploadsDir, filename), req.file.buffer);
       imageUrl = `uploads/${filename}`;
@@ -1097,6 +1363,9 @@ app.put('/api/users/profile', authMiddleware, upload.single('avatar'), async (re
   try {
     let imageUrl = null;
     if (req.file) {
+      if (!isValidImage(req.file)) {
+        return res.status(400).json({ message: 'El archivo del avatar no es una imagen válida.' });
+      }
       const filename = `avatar-${userId}-${Date.now()}${path.extname(req.file.originalname)}`;
       await fs.promises.writeFile(path.join(uploadsDir, filename), req.file.buffer);
       imageUrl = `uploads/${filename}`;
@@ -1140,6 +1409,22 @@ app.put('/api/users/profile', authMiddleware, upload.single('avatar'), async (re
   }
 });
 
+// Endpoint para que un usuario elimine su propia cuenta (Derecho ARCO de revocación de datos - Art. 21 CPE)
+app.delete('/api/users/delete-account', authMiddleware, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    // Eliminamos el usuario. Al estar configuradas las claves foráneas con ON DELETE CASCADE,
+    // esto eliminará automáticamente las entradas en professionals, wallets, etc.
+    await db.query('DELETE FROM users WHERE id = $1', [userId]);
+
+    res.json({ message: 'Tu cuenta y todos tus datos personales asociados han sido eliminados de forma definitiva de SENN FIX.' });
+  } catch (error) {
+    console.error(`Error al eliminar la cuenta del usuario ${userId}:`, error);
+    res.status(500).json({ message: 'Error interno en el servidor al procesar la eliminación de la cuenta.' });
+  }
+});
+
 // --- Endpoints de Portafolio Profesional (Trabajos Realizados) ---
 
 // 1. Subir una foto al portafolio (Profesionales solamente)
@@ -1152,6 +1437,10 @@ app.post('/api/professionals/portfolio', authMiddleware, upload.single('portfoli
 
   if (!req.file) {
     return res.status(400).json({ message: 'Se requiere subir un archivo de imagen.' });
+  }
+
+  if (!isValidImage(req.file)) {
+    return res.status(400).json({ message: 'El archivo subido no es una imagen válida.' });
   }
 
   try {
@@ -1352,7 +1641,8 @@ app.post('/api/register-professional', upload.fields([
   { name: 'defensoriaPermit', maxCount: 1 },
   { name: 'ci_front', maxCount: 1 },
   { name: 'ci_back', maxCount: 1 },
-  { name: 'felcc_rejap', maxCount: 1 }
+  { name: 'felcc_rejap', maxCount: 1 },
+  { name: 'academic_certificate', maxCount: 1 }
 ]), async (req, res) => {
   const {
     name, email, password, specialty, bio, identity_card, phone_number, birth_date,
@@ -1395,6 +1685,40 @@ app.post('/api/register-professional', upload.fields([
         const { rows: [service] } = await client.query('SELECT is_high_risk FROM services WHERE name = $1', [specialty]);
         if (service && service.is_high_risk) {
           return res.status(403).json({ message: `Registro bloqueado. Según la Ley 548, los menores de edad no pueden realizar trabajos de alto riesgo como "${specialty}".` });
+        }
+      }
+    }
+
+    // --- VALIDACIÓN DE ARCHIVOS SUBIDOS (Seguridad y Mimetypes) ---
+    if (req.files) {
+      if (req.files.profileImage) {
+        if (!isValidImage(req.files.profileImage[0])) {
+          return res.status(400).json({ message: 'El archivo de la foto de perfil no es una imagen válida.' });
+        }
+      }
+      if (req.files.defensoriaPermit) {
+        if (!isValidPrivateFile(req.files.defensoriaPermit[0])) {
+          return res.status(400).json({ message: 'El archivo del permiso de la defensoría debe ser un documento PDF o una imagen válida.' });
+        }
+      }
+      if (req.files.ci_front) {
+        if (!isValidImage(req.files.ci_front[0])) {
+          return res.status(400).json({ message: 'El archivo del anverso del carnet no es una imagen válida.' });
+        }
+      }
+      if (req.files.ci_back) {
+        if (!isValidImage(req.files.ci_back[0])) {
+          return res.status(400).json({ message: 'El archivo del reverso del carnet no es una imagen válida.' });
+        }
+      }
+      if (req.files.felcc_rejap) {
+        if (!isValidPrivateFile(req.files.felcc_rejap[0])) {
+          return res.status(400).json({ message: 'El archivo del certificado FELCC/REJAP debe ser un documento PDF o una imagen válida.' });
+        }
+      }
+      if (req.files.academic_certificate) {
+        if (!isValidPrivateFile(req.files.academic_certificate[0])) {
+          return res.status(400).json({ message: 'El archivo del certificado académico debe ser un documento PDF o una imagen válida.' });
         }
       }
     }
@@ -1447,6 +1771,15 @@ app.post('/api/register-professional', upload.fields([
       felccRejapUrl = `private_uploads/${filename}`;
     }
 
+    // 5. Procesar Título Académico / Certificado (privado, opcional)
+    let academicCertificateUrl = null;
+    if (req.files && req.files.academic_certificate) {
+      const file = req.files.academic_certificate[0];
+      const filename = `academic-${Date.now()}${path.extname(file.originalname)}`;
+      await fs.promises.writeFile(path.join(privateUploadsDir, filename), file.buffer);
+      academicCertificateUrl = `private_uploads/${filename}`;
+    }
+
     // Crear registro en la tabla 'users'
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
@@ -1476,8 +1809,8 @@ app.post('/api/register-professional', upload.fields([
     // Crear registro en la tabla 'professionals'
     // Se inicializan is_online, current_latitude, current_longitude, action_radius
     await client.query(
-      `INSERT INTO professionals (id, name, specialty, bio, "imageUrl", services_offered, has_store, store_address, latitude, longitude, identity_card_num, ci_front_url, ci_back_url, is_minor, defensoria_permit_url, tutor_name, tutor_phone, felcc_rejap_url, is_online, current_latitude, current_longitude, action_radius) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22)`,
+      `INSERT INTO professionals (id, name, specialty, bio, "imageUrl", services_offered, has_store, store_address, latitude, longitude, identity_card_num, ci_front_url, ci_back_url, is_minor, defensoria_permit_url, tutor_name, tutor_phone, felcc_rejap_url, academic_certificate_url, is_online, current_latitude, current_longitude, action_radius) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)`,
       [
         newUserId,
         name,
@@ -1496,6 +1829,7 @@ app.post('/api/register-professional', upload.fields([
         tutor_name || null,
         tutor_phone || null,
         felccRejapUrl,
+        academicCertificateUrl,
         is_online,
         null,
         null,
@@ -1546,7 +1880,37 @@ app.put('/api/professionals/:id', authMiddleware, upload.fields([
   const hasBlacklistedContent = containsBlacklistedWords(contentToValidate);
 
   try {
+    // --- VALIDACIÓN DE ARCHIVOS SUBIDOS (Seguridad y Mimetypes) ---
+    if (req.files) {
+      if (req.files.profileImage) {
+        if (!isValidImage(req.files.profileImage[0])) {
+          return res.status(400).json({ message: 'El archivo de la foto de perfil no es una imagen válida.' });
+        }
+      }
+      if (req.files.felcc_rejap) {
+        if (!isValidPrivateFile(req.files.felcc_rejap[0])) {
+          return res.status(400).json({ message: 'El archivo del certificado FELCC/REJAP debe ser un documento PDF o una imagen válida.' });
+        }
+      }
+    }
+
     await client.query('BEGIN');
+
+    // --- Validación Ley 548: Menores y especialidades de alto riesgo ---
+    if (specialty) {
+      const { rows: [service] } = await client.query('SELECT is_high_risk FROM services WHERE name = $1', [specialty]);
+      if (service && service.is_high_risk) {
+        // Obtener la fecha de nacimiento de la tabla users
+        const { rows: [usr] } = await client.query('SELECT birth_date FROM users WHERE id = $1', [id]);
+        if (usr) {
+          const age = calculateAge(usr.birth_date);
+          if (age < 18) {
+            await client.query('ROLLBACK');
+            return res.status(403).json({ message: `Actualización bloqueada. Según la Ley 548, los menores de edad no pueden realizar trabajos de alto riesgo como "${specialty}".` });
+          }
+        }
+      }
+    }
 
     const { rows: [professional] } = await client.query('SELECT "imageUrl", felcc_rejap_url, is_online, current_latitude, current_longitude FROM professionals WHERE id = $1', [id]);
     if (!professional) {
@@ -2210,6 +2574,10 @@ app.post('/api/explore/posts', authMiddleware, upload.single('image'), async (re
     return res.status(400).json({ message: 'La imagen de la publicación es requerida.' });
   }
 
+  if (!isValidImage(req.file)) {
+    return res.status(400).json({ message: 'El archivo de la publicación no es una imagen válida.' });
+  }
+
   try {
     const filename = `explore-${professionalId}-${Date.now()}${path.extname(req.file.originalname)}`;
     await fs.promises.writeFile(path.join(uploadsDir, filename), req.file.buffer);
@@ -2245,6 +2613,16 @@ app.post('/api/explore/posts', authMiddleware, upload.single('image'), async (re
     console.error('Error al crear publicación:', error);
     res.status(500).json({ message: 'Error al subir la publicación.' });
   }
+});
+
+// Ruta raíz para evitar el Cannot GET /
+app.get('/', (req, res) => {
+  res.status(200).json({
+    app: "SENN FIX API",
+    status: "Online",
+    message: "Trabajo terminado, problema solucionado. Estás en paz con SENN FIX.",
+    version: "1.0.0"
+  });
 });
 
 app.listen(port, async () => {

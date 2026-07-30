@@ -23,6 +23,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import BottomNav from './components/BottomNav';
 import { useAuth } from './context/AuthContext';
 import NoLaborRelationshipPage from './pages/NoLaborRelationshipPage';
+import JobCompletionPage from './pages/JobCompletionPage';
 
 function App() {
   const location = useLocation();
@@ -93,6 +94,10 @@ function App() {
         <Route
           path="/profile/edit/:id"
           element={<ProtectedRoute><EditProfessionalPage /></ProtectedRoute>}
+        />
+        <Route
+          path="/jobs/:jobId/complete"
+          element={<ProtectedRoute><JobCompletionPage /></ProtectedRoute>}
         />
 
         {/* Rutas Públicas (por ahora) */}

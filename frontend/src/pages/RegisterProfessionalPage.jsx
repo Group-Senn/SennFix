@@ -165,6 +165,7 @@ function RegisterProfessionalPage() {
     const pwdError = validatePassword(formData.password);
     if (pwdError) return setError(pwdError);
 
+    if (!profileImageFile) return setError('La foto de perfil del rostro es obligatoria para tu verificación KYC.');
     if (!ciFrontFile) return setError('Debes adjuntar la imagen del anverso del carnet.');
     if (!ciBackFile) return setError('Debes adjuntar la imagen del reverso del carnet.');
 
@@ -487,6 +488,13 @@ function RegisterProfessionalPage() {
                 <h5 className="font-display font-semibold text-primary dark:text-slate-200">4. Deslinde de Responsabilidad Legal</h5>
                 <p>
                   Dado que <strong>SENN</strong> no tiene control directo sobre la calidad, el tiempo, la seguridad o la legalidad de los servicios provistos, la plataforma queda exonerada de toda responsabilidad por daños civiles, penales, laborales o comerciales que surjan de la interacción, negociación o contratación directa entre el cliente y el profesional.
+                </p>
+              </section>
+
+              <section className="space-y-2">
+                <h5 className="font-display font-semibold text-primary dark:text-slate-200">5. Protección de Datos y Privacidad (Art. 21 CPE)</h5>
+                <p>
+                  De acuerdo con el Artículo 21 de la Constitución Política del Estado de Bolivia, <strong>SENN FIX</strong> se compromete a resguardar de forma estrictamente privada y confidencial las imágenes de su Cédula de Identidad (anverso/reverso) y Certificados cargados en servidores seguros sin acceso público. Se aplicará de forma automática una marca de agua a sus documentos de identidad para evitar cualquier uso indebido de los mismos.
                 </p>
               </section>
             </div>

@@ -132,6 +132,13 @@ function RegisterPage() {
               </div>
             </div>
 
+            <div className="flex items-start gap-3 p-3 bg-background-light dark:bg-slate-700/50 rounded-lg">
+              <input type="checkbox" id="legal_accepted" required className="size-5 rounded text-primary focus:ring-primary mt-1 shrink-0" />
+              <label htmlFor="legal_accepted" className="text-sm text-primary/60 dark:text-slate-350">
+                He leído y acepto el <span className="font-bold text-primary dark:text-teal-400">Aviso de Privacidad (Art. 21 CPE)</span> sobre el resguardo de datos y los <span className="font-bold text-primary dark:text-teal-400">Términos de Deslinde Laboral</span> de SENN FIX. <span className="text-red-500">*</span>
+              </label>
+            </div>
+
             {error && (
               <div className="animate-feedback flex items-center gap-3 p-3 bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-400 rounded-lg text-sm font-semibold">
                 <span className="material-symbols-outlined shrink-0 text-xl">error</span>

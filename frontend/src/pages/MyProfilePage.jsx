@@ -97,6 +97,29 @@ function UserDashboard({ user, login, logout }) {
     navigate('/home'); // Redirige a la página de inicio después de cerrar sesión
   };
 
+  const handleDeleteAccount = async () => {
+    const confirmDelete = window.confirm(
+      '¿ESTÁS ABSOLUTAMENTE SEGURO? Esta acción es irreversible y eliminará todos tus datos personales, historial de trabajos y credenciales en cumplimiento con el Aviso de Privacidad (Art. 21 CPE).'
+    );
+    if (!confirmDelete) return;
+
+    try {
+      const response = await fetch('http://localhost:3000/api/users/delete-account', {
+        method: 'DELETE',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Error al eliminar cuenta.');
+
+      alert(data.message);
+      logout();
+      navigate('/home');
+    } catch (err) {
+      alert(`Error: ${err.message}`);
+    }
+  };
+
   const handleEditFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -352,13 +375,20 @@ function UserDashboard({ user, login, logout }) {
           </div>
         )}
 
-        <div className="mt-8 text-center">
+        <div className="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
           <button
             onClick={handleLogout}
-            className="inline-flex items-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 px-6 py-3 rounded-lg font-bold transition-colors"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-650 text-slate-800 dark:text-slate-200 px-6 py-3 rounded-lg font-bold transition-colors border-none cursor-pointer"
           >
             <span className="material-symbols-outlined">logout</span>
             Cerrar Sesión
+          </button>
+          <button
+            onClick={handleDeleteAccount}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-red-500/10 hover:bg-red-500/20 text-red-650 dark:text-red-400 px-6 py-3 rounded-lg font-bold transition-colors border-none cursor-pointer"
+          >
+            <span className="material-symbols-outlined">delete_forever</span>
+            Eliminar Cuenta
           </button>
         </div>
       </main>

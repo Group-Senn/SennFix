@@ -13,6 +13,10 @@ function normalizeText(text) {
     .replace(/[\u0300-\u036f]/g, ""); // Elimina los diacríticos
 }
 
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 /**
  * Revisa si un texto contiene alguna de las palabras o frases de la lista negra.
  * @param {string} text El texto a validar.
@@ -22,7 +26,8 @@ export function containsBlacklistedWords(text) {
   const normalizedText = normalizeText(text);
 
   for (const term of blacklistedTerms) {
-    const regex = new RegExp(`\\b${normalizeText(term)}\\b`, 'i');
+    const escapedTerm = escapeRegExp(normalizeText(term));
+    const regex = new RegExp(`\\b${escapedTerm}\\b`, 'i');
     if (regex.test(normalizedText)) {
       console.warn(`Término prohibido detectado: "${term}" en el texto.`);
       return true;

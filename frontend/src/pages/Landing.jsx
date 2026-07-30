@@ -45,10 +45,10 @@ function Landing() {
           </LandingButton>
         </div>
 
-        {/* 2. Footer "By SENN INDUSTRIES" */}
+        {/* 2. Footer "By Group Senn" */}
         <div className="flex justify-center items-center gap-2 text-primary/40 pt-8">
           <span className="h-px w-8 bg-primary/20"></span>
-          <span className="text-xs font-semibold uppercase tracking-widest">By SENN industries</span>
+          <span className="text-xs font-semibold uppercase tracking-widest">By Group Senn</span>
           <span className="h-px w-8 bg-primary/20"></span>
         </div>
       </div>

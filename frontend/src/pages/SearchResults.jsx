@@ -56,7 +56,7 @@ function SearchResults() {
         {!loading && !error && (
           <div className="my-6">
             <a
-              href="https://senn-industries.com/ads"
+              href="https://group-senn.com/ads"
               target="_blank"
               rel="noopener noreferrer"
               className="block relative overflow-hidden rounded-2xl bg-gradient-to-r from-teal-500 to-primary p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5"
@@ -67,7 +67,7 @@ function SearchResults() {
                 <div>
                   <span className="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Patrocinado</span>
                   <h4 className="text-xl font-bold font-display mt-2">¿Necesitas herramientas premium?</h4>
-                  <p className="text-xs text-white/90 mt-1 max-w-md">Visita SENN Industries y descubre el catálogo más completo de herramientas profesionales con 15% de descuento.</p>
+                  <p className="text-xs text-white/90 mt-1 max-w-md">Visita Group Senn y descubre el catálogo más completo de herramientas profesionales con 15% de descuento.</p>
                 </div>
                 <span className="bg-white text-primary hover:bg-white/95 text-xs font-bold px-4 py-2.5 rounded-xl text-center transition-all active:scale-95 shrink-0">
                   Ver Catálogo

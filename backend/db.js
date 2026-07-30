@@ -12,6 +12,13 @@ const pool = new Pool({
   }
 });
 
+// Forzamos el search_path a 'public' en cada nueva conexión del pool
+pool.on('connect', (client) => {
+  client.query('SET search_path TO public').catch((err) => {
+    console.error('Error setting search_path on new client:', err);
+  });
+});
+
 // Exportamos un objeto con dos métodos:
 // 1. query: para ejecutar consultas simples.
 // 2. connect: para obtener un cliente del pool, necesario para transacciones.
