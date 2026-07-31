@@ -71,8 +71,8 @@ function SearchResults() {
               
               <ins className="adsbygoogle"
                    style={{ display: 'block', width: '100%', minHeight: '90px' }}
-                   data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
-                   data-ad-slot="YYYYYYYYYY"
+                   data-ad-client="ca-pub-9528606011603373"
+                   data-ad-slot="6537050434"
                    data-ad-format="auto"
                    data-full-width-responsive="true"></ins>
               

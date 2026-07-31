@@ -17,8 +17,8 @@ function AdBanner() {
         {/* Google AdSense Responsive Slot */}
         <ins className="adsbygoogle"
              style={{ display: 'block', width: '100%', minHeight: '90px' }}
-             data-ad-client="ca-pub-XXXXXXXXXXXXXXXX" // Reemplazar con ID de cliente real en producción
-             data-ad-slot="XXXXXXXXXX"               // Reemplazar con ID de slot real
+             data-ad-client="ca-pub-9528606011603373"
+             data-ad-slot="6537050434"
              data-ad-format="auto"
              data-full-width-responsive="true"></ins>
         
