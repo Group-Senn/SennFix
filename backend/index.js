@@ -167,7 +167,7 @@ app.get('/api/professionals', async (req, res) => {
           p.id, u.name, p.specialty, p.rating, p.reviews, p.is_verified as verified, 
           p.has_gold_seal, p.bio, u."imageUrl", p.services_offered, p.has_store, 
           p.store_address, p.latitude, p.longitude, p.action_radius, p.is_online, 
-          p.current_latitude, p.current_longitude, p.is_minor, u.phone_number 
+          p.current_latitude, p.current_longitude, p.is_minor, u.phone_number, p.hashtags 
         FROM professionals p
         JOIN users u ON p.id = u.id
         WHERE u.account_status = 'active'
@@ -196,6 +196,17 @@ function calculateAge(birthDateString) {
     age--;
   }
   return age;
+}
+
+// Helper function para normalizar hashtags
+function normalizeHashtags(str) {
+  if (!str) return '';
+  return str
+    .split(/[\s,]+/)
+    .map(tag => tag.trim())
+    .filter(tag => tag.length > 0)
+    .map(tag => tag.startsWith('#') ? tag : '#' + tag)
+    .join(' ');
 }
 
 // Endpoint para obtener profesionales cercanos (cerca de mí) con Privacidad y Fuzzing
@@ -303,7 +314,7 @@ app.get('/api/professionals/:id', async (req, res, next) => {
         p.has_gold_seal, p.bio, u."imageUrl", p.services_offered, p.has_store, 
         p.store_address, p.latitude, p.longitude, p.action_radius, p.is_online, 
         p.current_latitude, p.current_longitude, p.is_minor, u.phone_number, u.email, u.birth_date,
-        u.account_status
+        u.account_status, p.hashtags
       FROM professionals p
       JOIN users u ON p.id = u.id
       WHERE p.id = $1
@@ -442,7 +453,11 @@ app.get('/api/search', async (req, res) => {
     const { rows: professionals } = await db.query(`
         SELECT p.*, u.phone_number FROM professionals p
         JOIN users u ON p.id = u.id
-        WHERE p.name ILIKE $1 OR p.specialty ILIKE $1
+        WHERE p.name ILIKE $1 
+           OR p.specialty ILIKE $1 
+           OR p.bio ILIKE $1 
+           OR p.services_offered ILIKE $1 
+           OR p.hashtags ILIKE $1
         ORDER BY p.has_gold_seal DESC, p.rating DESC
       `,
       [searchTerm]
@@ -1647,7 +1662,7 @@ app.post('/api/register-professional', upload.fields([
   const {
     name, email, password, specialty, bio, identity_card, phone_number, birth_date,
     services_offered, has_store, store_address, latitude, longitude,
-    legal_accepted, tutor_name, tutor_phone, action_radius
+    legal_accepted, tutor_name, tutor_phone, action_radius, hashtags
   } = req.body;
 
   // --- Validación de Contenido ---
@@ -1808,9 +1823,10 @@ app.post('/api/register-professional', upload.fields([
 
     // Crear registro en la tabla 'professionals'
     // Se inicializan is_online, current_latitude, current_longitude, action_radius
+    const normalizedHashtags = normalizeHashtags(hashtags);
     await client.query(
-      `INSERT INTO professionals (id, name, specialty, bio, "imageUrl", services_offered, has_store, store_address, latitude, longitude, identity_card_num, ci_front_url, ci_back_url, is_minor, defensoria_permit_url, tutor_name, tutor_phone, felcc_rejap_url, academic_certificate_url, is_online, current_latitude, current_longitude, action_radius) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)`,
+      `INSERT INTO professionals (id, name, specialty, bio, "imageUrl", services_offered, has_store, store_address, latitude, longitude, identity_card_num, ci_front_url, ci_back_url, is_minor, defensoria_permit_url, tutor_name, tutor_phone, felcc_rejap_url, academic_certificate_url, is_online, current_latitude, current_longitude, action_radius, hashtags) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24)`,
       [
         newUserId,
         name,
@@ -1833,7 +1849,8 @@ app.post('/api/register-professional', upload.fields([
         is_online,
         null,
         null,
-        parseInt(action_radius) || 10
+        parseInt(action_radius) || 10,
+        normalizedHashtags
       ]
     );
 
@@ -1872,7 +1889,7 @@ app.put('/api/professionals/:id', authMiddleware, upload.fields([
     return res.status(403).json({ message: 'No tienes permiso para editar este perfil.' });
   }
 
-  const { name, specialty, bio, phone_number, services_offered, has_store, store_address, latitude, longitude, felcc_rejap_url: existingFelccRejapUrl, action_radius } = req.body;
+  const { name, specialty, bio, phone_number, services_offered, has_store, store_address, latitude, longitude, felcc_rejap_url: existingFelccRejapUrl, action_radius, hashtags } = req.body;
 
   const client = await db.connect();
   // --- Validación de Contenido ---
@@ -1962,12 +1979,13 @@ app.put('/api/professionals/:id', authMiddleware, upload.fields([
     }
 
     // 1. Actualizar la tabla 'professionals'
+    const normalizedHashtags = normalizeHashtags(hashtags);
     await client.query(
       `UPDATE professionals SET 
         name = $1, specialty = $2, bio = $3, services_offered = $4, 
         has_store = $5, store_address = $6, latitude = $7, longitude = $8, "imageUrl" = $9,
-        felcc_rejap_url = $10, action_radius = $11 WHERE id = $12`,
-      [name, specialty, bio, services_offered, has_store === 'true', store_address, latitude, longitude, newImageUrl, newFelccRejapUrl, parseInt(action_radius) || 10, id]
+        felcc_rejap_url = $10, action_radius = $11, hashtags = $12 WHERE id = $13`,
+      [name, specialty, bio, services_offered, has_store === 'true', store_address, latitude, longitude, newImageUrl, newFelccRejapUrl, parseInt(action_radius) || 10, normalizedHashtags, id]
     );
 
     // 2. Actualizar la tabla 'users' para mantener la consistencia
@@ -2316,6 +2334,27 @@ async function initDatabase() {
         ALTER TABLE professionals 
         ADD COLUMN IF NOT EXISTS sponsorship_level INTEGER DEFAULT 0
       `);
+    }
+
+    // 3b. Verificar si existe la columna hashtags en professionals
+    const { rows: hashCols } = await db.query(`
+      SELECT column_name 
+      FROM information_schema.columns 
+      WHERE table_name = 'professionals' AND column_name = 'hashtags'
+    `);
+
+    if (hashCols.length === 0) {
+      console.log('Migración: Agregando columna hashtags a professionals...');
+      await db.query(`
+        ALTER TABLE professionals 
+        ADD COLUMN IF NOT EXISTS hashtags TEXT
+      `);
+      
+      try {
+        await db.query(`CREATE INDEX IF NOT EXISTS idx_professionals_hashtags ON professionals(hashtags)`);
+      } catch (indexErr) {
+        console.warn('Advertencia al crear índice idx_professionals_hashtags:', indexErr.message);
+      }
     }
 
     // 4. Crear la tabla de publicaciones de profesionales

@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { getAbsoluteImageUrl, handleImageError, handleGalleryError } from '../utils/imageHelper';
 
 // Configuración de iconos personalizados para Leaflet en Panel Admin
 const greenIcon = new L.Icon({
@@ -988,7 +989,8 @@ function AdminDashboardPage() {
                     <div className="glass-panel p-6 rounded-2xl flex flex-col md:flex-row gap-6 items-start md:items-center relative overflow-hidden shadow-sm dark:bg-slate-900 dark:border-slate-800 animate-feedback">
                       <img
                         className="w-20 h-20 rounded-full object-cover border-2 border-white dark:border-slate-700 shadow-sm flex-shrink-0"
-                        src={selectedVerificationItem.imageUrl || 'https://ui-avatars.com/api/?name=User'}
+                        src={getAbsoluteImageUrl(selectedVerificationItem.imageUrl)}
+                        onError={handleImageError}
                         alt={selectedVerificationItem.name}
                       />
                       <div className="flex-1">
@@ -1045,7 +1047,8 @@ function AdminDashboardPage() {
                               {selectedVerificationItem.ci_front_url ? (
                                 <img
                                   className="w-full h-full object-cover"
-                                  src={selectedVerificationItem.ci_front_url.startsWith('http') ? selectedVerificationItem.ci_front_url : `${window.API_URL}/${selectedVerificationItem.ci_front_url}?token=${token}`}
+                                  src={`${getAbsoluteImageUrl(selectedVerificationItem.ci_front_url)}?token=${token}`}
+                                  onError={handleGalleryError}
                                   alt="Anverso CI"
                                 />
                               ) : (
@@ -1090,7 +1093,8 @@ function AdminDashboardPage() {
                               {selectedVerificationItem.ci_back_url ? (
                                 <img
                                   className="w-full h-full object-cover"
-                                  src={selectedVerificationItem.ci_back_url.startsWith('http') ? selectedVerificationItem.ci_back_url : `${window.API_URL}/${selectedVerificationItem.ci_back_url}?token=${token}`}
+                                  src={`${getAbsoluteImageUrl(selectedVerificationItem.ci_back_url)}?token=${token}`}
+                                  onError={handleGalleryError}
                                   alt="Reverso CI"
                                 />
                               ) : (
@@ -1327,10 +1331,11 @@ function AdminDashboardPage() {
                         
                         <div className="relative aspect-video bg-slate-50 dark:bg-slate-950 overflow-hidden flex items-center justify-center">
                           <img 
-                            src={`${window.API_URL}/${photo.image_url}`} 
+                            src={getAbsoluteImageUrl(photo.image_url)} 
+                            onError={handleGalleryError}
                             alt="Trabajo" 
                             className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform" 
-                            onClick={() => window.open(`${window.API_URL}/${photo.image_url}`, '_blank')}
+                            onClick={() => window.open(getAbsoluteImageUrl(photo.image_url), '_blank')}
                           />
                         </div>
 
@@ -1546,7 +1551,7 @@ function AdminDashboardPage() {
                             }}
                             className="flex items-center gap-3 p-3 bg-white dark:bg-slate-900 border border-primary/5 dark:border-slate-800 rounded-xl cursor-pointer hover:bg-primary/5 transition-colors"
                           >
-                            <img src={pro.imageUrl || 'https://ui-avatars.com/api/?name=User'} alt={pro.name} className="w-9 h-9 rounded-full object-cover" />
+                            <img src={getAbsoluteImageUrl(pro.imageUrl)} onError={handleImageError} alt={pro.name} className="w-9 h-9 rounded-full object-cover" />
                             <div>
                               <p className="text-xs font-bold text-primary dark:text-slate-100">{pro.name}</p>
                               <p className="text-[10px] text-primary/60 dark:text-slate-400">{pro.specialty}</p>
@@ -1575,13 +1580,10 @@ function AdminDashboardPage() {
                               }`}
                             >
                               <img 
-                                src={chatItem.other_user_avatar || 'https://ui-avatars.com/api/?name=User'} 
+                                src={getAbsoluteImageUrl(chatItem.other_user_avatar)} 
                                 alt={chatItem.other_user_name} 
                                 className="w-10 h-10 rounded-full object-cover shrink-0" 
-                                onError={(e) => {
-                                  e.target.onerror = null;
-                                  e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(chatItem.other_user_name || 'User')}`;
-                                }}
+                                onError={handleImageError}
                               />
                               <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-baseline mb-0.5">
@@ -1610,7 +1612,8 @@ function AdminDashboardPage() {
                       <div className="flex items-center gap-3">
                         <img
                           className="w-10 h-10 rounded-full object-cover border border-primary/10"
-                          src={activeConversationData.otherUser?.imageUrl || 'https://ui-avatars.com/api/?name=User'}
+                          src={getAbsoluteImageUrl(activeConversationData.otherUser?.imageUrl)}
+                          onError={handleImageError}
                           alt={activeConversationData.otherUser?.name}
                         />
                         <div>
@@ -1777,7 +1780,8 @@ function AdminDashboardPage() {
                     <div className="flex items-center gap-4">
                       {user?.imageUrl && (
                         <img 
-                          src={user.imageUrl.startsWith('http') ? user.imageUrl : `${window.API_URL}/${user.imageUrl}`} 
+                          src={getAbsoluteImageUrl(user.imageUrl)} 
+                          onError={handleImageError}
                           alt="Admin Avatar" 
                           className="size-16 rounded-full object-cover border-2 border-primary" 
                         />

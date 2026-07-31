@@ -8,7 +8,7 @@ import StarRating from '../components/StarRating';
 import ReviewForm from '../components/ReviewForm';
 import ProfileSkeleton from '../components/ProfileSkeleton';
 import MinorAlert from '../components/MinorAlert';
-import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
+import { getAbsoluteImageUrl, handleImageError, handleGalleryError } from '../utils/imageHelper';
 
 // Icono personalizado para evitar que se rompa la imagen del marcador en móvil
 const customIcon = new L.Icon({
@@ -202,8 +202,25 @@ function Profile() {
             </div>
             <div className="flex flex-col items-center md:items-start text-center md:text-left flex-1">
               <h1 className="text-primary dark:text-slate-100 text-2xl lg:text-3xl font-bold leading-tight tracking-tight">{professional.name}</h1>
+              
+              {professional.specialty && (
+                <p className="text-primary/95 dark:text-teal-400 font-bold text-base mt-1">
+                  {professional.specialty}
+                </p>
+              )}
+
+              {professional.hashtags && (
+                <div className="flex flex-wrap gap-1.5 mt-2 justify-center md:justify-start">
+                  {professional.hashtags.split(' ').map((tag, idx) => (
+                    <span key={idx} className="bg-primary/5 dark:bg-teal-500/10 text-primary/80 dark:text-teal-400 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-primary/10 dark:border-teal-500/20 shadow-sm transition-transform hover:scale-105">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
               {isVerified && (
-                <div className="flex items-center gap-1 mt-2 bg-primary/10 dark:bg-teal-500/20 px-3 py-1 rounded-full">
+                <div className="flex items-center gap-1 mt-2.5 bg-primary/10 dark:bg-teal-500/20 px-3 py-1 rounded-full">
                   <span className="material-symbols-outlined text-primary dark:text-teal-400 text-sm">verified</span>
                   <p className="text-primary dark:text-teal-400 text-xs font-semibold uppercase tracking-wider">Especialista Verificado</p>
                 </div>
@@ -235,7 +252,7 @@ function Profile() {
                   onClick={() => setLightboxImage(getAbsoluteImageUrl(photo.image_url))}
                   className="aspect-square rounded-2xl overflow-hidden border border-primary/10 cursor-pointer hover:opacity-95 hover:scale-[1.01] transition-all relative group bg-slate-50 dark:bg-slate-900 shadow-sm"
                 >
-                  <img src={getAbsoluteImageUrl(photo.image_url)} onError={handleImageError} alt="Trabajo" className="w-full h-full object-cover" />
+                  <img src={getAbsoluteImageUrl(photo.image_url)} onError={handleGalleryError} alt="Trabajo" className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <span className="material-symbols-outlined text-white text-3xl">zoom_in</span>
                   </div>
@@ -344,7 +361,7 @@ function Profile() {
             </button>
             <img 
               src={lightboxImage} 
-              onError={handleImageError}
+              onError={handleGalleryError}
               alt="Trabajo Ampliado" 
               className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl" 
             />

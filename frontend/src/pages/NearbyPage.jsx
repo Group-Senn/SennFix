@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, LayersControl } from 'react-leaflet';
 import { Link, useNavigate } from 'react-router-dom';
 import L from 'leaflet';
-import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
+import { getAbsoluteImageUrl, handleImageError, DEFAULT_AVATAR } from '../utils/imageHelper';
 import 'leaflet/dist/leaflet.css';
 
 // Icono personalizado para el usuario (rojo)
@@ -22,7 +22,7 @@ const createProIcon = (imageUrl) => {
       <div class="relative flex flex-col items-center">
         <!-- Contenedor circular de foto con borde verde de la marca -->
         <div class="w-10 h-10 rounded-full border-2 border-primary bg-white shadow-lg overflow-hidden flex items-center justify-center transition-all duration-200 transform hover:scale-110 active:scale-95">
-          <img src="${absoluteUrl}" onerror="this.onerror=null;this.src='https://ui-avatars.com/api/?name=Pro&background=004744&color=fff&size=128'" class="w-full h-full object-cover" />
+          <img src="${absoluteUrl}" onerror="this.onerror=null;this.src='${DEFAULT_AVATAR}'" class="w-full h-full object-cover" />
         </div>
         <!-- Puntero triangular -->
         <div class="w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[8px] border-t-primary -mt-[1px]"></div>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
+import { getAbsoluteImageUrl, handleImageError, handleGalleryError } from '../utils/imageHelper';
 
 // Componente para la vista del usuario autenticado
 function UserDashboard({ user, login, logout }) {
@@ -343,7 +343,7 @@ function UserDashboard({ user, login, logout }) {
 
                         return (
                           <div key={photo.id} className="relative aspect-square rounded-xl overflow-hidden border border-primary/10 group bg-slate-50 dark:bg-slate-900">
-                            <img src={getAbsoluteImageUrl(photo.image_url)} onError={handleImageError} alt="Trabajo" className="w-full h-full object-cover" />
+                            <img src={getAbsoluteImageUrl(photo.image_url)} onError={handleGalleryError} alt="Trabajo" className="w-full h-full object-cover" />
                             
                             {/* Badge de Estado */}
                             <span className={`absolute top-2 left-2 px-1.5 py-0.5 text-[9px] font-bold rounded shadow-sm ${badgeClass}`}>

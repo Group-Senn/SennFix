@@ -28,7 +28,10 @@ function EditProfessionalPage() {
         const response = await fetch(`${window.API_URL}/api/professionals/${id}`);
         if (!response.ok) throw new Error('No se pudo cargar la información del perfil.');
         const data = await response.json();
-        setFormData(data);
+        setFormData({
+          ...data,
+          hashtags: data.hashtags || ''
+        });
         setImagePreview(data.imageUrl);
         // Si el profesional está online al cargar, iniciar el envío de ubicación
         if (data.is_online) {
@@ -259,6 +262,21 @@ function EditProfessionalPage() {
             <div>
               <label className="text-sm font-bold text-primary/80 dark:text-slate-200 block mb-2">Otros servicios que ofreces (Opcional)</label>
               <textarea name="services_offered" value={formData.services_offered} onChange={handleChange} rows="3" className="w-full px-4 py-3 rounded-lg bg-background-light dark:bg-slate-700 text-primary dark:text-slate-100 border-transparent focus:ring-2 focus:ring-primary dark:focus:ring-teal-500"></textarea>
+            </div>
+            <div>
+              <label className="text-sm font-bold text-primary/80 dark:text-slate-200 block mb-2">Hashtags / Trabajos Especiales (Opcional)</label>
+              <div className="relative">
+                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary/40 dark:text-slate-400">tag</span>
+                <input 
+                  type="text" 
+                  name="hashtags" 
+                  value={formData.hashtags} 
+                  onChange={handleChange} 
+                  placeholder="ej: #carpinteriaFina #reparacionNeveras" 
+                  className="w-full pl-11 pr-4 py-3 rounded-lg bg-background-light dark:bg-slate-700 text-primary dark:text-slate-100 border-transparent focus:ring-2 focus:ring-primary dark:focus:ring-teal-500" 
+                />
+              </div>
+              <p className="text-xs text-primary/60 dark:text-slate-400 mt-1">Añade palabras clave precedidas de # para destacar en servicios específicos.</p>
             </div>
             <div>
               <label className="text-sm font-bold text-primary/80 dark:text-slate-200 block mb-2">Certificado FELCC/REJAP (Opcional)</label>
