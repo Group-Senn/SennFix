@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
 
 function SearchBar() {
   const [query, setQuery] = useState('');
@@ -184,7 +185,8 @@ function SearchBar() {
                       className="flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-primary/5 dark:hover:bg-slate-700/60 transition-colors text-left decoration-none"
                     >
                       <img
-                        src={prof.imageUrl}
+                        src={getAbsoluteImageUrl(prof.imageUrl)}
+                        onError={handleImageError}
                         alt={prof.name}
                         className="w-8 h-8 rounded-full object-cover ring-1 ring-primary/10 dark:ring-slate-700"
                       />

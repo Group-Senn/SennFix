@@ -181,10 +181,12 @@ function Profile() {
           <div className="flex w-full flex-col md:flex-row md:items-start gap-6 md:gap-10">
             <div className="flex-shrink-0 mx-auto md:mx-0">
               <div className="relative group">
-                <div
-                  className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-32 w-32 ring-4 ring-primary/20 shadow-xl"
-                  style={{ backgroundImage: `url("${professional.imageUrl}")` }}
-                ></div>
+                <img
+                  src={getAbsoluteImageUrl(professional.imageUrl)}
+                  onError={handleImageError}
+                  alt={professional.name}
+                  className="rounded-full h-32 w-32 object-cover ring-4 ring-primary/20 shadow-xl"
+                />
                 {(isVerified || hasGoldSeal) && (
                   <div className="absolute bottom-1 right-1 flex items-center gap-1">
                     {hasGoldSeal && (
