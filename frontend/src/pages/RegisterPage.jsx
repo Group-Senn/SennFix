@@ -157,9 +157,10 @@ function RegisterPage() {
             </button>
           </form>
 
-          <p className="text-sm text-center text-primary/60 dark:text-slate-400">
-            ¿Ya tienes una cuenta? <Link to="/login" className="font-bold text-primary dark:text-teal-400 hover:underline">Inicia Sesión</Link>
-          </p>
+          <div className="text-sm text-center text-primary/60 dark:text-slate-400 space-y-2">
+            <p>¿Ya tienes una cuenta? <Link to="/login" className="font-bold text-primary dark:text-teal-400 hover:underline">Inicia Sesión</Link></p>
+            <p>¿Eres un profesional? <Link to="/register-professional" className="font-bold text-primary dark:text-teal-400 hover:underline">Regístrate como Profesional aquí</Link></p>
+          </div>
         </div>
       </div>
     </>

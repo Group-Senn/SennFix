@@ -442,7 +442,10 @@ function RegisterProfessionalPage() {
             )}
             <button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white py-3 rounded-lg font-bold text-lg transition-all active:scale-95">Crear Perfil Profesional</button>
           </form>
-          <p className="text-sm text-center text-primary/60 dark:text-slate-400">¿Ya tienes una cuenta? <Link to="/login" className="font-bold text-primary dark:text-teal-400 hover:underline">Inicia Sesión</Link></p>
+          <div className="text-sm text-center text-primary/60 dark:text-slate-400 space-y-2">
+            <p>¿Ya tienes una cuenta? <Link to="/login" className="font-bold text-primary dark:text-teal-400 hover:underline">Inicia Sesión</Link></p>
+            <p>¿Buscas ayuda o contratar un servicio? <Link to="/register" className="font-bold text-primary dark:text-teal-400 hover:underline">Regístrate como Cliente aquí</Link></p>
+          </div>
         </div>
       </div>
 

@@ -107,9 +107,14 @@ function LoginPage() {
             </button>
           </form>
 
-          <p className="text-sm text-center text-primary/60">
-            ¿No tienes una cuenta? <Link to="/register" className="font-bold text-primary hover:underline">Regístrate</Link>
-          </p>
+          <div className="text-sm text-center text-primary/60 dark:text-slate-400 space-y-2">
+            <p>¿No tienes una cuenta?</p>
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4">
+              <Link to="/register" className="font-bold text-primary dark:text-teal-400 hover:underline">Registrarse como Cliente</Link>
+              <span className="hidden sm:inline text-primary/30">|</span>
+              <Link to="/register-professional" className="font-bold text-primary dark:text-teal-400 hover:underline">Registrarse como Profesional</Link>
+            </div>
+          </div>
         </div>
       </div>
     </>
