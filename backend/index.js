@@ -40,7 +40,80 @@ if (!fs.existsSync(privateUploadsDir)) {
 // Configuración de Multer para guardar archivos en memoria para poder procesarlos
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-app.use('/uploads', express.static(uploadsDir)); // Servir archivos estáticos desde la carpeta 'uploads'
+import { uploadToS3, deleteFromS3, getFromS3 } from './s3Service.js';
+
+// Wrappers para manejo persistente de imágenes/documentos en S3
+async function saveUploadedFile(file, prefix, isPrivate = false) {
+  const filename = `${prefix}-${Date.now()}${path.extname(file.originalname)}`;
+  
+  // 1. Subir a S3/R2
+  await uploadToS3(file.buffer, filename, file.mimetype);
+  
+  // 2. Escribir localmente para desarrollo
+  const targetDir = isPrivate ? privateUploadsDir : uploadsDir;
+  try {
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+    await fs.promises.writeFile(path.join(targetDir, filename), file.buffer);
+  } catch (err) {
+    console.warn('Advertencia: No se pudo guardar archivo localmente:', err.message);
+  }
+  
+  const targetFolder = isPrivate ? 'private_uploads' : 'uploads';
+  return `${targetFolder}/${filename}`;
+}
+
+async function deleteUploadedFile(relativeUrl) {
+  if (!relativeUrl) return;
+  const filename = path.basename(relativeUrl);
+  
+  // 1. Eliminar de S3/R2
+  try {
+    await deleteFromS3(filename);
+  } catch (err) {
+    console.warn('Advertencia: No se pudo eliminar de S3:', err.message);
+  }
+  
+  // 2. Eliminar localmente
+  const isPrivate = relativeUrl.startsWith('private_uploads');
+  const targetDir = isPrivate ? privateUploadsDir : uploadsDir;
+  const localPath = path.join(targetDir, filename);
+  try {
+    if (fs.existsSync(localPath)) {
+      await fs.promises.unlink(localPath);
+    }
+  } catch (err) {
+    console.warn('Advertencia: No se pudo eliminar archivo local:', err.message);
+  }
+}
+
+// Servir archivos desde S3/R2 con fallback local
+app.get('/uploads/:filename', async (req, res) => {
+  const { filename } = req.params;
+  const safeFilename = path.basename(filename);
+
+  try {
+    const stream = await getFromS3(safeFilename);
+    res.setHeader('Content-Type', stream.ContentType || 'image/jpeg');
+    if (stream.Body && typeof stream.Body.pipe === 'function') {
+      stream.Body.pipe(res);
+    } else {
+      const chunks = [];
+      for await (const chunk of stream.Body) {
+        chunks.push(chunk);
+      }
+      res.send(Buffer.concat(chunks));
+    }
+  } catch (s3Error) {
+    const filePath = path.join(uploadsDir, safeFilename);
+    if (fs.existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      res.status(404).json({ message: 'Archivo no encontrado.' });
+    }
+  }
+});
 
 // --- Auth Constants ---
 const JWT_SECRET = process.env.JWT_SECRET || 'tu-secreto-super-secreto-cambiar-en-produccion-12345'; // ¡IMPORTANTE! Cambia esto por una frase larga y aleatoria en .env
@@ -128,17 +201,31 @@ function isValidPrivateFile(file) {
 }
 
 // Endpoint para servir archivos privados con verificación de token de administrador (CPE Art. 21)
-app.get('/private_uploads/:filename', adminMiddleware, (req, res) => {
+app.get('/private_uploads/:filename', adminMiddleware, async (req, res) => {
   const { filename } = req.params;
 
-  // Prevención de ataques de path traversal para asegurar que no se lean archivos fuera de private_uploads/
+  // Prevención de ataques de path traversal
   const safeFilename = path.basename(filename);
-  const filePath = path.join(privateUploadsDir, safeFilename);
 
-  if (fs.existsSync(filePath)) {
-    res.sendFile(filePath);
-  } else {
-    res.status(404).json({ message: 'Archivo no encontrado.' });
+  try {
+    const stream = await getFromS3(safeFilename);
+    res.setHeader('Content-Type', stream.ContentType || 'image/webp');
+    if (stream.Body && typeof stream.Body.pipe === 'function') {
+      stream.Body.pipe(res);
+    } else {
+      const chunks = [];
+      for await (const chunk of stream.Body) {
+        chunks.push(chunk);
+      }
+      res.send(Buffer.concat(chunks));
+    }
+  } catch (s3Error) {
+    const filePath = path.join(privateUploadsDir, safeFilename);
+    if (fs.existsSync(filePath)) {
+      res.sendFile(filePath);
+    } else {
+      res.status(404).json({ message: 'Archivo no encontrado.' });
+    }
   }
 });
 
@@ -566,18 +653,14 @@ app.post('/api/jobs/:id/worker-complete', authMiddleware, upload.fields([
         if (!isValidImage(file)) {
           return res.status(400).json({ message: 'El archivo de la foto del antes no es una imagen válida.' });
         }
-        const filename = `before-${Date.now()}${path.extname(file.originalname)}`;
-        await fs.promises.writeFile(path.join(uploadsDir, filename), file.buffer);
-        photoBeforeUrl = `uploads/${filename}`;
+        photoBeforeUrl = await saveUploadedFile(file, 'before');
       }
       if (req.files.photoAfter) {
         const file = req.files.photoAfter[0];
         if (!isValidImage(file)) {
           return res.status(400).json({ message: 'El archivo de la foto del después no es una imagen válida.' });
         }
-        const filename = `after-${Date.now()}${path.extname(file.originalname)}`;
-        await fs.promises.writeFile(path.join(uploadsDir, filename), file.buffer);
-        photoAfterUrl = `uploads/${filename}`;
+        photoAfterUrl = await saveUploadedFile(file, 'after');
       }
     }
 
@@ -635,9 +718,7 @@ app.post('/api/jobs/:id/client-confirm', authMiddleware, upload.single('reviewPh
         await client.query('ROLLBACK');
         return res.status(400).json({ message: 'El archivo de la reseña no es una imagen válida.' });
       }
-      const filename = `review-${Date.now()}${path.extname(file.originalname)}`;
-      await fs.promises.writeFile(path.join(uploadsDir, filename), file.buffer);
-      reviewPhotoUrl = `uploads/${filename}`;
+      reviewPhotoUrl = await saveUploadedFile(file, 'review');
     }
 
     // 3. Actualizar el estado del trabajo a 'completed'
@@ -1320,9 +1401,7 @@ app.put('/api/admin/profile', adminMiddleware, upload.single('adminAvatar'), asy
       if (!isValidImage(req.file)) {
         return res.status(400).json({ message: 'El archivo del avatar no es una imagen válida.' });
       }
-      const filename = `admin-${adminId}-${Date.now()}${path.extname(req.file.originalname)}`;
-      await fs.promises.writeFile(path.join(uploadsDir, filename), req.file.buffer);
-      imageUrl = `uploads/${filename}`;
+      imageUrl = await saveUploadedFile(req.file, `admin-${adminId}`);
     }
 
     if (password) {
@@ -1384,9 +1463,11 @@ app.put('/api/users/profile', authMiddleware, upload.single('avatar'), async (re
       if (!isValidImage(req.file)) {
         return res.status(400).json({ message: 'El archivo del avatar no es una imagen válida.' });
       }
-      const filename = `avatar-${userId}-${Date.now()}${path.extname(req.file.originalname)}`;
-      await fs.promises.writeFile(path.join(uploadsDir, filename), req.file.buffer);
-      imageUrl = `uploads/${filename}`;
+      const { rows: [currentUser] } = await db.query('SELECT "imageUrl" FROM users WHERE id = $1', [userId]);
+      if (currentUser && currentUser.imageUrl) {
+        await deleteUploadedFile(currentUser.imageUrl);
+      }
+      imageUrl = await saveUploadedFile(req.file, `avatar-${userId}`);
     }
 
     if (imageUrl) {
@@ -1472,10 +1553,7 @@ app.post('/api/professionals/portfolio', authMiddleware, upload.single('portfoli
       return res.status(400).json({ message: 'Has alcanzado el límite máximo de 6 fotos para tu portafolio.' });
     }
 
-    // Guardar el archivo en la carpeta 'uploads' (como se configuró multer.memoryStorage)
-    const filename = `portfolio-${Date.now()}${path.extname(req.file.originalname)}`;
-    await fs.promises.writeFile(path.join(uploadsDir, filename), req.file.buffer);
-    const imageUrl = `uploads/${filename}`;
+    const imageUrl = await saveUploadedFile(req.file, 'portfolio');
 
     const { rows: [newPhoto] } = await db.query(
       "INSERT INTO portfolio_photos (professional_id, image_url, status) VALUES ($1, $2, 'pending') RETURNING *",
@@ -1540,6 +1618,7 @@ app.delete('/api/professionals/portfolio/:id', authMiddleware, async (req, res) 
       return res.status(403).json({ message: 'No tienes permiso para eliminar esta foto.' });
     }
 
+    await deleteUploadedFile(photo.image_url);
     await db.query("DELETE FROM portfolio_photos WHERE id = $1", [id]);
     res.json({ message: 'Foto eliminada de tu portafolio con éxito.' });
   } catch (error) {
@@ -1843,18 +1922,14 @@ app.post('/api/register-professional', upload.fields([
     let imageUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=128`;
     if (req.files.profileImage) {
       const file = req.files.profileImage[0];
-      const filename = `profile-${Date.now()}${path.extname(file.originalname)}`;
-      await fs.promises.writeFile(path.join(uploadsDir, filename), file.buffer);
-      imageUrl = `${req.protocol}://${req.get('host')}/uploads/${filename}`;
+      imageUrl = await saveUploadedFile(file, 'profile');
     }
 
     // 2. Procesar permiso de la defensoría (público)
     let defensoriaPermitUrl = null;
     if (age < 18 && req.files.defensoriaPermit) {
       const file = req.files.defensoriaPermit[0];
-      const filename = `permit-${Date.now()}${path.extname(file.originalname)}`;
-      await fs.promises.writeFile(path.join(privateUploadsDir, filename), file.buffer);
-      defensoriaPermitUrl = `private_uploads/${filename}`;
+      defensoriaPermitUrl = await saveUploadedFile(file, 'permit', true);
     }
 
     // 3. Procesar imágenes de CI con marca de agua (privado)
@@ -1865,18 +1940,14 @@ app.post('/api/register-professional', upload.fields([
     let felccRejapUrl = null;
     if (req.files.felcc_rejap) {
       const file = req.files.felcc_rejap[0];
-      const filename = `felcc-rejap-${Date.now()}${path.extname(file.originalname)}`;
-      await fs.promises.writeFile(path.join(privateUploadsDir, filename), file.buffer);
-      felccRejapUrl = `private_uploads/${filename}`;
+      felccRejapUrl = await saveUploadedFile(file, 'felcc-rejap', true);
     }
 
     // 5. Procesar Título Académico / Certificado (privado, opcional)
     let academicCertificateUrl = null;
     if (req.files && req.files.academic_certificate) {
       const file = req.files.academic_certificate[0];
-      const filename = `academic-${Date.now()}${path.extname(file.originalname)}`;
-      await fs.promises.writeFile(path.join(privateUploadsDir, filename), file.buffer);
-      academicCertificateUrl = `private_uploads/${filename}`;
+      academicCertificateUrl = await saveUploadedFile(file, 'academic', true);
     }
 
     // Crear registro en la tabla 'users'
@@ -2023,43 +2094,20 @@ app.put('/api/professionals/:id', authMiddleware, upload.fields([
     let newImageUrl = professional.imageUrl;
     if (req.files && req.files.profileImage) {
       const file = req.files.profileImage[0];
-      // Opcional: Borrar la imagen anterior si es un archivo local
-      if (professional.imageUrl && professional.imageUrl.includes('/uploads/')) {
-        const oldImageName = professional.imageUrl.split('/uploads/')[1];
-        const oldImagePath = path.join(uploadsDir, oldImageName);
-        if (fs.existsSync(oldImagePath)) {
-          fs.promises.unlink(oldImagePath).catch((err) => {
-            if (err) console.error("Error al borrar la imagen anterior:", err);
-          });
-        }
+      if (professional.imageUrl) {
+        await deleteUploadedFile(professional.imageUrl);
       }
-      const newImageFilename = `profile-${Date.now()}${path.extname(file.originalname)}`;
-      await fs.promises.writeFile(path.join(uploadsDir, newImageFilename), file.buffer);
-      newImageUrl = `${req.protocol}://${req.get('host')}/uploads/${newImageFilename}`;
+      newImageUrl = await saveUploadedFile(file, 'profile');
     }
 
     // --- Procesamiento de felcc_rejap ---
     let newFelccRejapUrl = existingFelccRejapUrl === 'null' ? null : professional.felcc_rejap_url; // Si el frontend envía 'null' o se elimina
     if (req.files && req.files.felcc_rejap) {
       const file = req.files.felcc_rejap[0];
-      // Opcional: Borrar el archivo anterior si existe
       if (professional.felcc_rejap_url) {
-        let oldFileName = null;
-        let oldFilePath = null;
-        if (professional.felcc_rejap_url.includes('/uploads/')) {
-          oldFileName = professional.felcc_rejap_url.split('/uploads/')[1];
-          oldFilePath = path.join(uploadsDir, oldFileName);
-        } else if (professional.felcc_rejap_url.includes('private_uploads/')) {
-          oldFileName = professional.felcc_rejap_url.split('private_uploads/')[1];
-          oldFilePath = path.join(privateUploadsDir, oldFileName);
-        }
-        if (oldFilePath && fs.existsSync(oldFilePath)) {
-          fs.promises.unlink(oldFilePath).catch(err => console.error("Error al borrar el archivo FELCC/REJAP anterior:", err));
-        }
+        await deleteUploadedFile(professional.felcc_rejap_url);
       }
-      const newFileName = `felcc-rejap-${Date.now()}${path.extname(file.originalname)}`;
-      await fs.promises.writeFile(path.join(privateUploadsDir, newFileName), file.buffer);
-      newFelccRejapUrl = `private_uploads/${newFileName}`;
+      newFelccRejapUrl = await saveUploadedFile(file, 'felcc-rejap', true);
     }
 
     // 1. Actualizar la tabla 'professionals'
@@ -2482,62 +2530,18 @@ async function initDatabase() {
       )
     `);
 
-    // 5. Sembrar publicaciones de prueba si la tabla está vacía
-    const { rows: postCount } = await db.query('SELECT COUNT(*) FROM professional_posts');
-    if (parseInt(postCount[0].count) === 0) {
-      console.log('Migración: Sembrando publicaciones de prueba para la pestaña Explorar...');
-
-      const { rows: pros } = await db.query('SELECT id, specialty FROM professionals');
-
-      if (pros.length > 0) {
-        // Asignar niveles de patrocinio de prueba para tener variedad de posicionamiento
-        for (let i = 0; i < pros.length; i++) {
-          const sponsorship = i % 3 === 0 ? 100 : (i % 3 === 1 ? 50 : 0);
-          await db.query('UPDATE professionals SET sponsorship_level = $1 WHERE id = $2', [sponsorship, pros[i].id]);
-        }
-
-        const mockImages = [
-          'uploads/portfolio-1783130284683.png',
-          'uploads/portfolio-1783130381860.png',
-          'uploads/profile-1783129205869.png',
-          'uploads/profile-1783107324365.jpeg',
-          'uploads/profile-1774276652846.jpeg'
-        ];
-
-        const mockPosts = [
-          {
-            image: mockImages[0],
-            description: 'Instalación de grifería premium completada hoy en zona central. Trabajo con garantía de 1 año y materiales de primera calidad. #plomeria #hogar'
-          },
-          {
-            image: mockImages[1],
-            description: 'Renovación de cableado general y tablero de disyuntores de seguridad. Previene fallas y protege tu hogar. Electricista certificado disponible. #electricidad'
-          },
-          {
-            image: mockImages[2],
-            description: 'Cambio de look completo: pintura de interiores con acabado mate de fácil limpieza. Cotiza tu espacio sin compromiso. #decoracion #pintura'
-          },
-          {
-            image: mockImages[3],
-            description: 'Construcción y nivelación de muro perimetral reforzado. Cimientos sólidos para tu tranquilidad. #construccion #albañileria'
-          },
-          {
-            image: mockImages[4],
-            description: 'Servicio de limpieza profunda de alfombras y desinfección de salas a domicilio. Especial para dueños de mascotas. #limpieza #salud'
-          }
-        ];
-
-        for (let i = 0; i < Math.min(pros.length, mockPosts.length); i++) {
-          const proId = pros[i].id;
-          const post = mockPosts[i];
-
-          await db.query(
-            "INSERT INTO professional_posts (professional_id, image_url, description, likes_count, status) VALUES ($1, $2, $3, $4, 'approved')",
-            [proId, post.image, post.description, Math.floor(Math.random() * 80) + 10]
-          );
-        }
-      }
-    }
+    // 5. Eliminar cualquier publicación de prueba de Explorar existente en la base de datos
+    console.log('Migración: Eliminando publicaciones de prueba existentes...');
+    await db.query(`
+      DELETE FROM professional_posts 
+      WHERE image_url IN (
+        'uploads/portfolio-1783130284683.png',
+        'uploads/portfolio-1783130381860.png',
+        'uploads/profile-1783129205869.png',
+        'uploads/profile-1783107324365.jpeg',
+        'uploads/profile-1774276652846.jpeg'
+      )
+    `);
 
     console.log('Base de datos inicializada y migrada correctamente (Notificaciones y Explorar habilitados).');
   } catch (error) {
@@ -2720,9 +2724,7 @@ app.post('/api/explore/posts', authMiddleware, upload.single('image'), async (re
   }
 
   try {
-    const filename = `explore-${professionalId}-${Date.now()}${path.extname(req.file.originalname)}`;
-    await fs.promises.writeFile(path.join(uploadsDir, filename), req.file.buffer);
-    const imageUrl = `uploads/${filename}`;
+    const imageUrl = await saveUploadedFile(req.file, `explore-${professionalId}`);
 
     const { rows: [newPost] } = await db.query(
       "INSERT INTO professional_posts (professional_id, image_url, description, likes_count, status) VALUES ($1, $2, $3, $4, 'pending') RETURNING *",

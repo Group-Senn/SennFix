@@ -2,6 +2,7 @@ import sharp from 'sharp';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import { uploadToS3 } from './s3Service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,13 +38,26 @@ async function watermarkAndSave(fileBuffer, filenamePrefix) {
   `;
   const svgBuffer = Buffer.from(svgWatermark);
 
-  await image
+  const outputBuffer = await image
     .resize({ width: 800, withoutEnlargement: true }) // Redimensiona sin agrandar
     .webp({ quality: 80 }) // Convierte a WebP para optimizar
     .composite([{ input: svgBuffer, gravity: 'center' }]) // Aplica la marca de agua
-    .toFile(outputPath);
+    .toBuffer();
 
-  return path.join('private_uploads', filename).replace(/\\/g, '/');
+  // 1. Subir a S3
+  await uploadToS3(outputBuffer, filename, 'image/webp');
+
+  // 2. Escribir localmente para compatibilidad local
+  try {
+    if (!fs.existsSync(privateUploadsDir)) {
+      fs.mkdirSync(privateUploadsDir, { recursive: true });
+    }
+    await fs.promises.writeFile(outputPath, outputBuffer);
+  } catch (err) {
+    console.warn('Advertencia: No se pudo guardar imagen localmente con marca de agua:', err.message);
+  }
+
+  return `private_uploads/${filename}`;
 }
 
 export { watermarkAndSave };
