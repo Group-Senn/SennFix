@@ -24,6 +24,7 @@ import BottomNav from './components/BottomNav';
 import { useAuth } from './context/AuthContext';
 import NoLaborRelationshipPage from './pages/NoLaborRelationshipPage';
 import JobCompletionPage from './pages/JobCompletionPage';
+import CookieConsent from './components/CookieConsent';
 
 function App() {
   const location = useLocation();
@@ -104,6 +105,7 @@ function App() {
         <Route path="/explore" element={<ExplorePage />} />
       </Routes>
       {showNav && <BottomNav />}
+      <CookieConsent />
     </div>
   )
 }

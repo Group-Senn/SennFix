@@ -102,7 +102,7 @@ function RegisterPage() {
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-lg bg-background-light dark:bg-slate-700 text-primary dark:text-slate-100 border-transparent focus:ring-2 focus:ring-primary" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-bold text-primary/80 dark:text-slate-300 block mb-2">Celular <span className="text-red-500">*</span></label>
                 <div className="relative">

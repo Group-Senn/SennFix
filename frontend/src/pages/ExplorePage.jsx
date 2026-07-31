@@ -21,6 +21,7 @@ function ExplorePage() {
   const [uploadDescription, setUploadDescription] = useState('');
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState(null);
+  const [successFeedback, setSuccessFeedback] = useState(null);
 
   const fetchExplorePosts = async () => {
     setLoading(true);
@@ -120,6 +121,9 @@ function ExplorePage() {
       setUploadDescription('');
       setShowUploadModal(false);
       
+      setSuccessFeedback('¡Publicación de promoción enviada con éxito! Estará visible en Explorar una vez sea verificada y aprobada por el administrador.');
+      setTimeout(() => setSuccessFeedback(null), 7000);
+      
       // Recargar publicaciones
       fetchExplorePosts();
     } catch (err) {
@@ -167,6 +171,12 @@ function ExplorePage() {
       </header>
 
       <main className="flex-1 p-4 md:p-6 pb-32 bg-background-light dark:bg-background-dark animate-page-entry max-w-4xl mx-auto w-full">
+        {successFeedback && (
+          <div className="animate-feedback flex items-center gap-3 p-4 bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400 rounded-2xl text-xs sm:text-sm font-semibold mb-4 shadow-sm">
+            <span className="material-symbols-outlined shrink-0 text-xl text-teal-500">check_circle</span>
+            <span>{successFeedback}</span>
+          </div>
+        )}
         {!error && <AdBanner />}
         {loading && (
           <div className="grid grid-cols-3 gap-1 md:gap-3">

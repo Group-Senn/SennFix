@@ -1607,6 +1607,87 @@ app.put('/api/admin/portfolio/:id/verify', adminMiddleware, async (req, res) => 
   }
 });
 
+// 7. Listar publicaciones de explorar pendientes (Exclusivo Admin)
+app.get('/api/admin/pending-posts', adminMiddleware, async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        pt.id,
+        pt.professional_id,
+        pt.image_url,
+        pt.description,
+        pt.likes_count,
+        pt.created_at,
+        pt.status,
+        p.specialty,
+        u.name AS professional_name,
+        u.email AS professional_email
+      FROM professional_posts pt
+      JOIN professionals p ON pt.professional_id = p.id
+      JOIN users u ON p.id = u.id
+      WHERE pt.status = 'pending'
+      ORDER BY pt.created_at DESC
+    `;
+    const { rows } = await db.query(query);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error al obtener publicaciones pendientes:', error);
+    res.status(500).json({ message: 'Error al obtener publicaciones pendientes.' });
+  }
+});
+
+// 8. Aprobar o rechazar publicaciones de explorar (Exclusivo Admin)
+app.put('/api/admin/posts/:id/verify', adminMiddleware, async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body; // 'approved' o 'rejected'
+
+  if (status !== 'approved' && status !== 'rejected') {
+    return res.status(400).json({ message: 'El estado debe ser approved o rejected.' });
+  }
+
+  try {
+    const { rows: [post] } = await db.query(
+      "SELECT professional_id, image_url FROM professional_posts WHERE id = $1",
+      [id]
+    );
+    if (!post) {
+      return res.status(404).json({ message: 'Publicación no encontrada.' });
+    }
+
+    if (status === 'rejected') {
+      const filePath = path.join(uploadsDir, path.basename(post.image_url));
+      try {
+        await fs.promises.unlink(filePath);
+      } catch (fileErr) {
+        console.warn('No se pudo borrar el archivo de imagen de publicación rechazada:', fileErr.message);
+      }
+      await db.query('DELETE FROM professional_posts WHERE id = $1', [id]);
+    } else {
+      await db.query(
+        "UPDATE professional_posts SET status = 'approved' WHERE id = $1",
+        [id]
+      );
+    }
+
+    const statusText = status === 'approved' ? 'aprobada' : 'rechazada';
+    await db.query(
+      "INSERT INTO notifications (user_id, title, content, type, related_id) VALUES ($1, $2, $3, $4, $5)",
+      [
+        post.professional_id,
+        'Publicación en Explorar moderada',
+        `Tu publicación de promoción ha sido ${statusText} por el administrador.`,
+        'post_verified',
+        id
+      ]
+    );
+
+    res.json({ message: `Publicación marcada como ${statusText}.` });
+  } catch (error) {
+    console.error('Error al verificar publicación de explorar:', error);
+    res.status(500).json({ message: 'Error al cambiar estado de verificación de publicación.' });
+  }
+});
+
 // --- Auth Endpoints ---
 
 // Endpoint para registrar un nuevo usuario (Cliente)
@@ -2368,9 +2449,26 @@ async function initDatabase() {
         image_url VARCHAR(255) NOT NULL,
         description TEXT,
         likes_count INTEGER DEFAULT 0,
+        status VARCHAR(20) DEFAULT 'pending',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+
+    // Migración: Asegurarse de que exista la columna status en professional_posts
+    const { rows: postCols } = await db.query(`
+      SELECT column_name FROM information_schema.columns 
+      WHERE table_name = 'professional_posts' AND column_name = 'status'
+    `);
+
+    if (postCols.length === 0) {
+      console.log('Migración: Agregando columna status a professional_posts...');
+      await db.query(`
+        ALTER TABLE professional_posts 
+        ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending'
+      `);
+      // Marcar los de prueba sembrados como aprobados
+      await db.query(`UPDATE professional_posts SET status = 'approved'`);
+    }
 
     // 4b. Crear la tabla de alertas de seguridad administrativa
     await db.query(`
@@ -2434,7 +2532,7 @@ async function initDatabase() {
           const post = mockPosts[i];
 
           await db.query(
-            'INSERT INTO professional_posts (professional_id, image_url, description, likes_count) VALUES ($1, $2, $3, $4)',
+            "INSERT INTO professional_posts (professional_id, image_url, description, likes_count, status) VALUES ($1, $2, $3, $4, 'approved')",
             [proId, post.image, post.description, Math.floor(Math.random() * 80) + 10]
           );
         }
@@ -2574,6 +2672,7 @@ app.get('/api/explore/posts', async (req, res) => {
       FROM professional_posts pt
       JOIN professionals p ON pt.professional_id = p.id
       JOIN users u ON p.id = u.id
+      WHERE pt.status = 'approved'
       ORDER BY p.sponsorship_level DESC, p.has_gold_seal DESC, pt.created_at DESC
       LIMIT 100
     `;
@@ -2626,7 +2725,7 @@ app.post('/api/explore/posts', authMiddleware, upload.single('image'), async (re
     const imageUrl = `uploads/${filename}`;
 
     const { rows: [newPost] } = await db.query(
-      'INSERT INTO professional_posts (professional_id, image_url, description, likes_count) VALUES ($1, $2, $3, $4) RETURNING *',
+      "INSERT INTO professional_posts (professional_id, image_url, description, likes_count, status) VALUES ($1, $2, $3, $4, 'pending') RETURNING *",
       [professionalId, imageUrl, description || '', 0]
     );
 

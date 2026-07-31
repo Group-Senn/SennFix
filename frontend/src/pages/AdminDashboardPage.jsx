@@ -55,6 +55,7 @@ function AdminDashboardPage() {
   const [jobs, setJobs] = useState([]);
   const [pendingPortfolio, setPendingPortfolio] = useState([]);
   const [securityAlerts, setSecurityAlerts] = useState([]);
+  const [pendingExplorePosts, setPendingExplorePosts] = useState([]);
   
   // Perfil del Administrador
   const [adminProfileName, setAdminProfileName] = useState(user?.name || 'admin');
@@ -215,6 +216,14 @@ function AdminDashboardPage() {
       if (!resAlerts.ok) throw new Error('Error al cargar alertas de seguridad.');
       const dataAlerts = await resAlerts.json();
       setSecurityAlerts(dataAlerts);
+
+      // 8. Publicaciones de explorar pendientes
+      const resPendingExplore = await fetch(window.API_URL + '/api/admin/pending-posts', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (!resPendingExplore.ok) throw new Error('Error al cargar publicaciones pendientes.');
+      const dataPendingExplore = await resPendingExplore.json();
+      setPendingExplorePosts(dataPendingExplore);
 
     } catch (err) {
       setError(err.message);
@@ -460,6 +469,26 @@ function AdminDashboardPage() {
     }
   };
 
+  const handleVerifyExplorePost = async (postId, status) => {
+    try {
+      const response = await fetch(`${window.API_URL}/api/admin/posts/${postId}/verify`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ status })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Error al verificar la publicación.');
+
+      // Recargar datos
+      fetchAdminData();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   const setDocValidationState = (itemId, docKey, state) => {
     setDocValidations(prev => ({
       ...prev,
@@ -567,6 +596,23 @@ function AdminDashboardPage() {
             {pendingPortfolio.length > 0 && (
               <span className="bg-primary text-white dark:bg-teal-600 dark:text-white text-xs px-2 py-0.5 rounded-full font-bold">
                 {pendingPortfolio.length}
+              </span>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab('explore-verifications')}
+            className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-colors font-semibold text-sm ${
+              activeTab === 'explore-verifications'
+                ? 'bg-primary/10 text-primary dark:bg-teal-500/10 dark:text-teal-400 font-bold'
+                : 'text-on-surface-variant dark:text-slate-300 hover:bg-surface-container-high dark:hover:bg-slate-800'
+            }`}
+          >
+            <span className="material-symbols-outlined text-[20px]">explore</span>
+            <span className="flex-1 text-left">Aprobar Publicaciones</span>
+            {pendingExplorePosts.length > 0 && (
+              <span className="bg-primary text-white dark:bg-teal-600 dark:text-white text-xs px-2 py-0.5 rounded-full font-bold">
+                {pendingExplorePosts.length}
               </span>
             )}
           </button>
@@ -707,6 +753,8 @@ function AdminDashboardPage() {
                 ? 'Aprobación de Cuentas' 
                 : activeTab === 'portfolio-verifications'
                 ? 'Aprobación de Galería de Fotos'
+                : activeTab === 'explore-verifications'
+                ? 'Aprobación de Publicaciones'
                 : activeTab === 'complaints' 
                 ? 'Reclamos de Soporte' 
                 : activeTab === 'security-alerts'
@@ -1375,6 +1423,74 @@ function AdminDashboardPage() {
               </div>
             </div>
           )}
+
+          {/* 3b. TAB APROBACIÓN DE PUBLICACIONES EN EXPLORAR */}
+          {activeTab === 'explore-verifications' && (
+            <div className="h-full overflow-y-auto p-6 md:p-8 space-y-6 animate-feedback">
+              <div className="max-w-5xl mx-auto space-y-4">
+                <div>
+                  <h2 className="text-2xl font-bold font-display text-primary dark:text-slate-100 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-primary dark:text-teal-400">explore</span>
+                    Cola de Aprobación de Publicaciones de Promoción (Explorar)
+                  </h2>
+                  <p className="text-sm text-primary/70 dark:text-slate-400 mt-1">Revisa y aprueba las fotos de portafolio/promoción subidas por los profesionales para la pestaña Explorar.</p>
+                </div>
+
+                {pendingExplorePosts.length === 0 ? (
+                  <div className="text-center p-12 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-primary/5 dark:border-slate-800 text-primary/60 dark:text-slate-400 animate-page-entry">
+                    <span className="material-symbols-outlined text-5xl mb-2 block text-slate-350 dark:text-slate-650">done_all</span>
+                    No hay publicaciones pendientes de aprobación en Explorar.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 animate-page-entry">
+                    {pendingExplorePosts.map(post => (
+                      <div key={post.id} className="bg-white dark:bg-slate-900 border border-primary/5 dark:border-slate-850 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between hover-interactive">
+                        <div className="p-4 border-b border-primary/5 dark:border-slate-850">
+                          <p className="font-bold text-sm text-primary dark:text-slate-100">{post.professional_name}</p>
+                          <p className="text-xs text-primary/60 dark:text-slate-455">{post.professional_email}</p>
+                          <p className="text-[10px] text-primary/40 dark:text-slate-500 font-bold uppercase tracking-wide mt-1">{post.specialty}</p>
+                        </div>
+                         
+                         <div className="relative aspect-square bg-slate-50 dark:bg-slate-950 overflow-hidden flex items-center justify-center">
+                           <img 
+                             src={getAbsoluteImageUrl(post.image_url)} 
+                             onError={handleGalleryError}
+                             alt="Publicación" 
+                             className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform" 
+                             onClick={() => window.open(getAbsoluteImageUrl(post.image_url), '_blank')}
+                           />
+                         </div>
+
+                         {post.description && (
+                           <div className="p-3 bg-slate-50/50 dark:bg-slate-850/50 text-xs text-primary/80 dark:text-slate-300 border-t border-primary/5 line-clamp-3">
+                             {post.description}
+                           </div>
+                         )}
+
+                         <div className="p-4 bg-slate-50 dark:bg-slate-900/60 flex items-center gap-2 border-t border-primary/5">
+                           <button
+                             onClick={() => handleVerifyExplorePost(post.id, 'approved')}
+                             className="flex-1 bg-green-500 hover:bg-green-600 text-white text-xs font-bold py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-sm active:scale-95"
+                           >
+                             <span className="material-symbols-outlined text-sm">check</span>
+                             Aprobar
+                           </button>
+                           
+                           <button
+                             onClick={() => handleVerifyExplorePost(post.id, 'rejected')}
+                             className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-650 text-xs font-bold py-2 px-3 rounded-lg flex items-center justify-center gap-1.5 transition-all border border-red-500/20 active:scale-95"
+                           >
+                             <span className="material-symbols-outlined text-sm">close</span>
+                             Rechazar
+                           </button>
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 )}
+               </div>
+             </div>
+           )}
 
           {/* 4. TAB BUZÓN DE RECLAMOS (Complaints Inbox) */}
           {activeTab === 'complaints' && (
