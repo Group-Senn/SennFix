@@ -35,6 +35,17 @@ function SearchResults() {
     fetchResults();
   }, [query]);
 
+  // Ejecutar inserción de Google Ads cuando finalice la carga sin errores
+  useEffect(() => {
+    if (!loading && !error) {
+      try {
+        (window.adsbygoogle = window.adsbygoogle || []).push({});
+      } catch (e) {
+        // Ignorar
+      }
+    }
+  }, [loading, error]);
+
   const hasResults = results.professionals.length > 0 || results.services.length > 0;
 
   return (
@@ -52,28 +63,26 @@ function SearchResults() {
         {loading && <div className="text-center p-10 text-primary/70">Buscando...</div>}
         {error && <div className="text-center p-10 text-red-500">Error: {error}</div>}
 
-        {/* Banner de Publicidad Externa */}
+        {/* Banner de Publicidad Externa / Google Ads */}
         {!loading && !error && (
-          <div className="my-6">
-            <a
-              href="https://group-senn.com/ads"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block relative overflow-hidden rounded-2xl bg-gradient-to-r from-teal-500 to-primary p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5"
-            >
-              <div className="absolute right-0 top-0 translate-x-10 -translate-y-10 w-40 h-40 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="my-6 flex justify-center">
+            <div className="w-full bg-slate-50 dark:bg-slate-900 border border-primary/10 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm p-4 relative min-h-[90px] flex flex-col items-center justify-center">
+              <span className="absolute top-1 right-2 text-[9px] font-bold uppercase tracking-wider text-primary/40 dark:text-slate-500 z-10">Publicidad</span>
               
-              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <span className="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">Patrocinado</span>
-                  <h4 className="text-xl font-bold font-display mt-2">¿Necesitas herramientas premium?</h4>
-                  <p className="text-xs text-white/90 mt-1 max-w-md">Visita Group Senn y descubre el catálogo más completo de herramientas profesionales con 15% de descuento.</p>
+              <ins className="adsbygoogle"
+                   style={{ display: 'block', width: '100%', minHeight: '90px' }}
+                   data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                   data-ad-slot="YYYYYYYYYY"
+                   data-ad-format="auto"
+                   data-full-width-responsive="true"></ins>
+              
+              <div className="absolute inset-0 flex items-center justify-center bg-slate-100/50 dark:bg-slate-800/50 pointer-events-none border border-dashed border-primary/20 dark:border-slate-700 rounded-xl">
+                <div className="flex items-center gap-2 text-primary/40 dark:text-slate-500 text-xs">
+                  <span className="material-symbols-outlined text-sm">ads_click</span>
+                  <span>Espacio para Google Ads</span>
                 </div>
-                <span className="bg-white text-primary hover:bg-white/95 text-xs font-bold px-4 py-2.5 rounded-xl text-center transition-all active:scale-95 shrink-0">
-                  Ver Catálogo
-                </span>
               </div>
-            </a>
+            </div>
           </div>
         )}
         

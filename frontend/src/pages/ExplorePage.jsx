@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
+import AdBanner from '../components/AdBanner';
 
 function ExplorePage() {
   const { isAuthenticated, user } = useAuth();
@@ -166,6 +167,7 @@ function ExplorePage() {
       </header>
 
       <main className="flex-1 p-4 md:p-6 pb-32 bg-background-light dark:bg-background-dark animate-page-entry max-w-4xl mx-auto w-full">
+        {!error && <AdBanner />}
         {loading && (
           <div className="grid grid-cols-3 gap-1 md:gap-3">
             {[...Array(9)].map((_, i) => (

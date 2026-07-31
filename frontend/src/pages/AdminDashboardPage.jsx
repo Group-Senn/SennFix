@@ -793,18 +793,24 @@ function AdminDashboardPage() {
                       Zonas de Mayor Búsqueda
                     </h3>
                     <div className="space-y-4">
-                      {stats.zoneSearchStats?.map((item, idx) => (
-                        <div key={idx} className="flex items-center gap-3">
-                          <span className="w-8 h-8 rounded-full bg-primary/5 dark:bg-slate-800 text-primary dark:text-teal-400 flex items-center justify-center font-bold text-xs">
-                            {idx + 1}
-                          </span>
-                          <div className="flex-1">
-                            <p className="text-sm font-semibold text-primary dark:text-slate-200">{item.zone}</p>
-                            <p className="text-xs text-primary/60 dark:text-slate-400">{item.count} búsquedas mensuales</p>
+                      {stats.zoneSearchStats && stats.zoneSearchStats.length > 0 ? (
+                        stats.zoneSearchStats.map((item, idx) => (
+                          <div key={idx} className="flex items-center gap-3">
+                            <span className="w-8 h-8 rounded-full bg-primary/5 dark:bg-slate-800 text-primary dark:text-teal-400 flex items-center justify-center font-bold text-xs">
+                              {idx + 1}
+                            </span>
+                            <div className="flex-1">
+                              <p className="text-sm font-semibold text-primary dark:text-slate-200">{item.zone}</p>
+                              <p className="text-xs text-primary/60 dark:text-slate-400">{item.count} búsquedas</p>
+                            </div>
+                            <span className="text-sm font-bold text-primary dark:text-teal-400">{item.percentage}%</span>
                           </div>
-                          <span className="text-sm font-bold text-primary dark:text-teal-400">{item.percentage}%</span>
-                        </div>
-                      ))}
+                        ))
+                      ) : (
+                        <p className="text-xs text-primary/60 dark:text-slate-400 text-center py-4">
+                          No hay suficientes datos de zonas de búsqueda.
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -812,17 +818,23 @@ function AdminDashboardPage() {
                   <div className="bg-white dark:bg-slate-900 border border-primary/10 dark:border-slate-800 p-6 rounded-2xl space-y-4 lg:col-span-2">
                     <h3 className="font-display font-bold text-lg text-primary dark:text-slate-100 flex items-center gap-2">
                       <span className="material-symbols-outlined text-primary dark:text-teal-400">holiday_village</span>
-                      Zonas con Mayor Cantidad de Clientes Activos
+                      Zonas con Mayor Cantidad de Profesionales Activos
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-                      {stats.clientZoneStats?.map((item, idx) => (
-                        <div key={idx} className="p-4 bg-background-light dark:bg-slate-800/50 border border-primary/5 dark:border-slate-800 rounded-xl text-center space-y-1 shadow-sm">
-                          <span className="material-symbols-outlined text-primary dark:text-teal-400">pin_drop</span>
-                          <p className="text-xs font-bold text-primary/80 dark:text-slate-300 line-clamp-1">{item.zone.split(' ')[0]}</p>
-                          <p className="text-lg font-bold font-display text-primary dark:text-slate-100">{item.count}</p>
-                          <p className="text-[10px] text-primary/50 dark:text-slate-400 uppercase tracking-widest font-semibold">Clientes</p>
-                        </div>
-                      ))}
+                      {stats.clientZoneStats && stats.clientZoneStats.length > 0 ? (
+                        stats.clientZoneStats.map((item, idx) => (
+                          <div key={idx} className="p-4 bg-background-light dark:bg-slate-800/50 border border-primary/5 dark:border-slate-800 rounded-xl text-center space-y-1 shadow-sm">
+                            <span className="material-symbols-outlined text-primary dark:text-teal-400">pin_drop</span>
+                            <p className="text-xs font-bold text-primary/80 dark:text-slate-300 line-clamp-1">{item.zone.split(' ')[0]}</p>
+                            <p className="text-lg font-bold font-display text-primary dark:text-slate-100">{item.count}</p>
+                            <p className="text-[10px] text-primary/50 dark:text-slate-400 uppercase tracking-widest font-semibold">Profesionales</p>
+                          </div>
+                        ))
+                      ) : (
+                        <p className="text-xs text-primary/60 dark:text-slate-400 text-center py-4 col-span-full">
+                          No hay suficientes datos de zonas registrados.
+                        </p>
+                      )}
                     </div>
                   </div>
 

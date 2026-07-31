@@ -1244,8 +1244,8 @@ app.get('/api/admin/stats', adminMiddleware, async (req, res) => {
       FROM users
     `);
 
-    // Estadísticas de zonas de búsqueda (basadas en datos de base de datos o fallbacks realistas de Bolivia)
-    const { rows: dbZones } = await db.query(`
+    // Estadísticas de zonas de búsqueda reales de los trabajos
+    const { rows: dbJobZones } = await db.query(`
       SELECT approximate_zone as zone, COUNT(*) as count 
       FROM jobs 
       WHERE approximate_zone IS NOT NULL AND approximate_zone != ''
@@ -1255,29 +1255,32 @@ app.get('/api/admin/stats', adminMiddleware, async (req, res) => {
     `);
 
     // Calcular porcentaje total
-    const totalJobsCount = dbZones.reduce((acc, curr) => acc + parseInt(curr.count), 0);
+    const totalJobsCount = dbJobZones.reduce((acc, curr) => acc + parseInt(curr.count), 0);
 
-    const zoneSearchStats = dbZones.length > 0 ? dbZones.slice(0, 4).map(r => ({
+    const zoneSearchStats = dbJobZones.map(r => ({
       zone: r.zone,
       count: parseInt(r.count),
       percentage: totalJobsCount > 0 ? Math.round((parseInt(r.count) / totalJobsCount) * 100) : 0
-    })) : [
-      { zone: 'Equipetrol (Santa Cruz)', count: 24, percentage: 35 },
-      { zone: 'Sopocachi (La Paz)', count: 18, percentage: 26 },
-      { zone: 'Zona Sur (La Paz)', count: 15, percentage: 22 },
-      { zone: 'Las Palmas (Santa Cruz)', count: 12, percentage: 17 }
-    ];
+    }));
 
-    const clientZoneStats = dbZones.length > 0 ? dbZones.map(r => ({
-      zone: r.zone,
-      count: parseInt(r.count)
-    })) : [
-      { zone: 'Sopocachi (La Paz)', count: 42 },
-      { zone: 'Equipetrol (Santa Cruz)', count: 38 },
-      { zone: 'Miraflores (La Paz)', count: 29 },
-      { zone: 'Plan 3000 (Santa Cruz)', count: 25 },
-      { zone: 'Zona Sur (La Paz)', count: 22 }
-    ];
+    // Obtener las zonas reales de los profesionales basados en su store_address
+    const { rows: proAddresses } = await db.query(`
+      SELECT store_address FROM professionals 
+      WHERE store_address IS NOT NULL AND store_address != ''
+    `);
+    
+    const zoneCounts = {};
+    proAddresses.forEach(row => {
+      const zone = row.store_address.split(',')[0].trim();
+      if (zone) {
+        zoneCounts[zone] = (zoneCounts[zone] || 0) + 1;
+      }
+    });
+
+    const clientZoneStats = Object.entries(zoneCounts)
+      .map(([zone, count]) => ({ zone, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
 
     const { rows: professionalLocations } = await db.query(`
       SELECT p.id, u.name, p.specialty, p.latitude, p.longitude, p.current_latitude, p.current_longitude, p.is_online, p.has_store

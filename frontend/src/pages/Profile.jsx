@@ -9,6 +9,7 @@ import ReviewForm from '../components/ReviewForm';
 import ProfileSkeleton from '../components/ProfileSkeleton';
 import MinorAlert from '../components/MinorAlert';
 import { getAbsoluteImageUrl, handleImageError, handleGalleryError } from '../utils/imageHelper';
+import AdBanner from '../components/AdBanner';
 
 // Icono personalizado para evitar que se rompa la imagen del marcador en móvil
 const customIcon = new L.Icon({
@@ -262,8 +263,13 @@ function Profile() {
           </section>
         )}
 
+        {/* Banner de Anuncio - Estratégico y no intrusivo */}
+        <div className="px-4 lg:px-8">
+          <AdBanner />
+        </div>
+
         {/* Sección de Reseñas */}
-        <section className="px-6 lg:px-8 pt-8">
+        <section className="px-6 lg:px-8 pt-4">
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-primary dark:text-slate-100 tracking-tight text-xl font-bold leading-tight">Reseñas ({reviews.length})</h3>
             {canWriteReview && (
