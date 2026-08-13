@@ -31,7 +31,7 @@ function DatePicker({ value, onChange, label = 'Fecha de Nacimiento' }) {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const days = [];
-    
+
     // Rellenar días del mes anterior
     const startDayOfWeek = firstDay.getDay();
     for (let i = startDayOfWeek - 1; i >= 0; i--) {
@@ -79,7 +79,7 @@ function DatePicker({ value, onChange, label = 'Fecha de Nacimiento' }) {
     day: 'numeric',
     month: 'long',
     year: 'numeric'
-  }) : 'Seleccionar fecha';
+  }) : 'DD/MM/AAAA';
 
   const years = [];
   const currentYear = new Date().getFullYear();
@@ -109,7 +109,7 @@ function DatePicker({ value, onChange, label = 'Fecha de Nacimiento' }) {
             >
               <span className="material-symbols-outlined">chevron_left</span>
             </button>
-            
+
             <div className="flex gap-1">
               <select
                 value={month}

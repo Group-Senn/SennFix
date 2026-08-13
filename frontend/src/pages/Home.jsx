@@ -8,12 +8,12 @@ import MainServices from '../components/MainServices';
 import AdBanner from '../components/AdBanner';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import { useTheme } from '../context/ThemeContext';
-import logotipoVerde from '../assets/logotipo verde.svg';
-import logotipoNegativo from '../assets/logotipo negativo.svg';
+import logoNav from '../assets/logoNav.svg';
 import NotificationBell from '../components/NotificationBell';
+import { getAbsoluteImageUrl, handleImageError, DEFAULT_AVATAR } from '../utils/imageHelper';
 
 function Home() {
-  const { theme } = useTheme();
+  const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [locationName, setLocationName] = useState('Buscando ubicación...');
@@ -101,79 +101,137 @@ function Home() {
 
   return (
     <>
-      {/* Cabecera principal de la aplicación, visible en todas las vistas */}
-      <header className="sticky top-0 z-40 flex items-center justify-between bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-3 border-b border-primary/10 dark:border-slate-700">
-        <div className="w-1/3">
-          <ThemeSwitcher />
-        </div>
-        <div className="w-1/3 text-center">
-          <img src={theme === 'dark' ? logotipoNegativo : logotipoVerde} alt="SENN Fix Logotipo" className={`${theme === 'dark' ? 'h-16' : 'h-30'} mx-auto`} />
-        </div>
-        <div className="w-1/3 flex justify-end gap-2">
-          {user?.user_type === 'admin' && (
-            <Link to="/admin/dashboard" className="p-2 rounded-full bg-teal-500/10 text-teal-600 hover:bg-teal-500/20 dark:bg-teal-600/20 dark:text-teal-400 dark:hover:bg-teal-600/30 transition-colors" title="Consola de Administración">
-              <span className="material-symbols-outlined">admin_panel_settings</span>
+      <header className="sticky top-0 z-40 flex items-center justify-between bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-2.5 border-b border-primary/10 dark:border-slate-700 gap-2">
+        <div className="flex items-center gap-3">
+          {user ? (
+            <div className="flex items-center gap-2.5">
+              <img
+                src={getAbsoluteImageUrl(user.imageUrl)}
+                onError={handleImageError}
+                alt={user.name}
+                className="w-10 h-10 rounded-full border border-primary/10 object-cover shrink-0"
+              />
+              <div className="flex flex-col text-left">
+                <span className="text-sm font-bold text-primary dark:text-slate-100 leading-tight">{user.name}</span>
+                <div className="flex items-center gap-0.5 text-[10px] text-primary/60 dark:text-slate-400 font-semibold mt-0.5">
+                  <span className="material-symbols-outlined !text-[11px] shrink-0">location_on</span>
+                  <span className="truncate max-w-[130px]">{locationName}</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <Link to="/login" className="flex items-center gap-2.5 group">
+              <img
+                src={DEFAULT_AVATAR}
+                alt="Invitado"
+                className="w-10 h-10 rounded-full border border-primary/10 object-cover shrink-0"
+              />
+              <div className="flex flex-col text-left">
+                <span className="text-sm font-bold text-primary dark:text-teal-400 leading-tight group-hover:underline">Iniciar sesión</span>
+                <div className="flex items-center gap-0.5 text-[10px] text-primary/60 dark:text-slate-400 font-semibold mt-0.5">
+                  <span className="material-symbols-outlined !text-[11px] shrink-0">location_on</span>
+                  <span className="truncate max-w-[130px]">{locationName}</span>
+                </div>
+              </div>
             </Link>
           )}
-          <NotificationBell />
-          
-          {/* Menú de opciones */}
+        </div>
+
+        <div className="flex items-center gap-2">
+          <ThemeSwitcher />
           <div className="relative" ref={menuRef}>
-            <button 
-              onClick={() => setIsMenuOpen(!isMenuOpen)} 
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
               className="p-2 rounded-full bg-primary/5 text-primary hover:bg-primary/10 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600 transition-all active:scale-95 flex items-center justify-center border-none cursor-pointer"
               title="Menú de opciones"
             >
               <span className="material-symbols-outlined">menu</span>
             </button>
-            
+
             {isMenuOpen && (
               <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-outline-variant/10 dark:border-slate-700 overflow-hidden z-50 flex flex-col py-1 animate-feedback">
-                <Link 
-                  to="/legal/no-labor-relationship" 
+                <Link
+                  to="/legal/terms-and-conditions"
                   onClick={() => setIsMenuOpen(false)}
                   className="px-4 py-3 text-xs font-bold text-primary/80 dark:text-slate-350 hover:bg-primary/5 dark:hover:bg-slate-750 flex items-center gap-2 transition-colors"
                 >
                   <span className="material-symbols-outlined text-[18px]">gavel</span>
-                  Términos y Políticas
+                  Términos y Condiciones
                 </Link>
-                <button 
+                <Link
+                  to="/legal/privacy-policy"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="px-4 py-3 text-xs font-bold text-primary/80 dark:text-slate-350 hover:bg-primary/5 dark:hover:bg-slate-750 flex items-center gap-2 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[18px]">policy</span>
+                  Políticas de Privacidad
+                </Link>
+                <Link
+                  to="/legal/no-labor-relationship"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="px-4 py-3 text-xs font-bold text-primary/80 dark:text-slate-350 hover:bg-primary/5 dark:hover:bg-slate-750 flex items-center gap-2 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[18px]">verified_user</span>
+                  Deslinde Laboral
+                </Link>
+                <button
                   onClick={handleContactSupport}
                   className="w-full text-left px-4 py-3 text-xs font-bold text-primary/80 dark:text-slate-350 hover:bg-primary/5 dark:hover:bg-slate-750 flex items-center gap-2 transition-colors border-none bg-transparent cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[18px]">help</span>
                   Soporte Técnico
                 </button>
-                <hr className="border-outline-variant/10 dark:border-slate-700 my-1" />
-                <button 
-                  onClick={() => {
-                    setIsMenuOpen(false);
-                    logout();
-                    navigate('/login');
-                  }}
-                  className="w-full text-left px-4 py-3 text-xs font-bold text-red-600 hover:bg-red-500/5 flex items-center gap-2 transition-colors border-none bg-transparent cursor-pointer"
-                >
-                  <span className="material-symbols-outlined text-[18px]">logout</span>
-                  Cerrar Sesión
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </header>
+                 <hr className="border-outline-variant/10 dark:border-slate-700 my-1" />
+                 {user && user.user_type === 'admin' && (
+                   <Link
+                     to="/admin/dashboard"
+                     onClick={() => setIsMenuOpen(false)}
+                     className="px-4 py-3 text-xs font-bold text-teal-600 dark:text-teal-400 hover:bg-teal-500/5 flex items-center gap-2 transition-colors"
+                   >
+                     <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                     Consola de Administración
+                   </Link>
+                 )}
+                 <button
+                   onClick={() => {
+                     setIsMenuOpen(false);
+                     logout();
+                     navigate('/login');
+                   }}
+                   className="w-full text-left px-4 py-3 text-xs font-bold text-red-600 hover:bg-red-500/5 flex items-center gap-2 transition-colors border-none bg-transparent cursor-pointer"
+                 >
+                   <span className="material-symbols-outlined text-[18px]">logout</span>
+                   Cerrar Sesión
+                 </button>
+               </div>
+             )}
+           </div>
+         </div>
+       </header>
 
-      {/* Contenedor para centrar el contenido principal en pantallas grandes */}
-      <div className="mx-auto w-full max-w-6xl animate-page-entry">
-        {/* Título de la página y ubicación */}
-        <div className="p-6 lg:px-8">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary/60 dark:text-slate-400">location_on</span>
-            <p className="text-sm font-semibold text-primary dark:text-slate-200">{locationName}</p>
-          </div>
-          <h2 className="text-3xl font-bold text-primary dark:text-slate-100 mt-2">Encuentra la ayuda que necesitas</h2>
-        </div>
+       <div className="mx-auto w-full max-w-6xl animate-page-entry">
+         <div className="p-6 lg:px-8">
+           {/* Banner de acceso rápido a consola de administración si es admin */}
+           {user && user.user_type === 'admin' && (
+             <div className="mb-6 p-4 bg-teal-500/10 border border-teal-500/20 rounded-2xl flex items-center justify-between gap-4">
+               <div>
+                 <h3 className="text-sm font-bold text-teal-800 dark:text-teal-450 flex items-center gap-1.5">
+                   <span className="material-symbols-outlined text-lg">admin_panel_settings</span>
+                   Consola de Administración Activa
+                 </h3>
+                 <p className="text-xs text-teal-900/70 dark:text-slate-350 mt-1">Gestiona solicitudes de profesionales, reportes, soporte y estadísticas.</p>
+               </div>
+               <Link 
+                 to="/admin/dashboard" 
+                 className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-xl font-bold text-xs transition-colors cursor-pointer border-none no-underline flex items-center gap-1.5 shrink-0"
+               >
+                 Ir a la Consola
+               </Link>
+             </div>
+           )}
+           <h2 className="text-3xl font-bold text-primary dark:text-slate-100 mt-2">Encuentra la ayuda que necesitas</h2>
+         </div>
 
-        {/* Contenido principal */}
         <main className="flex-1 pb-32 px-6 lg:px-8 space-y-8">
           <SearchBar />
           <MainServices />
@@ -192,7 +250,7 @@ function Home() {
                 {nearbyProfessionals.map(prof => <ProfessionalCard key={prof.id} professional={prof} />)}
               </div>
             ) : (
-              <div className="text-primary/60 dark:text-slate-400">No se encontraron profesionales cerca de tu ubicación.</div>
+              <div className="text-sm font-medium text-primary/80 dark:text-slate-350">No se encontraron profesionales cerca de tu ubicación.</div>
             )}
           </section>
         </main>

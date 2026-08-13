@@ -3,11 +3,12 @@ import 'dotenv/config';
 
 const { Pool } = pg;
 
-// Configura el pool de conexiones usando la variable de entorno
+const connectionString = process.env.DATABASE_URL;
+const isLocal = !connectionString || connectionString.includes('localhost') || connectionString.includes('127.0.0.1');
+
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    // En producción con Neon, esto es necesario.
+  connectionString,
+  ssl: isLocal ? false : {
     rejectUnauthorized: false
   }
 });

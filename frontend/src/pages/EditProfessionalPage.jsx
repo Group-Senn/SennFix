@@ -199,24 +199,22 @@ function EditProfessionalPage() {
 
   return (
     <>
-      <header className="absolute top-0 left-0 w-full p-4 z-10">
+      <header className="sticky top-0 z-40 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-4 justify-between border-b border-primary/10 dark:border-slate-700">
         <button 
           type="button"
           onClick={handleBack} 
-          className="text-primary dark:text-slate-200 flex size-10 shrink-0 items-center justify-center rounded-full bg-white/50 hover:bg-white/80 dark:bg-slate-800/50 dark:hover:bg-slate-800/80 backdrop-blur-sm transition-colors border-none cursor-pointer"
+          className="text-primary dark:text-slate-200 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-primary/10 dark:hover:bg-slate-700 transition-colors border-none bg-transparent cursor-pointer"
         >
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
+        <h2 className="text-primary dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center pr-10">Editar Perfil Profesional</h2>
       </header>
-      <div className="flex flex-col items-center justify-start min-h-screen pt-20 pb-32 px-4 bg-background-light dark:bg-background-dark">
-        <div className="w-full max-w-md lg:max-w-3xl p-8 space-y-6 bg-white dark:bg-slate-800 rounded-2xl shadow-lg">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-primary dark:text-slate-100">Editar Perfil Profesional</h1>
-          </div>
+      <div className="flex flex-col items-center justify-start min-h-screen pt-4 px-4 pb-32 bg-background-light dark:bg-background-dark">
+        <div className="w-full max-w-md lg:max-w-3xl p-6 sm:p-8 space-y-5 bg-white dark:bg-slate-800 rounded-3xl shadow-xl shadow-primary/5 dark:shadow-black/20">
 
-          <div className="flex flex-col items-center pt-4">
+          <div className="flex flex-col items-center pt-2">
             <label htmlFor="profileImage" className="cursor-pointer group">
-              <div className="w-24 h-24 rounded-full bg-background-light dark:bg-slate-700 flex items-center justify-center text-primary/40 dark:text-slate-400 ring-4 ring-primary/10 dark:ring-slate-700 overflow-hidden relative">
+              <div className="w-24 h-24 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-primary/40 dark:text-slate-450 ring-4 ring-primary/10 dark:ring-slate-700 overflow-hidden relative">
                 {imagePreview ? (
                   <img src={imagePreview} alt="Vista previa" className="w-full h-full object-cover" />
                 ) : (
@@ -228,73 +226,110 @@ function EditProfessionalPage() {
               </div>
             </label>
             <input id="profileImage" name="profileImage" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+            <p className="text-xs font-bold text-primary/50 dark:text-slate-455 mt-2 uppercase tracking-wider">Actualizar foto de perfil</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-bold text-primary/80 dark:text-slate-200 block mb-2">Nombre Completo o de Empresa</label>
+                <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Nombre Completo o de Empresa</label>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary/40 dark:text-slate-400">person</span>
-                  <input type="text" name="name" value={formData.name} onChange={handleChange} required className="w-full pl-11 pr-4 py-3 rounded-lg bg-background-light dark:bg-slate-700 text-primary dark:text-slate-100 border-transparent focus:ring-2 focus:ring-primary dark:focus:ring-teal-500" />
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">person</span>
+                  <input 
+                    type="text" 
+                    name="name" 
+                    value={formData.name} 
+                    onChange={handleChange} 
+                    required 
+                    className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm" 
+                  />
                 </div>
               </div>
               <div>
-                <label className="text-sm font-bold text-primary/80 dark:text-slate-200 block mb-2">Número de Celular</label>
+                <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Número de Celular</label>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary/40 dark:text-slate-400">call</span>
-                  <input type="tel" inputMode="numeric" name="phone_number" value={formData.phone_number} onChange={handleChange} required className="w-full pl-11 pr-4 py-3 rounded-lg bg-background-light dark:bg-slate-700 text-primary dark:text-slate-100 border-transparent focus:ring-2 focus:ring-primary dark:focus:ring-teal-500" />
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">call</span>
+                  <input 
+                    type="tel" 
+                    inputMode="numeric" 
+                    name="phone_number" 
+                    value={formData.phone_number} 
+                    onChange={handleChange} 
+                    required 
+                    className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm" 
+                  />
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="text-sm font-bold text-primary/80 dark:text-slate-200 block mb-2">Especialidad Principal</label>
+              <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Especialidad Principal</label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary/40 dark:text-slate-400">work</span>
-                <input type="text" name="specialty" value={formData.specialty} onChange={handleChange} required className="w-full pl-11 pr-4 py-3 rounded-lg bg-background-light dark:bg-slate-700 text-primary dark:text-slate-100 border-transparent focus:ring-2 focus:ring-primary dark:focus:ring-teal-500" />
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">work</span>
+                <input 
+                  type="text" 
+                  name="specialty" 
+                  value={formData.specialty} 
+                  onChange={handleChange} 
+                  required 
+                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm" 
+                />
               </div>
             </div>
             <div>
-              <label className="text-sm font-bold text-primary/80 dark:text-slate-200 block mb-2">Biografía o Descripción del Servicio</label>
-              <textarea name="bio" value={formData.bio} onChange={handleChange} required rows="4" className="w-full px-4 py-3 rounded-lg bg-background-light dark:bg-slate-700 text-primary dark:text-slate-100 border-transparent focus:ring-2 focus:ring-primary dark:focus:ring-teal-500"></textarea>
+              <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Biografía o Descripción del Servicio</label>
+              <textarea 
+                name="bio" 
+                value={formData.bio} 
+                onChange={handleChange} 
+                required 
+                rows="4" 
+                className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm"
+              ></textarea>
             </div>
             <div>
-              <label className="text-sm font-bold text-primary/80 dark:text-slate-200 block mb-2">Otros servicios que ofreces (Opcional)</label>
-              <textarea name="services_offered" value={formData.services_offered} onChange={handleChange} rows="3" className="w-full px-4 py-3 rounded-lg bg-background-light dark:bg-slate-700 text-primary dark:text-slate-100 border-transparent focus:ring-2 focus:ring-primary dark:focus:ring-teal-500"></textarea>
+              <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Otros servicios que ofreces (Opcional)</label>
+              <textarea 
+                name="services_offered" 
+                value={formData.services_offered} 
+                onChange={handleChange} 
+                rows="3" 
+                className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm"
+              ></textarea>
             </div>
             <div>
-              <label className="text-sm font-bold text-primary/80 dark:text-slate-200 block mb-2">Hashtags / Trabajos Especiales (Opcional)</label>
+              <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Hashtags / Trabajos Especiales (Opcional)</label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-primary/40 dark:text-slate-400">tag</span>
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">tag</span>
                 <input 
                   type="text" 
                   name="hashtags" 
                   value={formData.hashtags} 
                   onChange={handleChange} 
                   placeholder="ej: #carpinteriaFina #reparacionNeveras" 
-                  className="w-full pl-11 pr-4 py-3 rounded-lg bg-background-light dark:bg-slate-700 text-primary dark:text-slate-100 border-transparent focus:ring-2 focus:ring-primary dark:focus:ring-teal-500" 
+                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm" 
                 />
               </div>
-              <p className="text-xs text-primary/60 dark:text-slate-400 mt-1">Añade palabras clave precedidas de # para destacar en servicios específicos.</p>
+              <p className="text-[10px] text-primary/50 dark:text-slate-450 mt-1 leading-tight">Añade palabras clave precedidas de # para destacar en servicios específicos.</p>
             </div>
             <div>
-              <label className="text-sm font-bold text-primary/80 dark:text-slate-200 block mb-2">Certificado FELCC/REJAP (Opcional)</label>
-              <input type="file" name="felcc_rejap" onChange={handleFelccRejapChange} accept=".pdf,.jpg,.jpeg,.png" className="w-full text-sm text-primary/80 dark:text-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 dark:file:bg-teal-500/20 file:text-primary dark:file:text-teal-400 hover:file:bg-primary/20 dark:hover:file:bg-teal-500/30" />
+              <label className="text-xs font-bold text-primary/85 dark:text-slate-350 block mb-1">Certificado FELCC/REJAP (Opcional)</label>
+              <input type="file" name="felcc_rejap" onChange={handleFelccRejapChange} accept=".pdf,.jpg,.jpeg,.png" className="w-full text-xs text-primary/80 dark:text-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 dark:file:bg-white/10 file:text-primary dark:file:text-white hover:file:bg-primary/20 dark:hover:file:bg-white/20 transition-all cursor-pointer" />
               {formData.felcc_rejap_url && (
-                <p className="text-xs text-primary/60 dark:text-slate-400 mt-1">
-                  Archivo actual: <a href={formData.felcc_rejap_url} target="_blank" rel="noopener noreferrer" className="text-primary dark:text-teal-400 hover:underline">Ver certificado</a>
-                  <span className="ml-2 text-red-500 dark:text-red-400 cursor-pointer" onClick={() => setFormData(prev => ({ ...prev, felcc_rejap_url: null }))}>[X] Eliminar</span>
+                <p className="text-xs text-primary/60 dark:text-slate-400 mt-2 flex items-center gap-2">
+                  <span>Archivo actual:</span>
+                  <a href={formData.felcc_rejap_url} target="_blank" rel="noopener noreferrer" className="font-bold text-primary dark:text-teal-405 hover:underline">Ver certificado</a>
+                  <button type="button" className="text-red-500 dark:text-red-400 hover:underline border-none bg-transparent cursor-pointer font-bold" onClick={() => setFormData(prev => ({ ...prev, felcc_rejap_url: null }))}>[Eliminar]</button>
                 </p>
               )}
             </div>
-            <div className="flex items-center gap-3 p-3 bg-background-light dark:bg-slate-700/50 rounded-lg">
-              <input type="checkbox" name="has_store" id="has_store" checked={formData.has_store} onChange={handleChange} className="size-5 rounded text-primary dark:text-teal-500 focus:ring-primary dark:focus:ring-teal-500 dark:bg-slate-800 border-transparent" />
-              <label htmlFor="has_store" className="text-sm font-bold text-primary/80 dark:text-slate-200">Tengo una tienda o local físico</label>
+            <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-primary/5 dark:border-slate-750">
+              <input type="checkbox" name="has_store" id="has_store" checked={formData.has_store} onChange={handleChange} className="size-5 rounded text-primary focus:ring-primary" />
+              <label htmlFor="has_store" className="text-sm font-bold text-primary/80 dark:text-slate-250">Tengo una tienda o local físico</label>
             </div>
             {formData.has_store && (
-              <div>
-                <label className="text-sm font-bold text-primary/80 dark:text-slate-200 block mb-2">Ubicación de la Tienda o Local</label>
+              <div className="space-y-2">
+                <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase block">Ubicación de la Tienda o Local</label>
                 <LocationPicker
                   onLocationChange={handleLocationChange}
                   address={formData.store_address}
@@ -302,13 +337,13 @@ function EditProfessionalPage() {
                 />
               </div>
             )}
-            <div className="flex items-center gap-3 p-3 bg-background-light dark:bg-slate-700/50 rounded-lg">
-              <input type="checkbox" name="is_online" id="is_online" checked={formData.is_online} onChange={handleOnlineStatusChange} className="size-5 rounded text-primary dark:text-teal-500 focus:ring-primary dark:focus:ring-teal-500 dark:bg-slate-800 border-transparent" />
-              <label htmlFor="is_online" className="text-sm font-bold text-primary/80 dark:text-slate-200">Estoy disponible y online</label>
-              {formData.is_online && <span className="text-xs text-primary/60 dark:text-slate-400">(Tu ubicación se actualizará cada 30s)</span>}
+            <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-primary/5 dark:border-slate-750">
+              <input type="checkbox" name="is_online" id="is_online" checked={formData.is_online} onChange={handleOnlineStatusChange} className="size-5 rounded text-primary focus:ring-primary" />
+              <label htmlFor="is_online" className="text-sm font-bold text-primary/80 dark:text-slate-250">Estoy disponible y online</label>
+              {formData.is_online && <span className="text-xs text-primary/60 dark:text-slate-400 leading-tight">(Tu ubicación se actualizará cada 30s)</span>}
             </div>
             <div>
-              <label className="text-sm font-bold text-primary/80 dark:text-slate-200 block mb-2">
+              <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">
                 Radio de Acción (km) (Opcional)
               </label>
               <input
@@ -318,14 +353,29 @@ function EditProfessionalPage() {
                 onChange={handleChange}
                 min="1"
                 max="100"
-                className="w-full px-4 py-3 rounded-lg bg-background-light dark:bg-slate-700 text-primary dark:text-slate-100 border-transparent focus:ring-2 focus:ring-primary dark:focus:ring-teal-500"
+                className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm"
               />
             </div>
 
-            {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-            {success && <p className="text-green-500 text-sm text-center">{success}</p>}
+            {error && (
+              <div className="animate-feedback flex items-center gap-3 p-3 bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-400 rounded-xl text-sm font-semibold">
+                <span className="material-symbols-outlined shrink-0 text-xl">error</span>
+                <span>{error}</span>
+              </div>
+            )}
+            {success && (
+              <div className="animate-feedback flex items-center gap-3 p-3 bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400 rounded-xl text-sm font-semibold">
+                <span className="material-symbols-outlined shrink-0 text-xl">check_circle</span>
+                <span>{success}</span>
+              </div>
+            )}
             <div className="text-center pt-4">
-              <button type="submit" className="inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 dark:bg-teal-650 dark:hover:bg-teal-600 text-white px-10 py-3 rounded-lg font-bold text-lg transition-all active:scale-95 border-none cursor-pointer">Guardar Cambios</button>
+              <button 
+                type="submit" 
+                className="w-full py-3.5 px-4 bg-gradient-to-r from-primary to-teal-800 dark:from-teal-600 dark:to-teal-700 text-white rounded-2xl font-bold text-base transition-all duration-200 hover:opacity-95 hover:shadow-lg hover:shadow-primary/10 dark:hover:shadow-teal-500/10 active:scale-95 border-none cursor-pointer"
+              >
+                Guardar Cambios
+              </button>
             </div>
           </form>
         </div>

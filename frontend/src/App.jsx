@@ -23,6 +23,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import BottomNav from './components/BottomNav';
 import { useAuth } from './context/AuthContext';
 import NoLaborRelationshipPage from './pages/NoLaborRelationshipPage';
+import TermsAndConditionsPage from './pages/TermsAndConditionsPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import JobCompletionPage from './pages/JobCompletionPage';
 import CookieConsent from './components/CookieConsent';
 
@@ -59,7 +61,7 @@ function App() {
 
   // Ocultamos la barra de navegación en ciertas páginas
   const isChatRoom = location.pathname.startsWith('/chats/');
-  const showNav = !['/', '/login', '/register', '/register-professional', '/legal/no-labor-relationship'].includes(location.pathname) && !isChatRoom;
+  const showNav = !['/', '/login', '/register', '/register-professional', '/legal/no-labor-relationship', '/legal/terms-and-conditions', '/legal/privacy-policy'].includes(location.pathname) && !isChatRoom;
 
   return (
     <div className="relative w-full min-h-screen overflow-x-hidden bg-background-light dark:bg-background-dark">
@@ -72,11 +74,13 @@ function App() {
         <Route path="/home" element={<Home />} />
         <Route path="/map" element={<NearbyPage />} />
         <Route path="/profile/:id" element={<Profile />} />
-        <Route path="/services/:categoryName" element={<ProfessionalsByCategoryPage />} />
+        <Route path="/services/*" element={<ProfessionalsByCategoryPage />} />
         <Route path="/services" element={<AllServices />} />
         <Route path="/search" element={<SearchResults />} />
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
         <Route path="/legal/no-labor-relationship" element={<NoLaborRelationshipPage />} />
+        <Route path="/legal/terms-and-conditions" element={<TermsAndConditionsPage />} />
+        <Route path="/legal/privacy-policy" element={<PrivacyPolicyPage />} />
 
 
         {/* Rutas Protegidas */}

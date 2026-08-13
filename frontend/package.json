@@ -15,6 +15,7 @@
     "@capacitor/core": "^6.2.0",
     "@capacitor/geolocation": "^6.1.1",
     "@capacitor/push-notifications": "^6.0.5",
+    "firebase": "^12.17.1",
     "jwt-decode": "^4.0.0",
     "leaflet": "^1.9.4",
     "react": "^19.2.4",
@@ -25,6 +26,8 @@
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
     "@eslint/js": "^9.39.4",
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.2.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.0",

@@ -195,8 +195,8 @@ function Profile() {
                       </div>
                     )}
                     {isVerified && (
-                      <div className="bg-primary text-white p-1 rounded-full border-2 border-background-light dark:border-background-dark" title="Perfil Verificado">
-                        <span className="material-symbols-outlined text-sm block">verified</span>
+                      <div className="bg-gradient-to-tr from-emerald-600 via-green-400 to-emerald-300 text-white p-1.5 rounded-full border-2 border-white/60 shadow-[0_2px_10px_rgba(16,185,129,0.5),inset_0_1px_0_rgba(255,255,255,0.4)]" title="Perfil Verificado">
+                        <span className="material-symbols-outlined text-sm block font-bold">verified</span>
                       </div>
                     )}
                   </div>
@@ -223,9 +223,9 @@ function Profile() {
               )}
 
               {isVerified && (
-                <div className="flex items-center gap-1 mt-2.5 bg-primary/10 dark:bg-teal-500/20 px-3 py-1 rounded-full">
-                  <span className="material-symbols-outlined text-primary dark:text-teal-400 text-sm">verified</span>
-                  <p className="text-primary dark:text-teal-400 text-xs font-semibold uppercase tracking-wider">Especialista Verificado</p>
+                <div className="flex items-center gap-1.5 mt-3 bg-gradient-to-r from-emerald-500/20 via-green-400/10 to-teal-500/20 border border-green-500/30 px-3.5 py-1.5 rounded-full shadow-[0_2px_6px_rgba(16,185,129,0.15)]">
+                  <span className="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-sm font-bold">verified</span>
+                  <p className="text-emerald-700 dark:text-emerald-400 text-xs font-extrabold uppercase tracking-wider">Profesional Verificado</p>
                 </div>
               )}
               <div className="flex flex-col items-center md:items-start gap-2 mt-4">

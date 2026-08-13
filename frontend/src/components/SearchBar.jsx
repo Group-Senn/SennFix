@@ -88,8 +88,8 @@ function SearchBar() {
       <form onSubmit={handleSearchSubmit} className="relative z-30">
         <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60 dark:text-slate-400">search</span>
         <input
-          className="w-full pl-12 pr-12 py-4 rounded-xl border border-primary/10 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-sm focus:ring-2 focus:ring-primary dark:focus:ring-teal-500 focus:outline-none text-base md:text-lg text-primary dark:text-slate-100 transition-all placeholder:text-primary/40 dark:placeholder:text-slate-500"
-          placeholder="¿Qué servicio necesitas hoy? (Ej: #carpinteria, plomero)"
+          className="w-full pl-12 pr-12 py-4 rounded-2xl border border-primary/10 dark:border-slate-700 bg-white/70 dark:bg-slate-800/60 backdrop-blur-md shadow-sm focus:shadow-md focus:shadow-primary/5 dark:focus:shadow-teal-500/10 focus:ring-2 focus:ring-primary dark:focus:ring-teal-500 focus:outline-none text-base md:text-lg text-primary dark:text-slate-100 transition-all placeholder:text-primary/50 dark:placeholder:text-slate-400 font-medium"
+          placeholder="¿Qué servicio necesitas hoy?"
           type="text"
           value={query}
           onChange={(e) => {
@@ -194,7 +194,7 @@ function SearchBar() {
                         <div className="flex items-center gap-1">
                           <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate m-0">{prof.name}</p>
                           {prof.verified && (
-                            <span className="material-symbols-outlined text-xs text-primary dark:text-teal-400" title="Verificado">verified</span>
+                            <span className="material-symbols-outlined text-xs text-green-600 dark:text-green-400" title="Verificado">verified</span>
                           )}
                         </div>
                         <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate m-0">{prof.specialty || 'Profesional'}</p>

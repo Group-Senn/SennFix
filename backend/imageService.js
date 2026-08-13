@@ -44,8 +44,16 @@ async function watermarkAndSave(fileBuffer, filenamePrefix) {
     .composite([{ input: svgBuffer, gravity: 'center' }]) // Aplica la marca de agua
     .toBuffer();
 
-  // 1. Subir a S3
-  await uploadToS3(outputBuffer, filename, 'image/webp');
+  // 1. Subir a S3 si está configurado
+  if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+    try {
+      await uploadToS3(outputBuffer, filename, 'image/webp');
+    } catch (err) {
+      console.warn('Advertencia: Falló subida a S3 de marca de agua, continuando localmente:', err.message);
+    }
+  } else {
+    console.log('AWS S3/R2 no configurado, guardando imagen con marca de agua localmente.');
+  }
 
   // 2. Escribir localmente para compatibilidad local
   try {

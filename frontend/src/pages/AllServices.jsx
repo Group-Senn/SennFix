@@ -40,7 +40,7 @@ function AllServices() {
         <h2 className="text-primary dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center pr-10">Todos los Servicios</h2>
       </header>
 
-      <main className="flex-1 pb-16">
+      <main className="flex-1 pb-32">
         {loading ? (
           <div className="text-center p-10 text-primary/70">Cargando servicios...</div>
         ) : (

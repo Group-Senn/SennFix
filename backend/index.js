@@ -11,13 +11,26 @@ import { watermarkAndSave } from './imageService.js';
 import { containsBlacklistedWords } from './validationService.js';
 import { startGoldSealCron } from './cronService.js';
 import { fileURLToPath } from 'url';
+import rateLimit from 'express-rate-limit';
+import { sanitizeMiddleware } from './sanitizeService.js';
 
 const app = express();
-const port = process.env.PORT || 3000; // Usa el puerto del .env o 3000 por defecto
+const port = process.env.PORT || 3000;
+
+// Rate limiting configuration
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutos
+  max: 100, // Límite de 100 peticiones por ventana de tiempo por IP
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Demasiadas solicitudes desde esta IP, por favor intente de nuevo más tarde.' }
+});
 
 // Middlewares
-app.use(cors()); // Permite la comunicación entre frontend y backend
-app.use(express.json()); // Permite al servidor entender JSON
+app.use(cors());
+app.use(express.json());
+app.use('/api/', apiLimiter);
+app.use(sanitizeMiddleware);
 
 // --- Configuración para subida de archivos ---
 
@@ -46,8 +59,16 @@ import { uploadToS3, deleteFromS3, getFromS3 } from './s3Service.js';
 async function saveUploadedFile(file, prefix, isPrivate = false) {
   const filename = `${prefix}-${Date.now()}${path.extname(file.originalname)}`;
   
-  // 1. Subir a S3/R2
-  await uploadToS3(file.buffer, filename, file.mimetype);
+  // 1. Subir a S3/R2 si está configurado
+  if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+    try {
+      await uploadToS3(file.buffer, filename, file.mimetype);
+    } catch (err) {
+      console.warn('Advertencia: Falló subida a S3, continuando localmente:', err.message);
+    }
+  } else {
+    console.log('AWS S3/R2 no configurado, guardando únicamente de forma local.');
+  }
   
   // 2. Escribir localmente para desarrollo
   const targetDir = isPrivate ? privateUploadsDir : uploadsDir;
@@ -391,7 +412,8 @@ app.get('/api/professionals/nearby', async (req, res) => {
 // Endpoint para obtener un profesional por su ID
 app.get('/api/professionals/:id', async (req, res, next) => {
   const { id } = req.params;
-  if (isNaN(Number(id))) {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRegex.test(id)) {
     return next();
   }
   try {
@@ -582,14 +604,39 @@ app.get('/api/search', async (req, res) => {
 // Endpoint para obtener los servicios
 app.get('/api/services', async (req, res) => {
   const { main } = req.query;
-  let queryText = 'SELECT id, name, category, is_high_risk, is_main, icon_name as icon FROM services';
-  if (main === 'true') {
-    queryText += ' WHERE is_main = true';
-  } else {
-    queryText += ' ORDER BY category, name';
+  try {
+    if (main === 'true') {
+      // Obtenemos solo 4 servicios ordenados por cantidad de profesionales registrados,
+      // con fallback a los más populares (Plomero, Jardinero, Electricista, Limpieza, Pintor) en caso de empate/0.
+      const queryText = `
+        SELECT s.id, s.name, s.category, s.is_high_risk, s.is_main, s.icon_name as icon, COUNT(p.id) as prof_count
+        FROM services s
+        LEFT JOIN professionals p ON s.name = p.specialty
+        GROUP BY s.id, s.name, s.category, s.is_high_risk, s.is_main, s.icon_name
+        ORDER BY 
+          COUNT(p.id) DESC,
+          CASE 
+            WHEN s.name = 'Plomero / Fontanero' THEN 1
+            WHEN s.name = 'Jardinero' THEN 2
+            WHEN s.name = 'Electricista (Baja Tensión / Residencial)' THEN 3
+            WHEN s.name = 'Limpieza de Casas / Hogar' THEN 4
+            WHEN s.name = 'Pintor Domiciliario' THEN 5
+            ELSE 6
+          END ASC,
+          s.name ASC
+        LIMIT 4
+      `;
+      const { rows } = await db.query(queryText);
+      res.json(rows);
+    } else {
+      const queryText = 'SELECT id, name, category, is_high_risk, is_main, icon_name as icon FROM services ORDER BY category, name';
+      const { rows } = await db.query(queryText);
+      res.json(rows);
+    }
+  } catch (error) {
+    console.error('Error al obtener servicios:', error);
+    res.status(500).json({ message: 'Error al obtener los servicios del servidor.' });
   }
-  const { rows } = await db.query(queryText);
-  res.json(rows);
 });
 
 // Endpoint para solicitar mediación explícitamente
@@ -1432,11 +1479,11 @@ app.put('/api/admin/profile', adminMiddleware, upload.single('adminAvatar'), asy
     }
 
     // Obtener los datos actualizados
-    const { rows: [updated] } = await db.query('SELECT id, name, email, user_type, "imageUrl" FROM users WHERE id = $1', [adminId]);
+    const { rows: [updated] } = await db.query('SELECT id, name, email, phone_number, user_type, "imageUrl" FROM users WHERE id = $1', [adminId]);
 
     // Generar un nuevo JWT Token
     const newToken = jwt.sign(
-      { id: updated.id, name: updated.name, email: updated.email, user_type: updated.user_type, imageUrl: updated.imageUrl },
+      { id: updated.id, name: updated.name, email: updated.email, phone_number: updated.phone_number, user_type: updated.user_type, imageUrl: updated.imageUrl },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -1492,11 +1539,11 @@ app.put('/api/users/profile', authMiddleware, upload.single('avatar'), async (re
     }
 
     // Obtener los datos actualizados del usuario
-    const { rows: [updated] } = await db.query('SELECT id, name, email, user_type, "imageUrl" FROM users WHERE id = $1', [userId]);
+    const { rows: [updated] } = await db.query('SELECT id, name, email, phone_number, user_type, "imageUrl" FROM users WHERE id = $1', [userId]);
 
     // Generar un nuevo JWT Token
     const newToken = jwt.sign(
-      { id: updated.id, name: updated.name, email: updated.email, user_type: updated.user_type, imageUrl: updated.imageUrl },
+      { id: updated.id, name: updated.name, email: updated.email, phone_number: updated.phone_number, user_type: updated.user_type, imageUrl: updated.imageUrl },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -1806,6 +1853,17 @@ app.post('/api/register', async (req, res) => {
       [name, email, passwordHash, user_type, imageUrl, phone_number, birth_date, identity_card || null, account_status]
     );
 
+    // Insertar notificación legal de bienvenida
+    await db.query(
+      'INSERT INTO notifications (user_id, title, content, type) VALUES ($1, $2, $3, $4)',
+      [
+        newUser.id,
+        'Políticas de Privacidad y Términos Aceptados',
+        'Has aceptado la Política de Privacidad, los Términos y Condiciones y los Términos de Deslinde Laboral de SENN FIX al registrarte.',
+        'legal'
+      ]
+    );
+
     res.status(201).json({ message: 'Usuario registrado con éxito.', userId: newUser.id });
   } catch (error) {
     console.error('Error en el registro:', error);
@@ -2009,6 +2067,17 @@ app.post('/api/register-professional', upload.fields([
       ]
     );
 
+    // Insertar notificación legal de bienvenida para profesionales
+    await client.query(
+      'INSERT INTO notifications (user_id, title, content, type) VALUES ($1, $2, $3, $4)',
+      [
+        newUserId,
+        'Políticas de Privacidad y Términos Aceptados',
+        'Has aceptado la Política de Privacidad, los Términos y Condiciones y los Términos de Deslinde Laboral (Política de No Relación Laboral) de SENN FIX al registrarte como profesional.',
+        'legal'
+      ]
+    );
+
     // Confirmar transacción
     await client.query('COMMIT');
 
@@ -2040,7 +2109,7 @@ app.put('/api/professionals/:id', authMiddleware, upload.fields([
   const userId = req.user.id;
 
   // Verificación de autorización: solo el propio usuario puede editar su perfil
-  if (parseInt(id) !== userId) {
+  if (id !== userId) {
     return res.status(403).json({ message: 'No tienes permiso para editar este perfil.' });
   }
 
@@ -2145,9 +2214,9 @@ app.put('/api/professionals/:id', authMiddleware, upload.fields([
     }
 
     // Después de una actualización exitosa, genera un nuevo token con la información actualizada
-    const { rows: [updatedUser] } = await client.query('SELECT id, name, user_type, "imageUrl" FROM users WHERE id = $1', [id]);
+    const { rows: [updatedUser] } = await client.query('SELECT id, name, email, phone_number, user_type, "imageUrl" FROM users WHERE id = $1', [id]);
     const newToken = jwt.sign(
-      { id: updatedUser.id, name: updatedUser.name, user_type: updatedUser.user_type, imageUrl: updatedUser.imageUrl },
+      { id: updatedUser.id, name: updatedUser.name, email: updatedUser.email, phone_number: updatedUser.phone_number, user_type: updatedUser.user_type, imageUrl: updatedUser.imageUrl },
       JWT_SECRET,
       { expiresIn: '7d' }
     );
@@ -2168,7 +2237,7 @@ app.put('/api/professionals/:id/online-status', authMiddleware, async (req, res)
   const { id } = req.params;
   const { is_online } = req.body;
 
-  if (parseInt(id) !== req.user.id) {
+  if (id !== req.user.id) {
     return res.status(403).json({ message: 'No tienes permiso para actualizar este perfil.' });
   }
 
@@ -2192,7 +2261,7 @@ app.put('/api/professionals/:id/location', authMiddleware, async (req, res) => {
   const { id } = req.params;
   const { latitude, longitude } = req.body;
 
-  if (parseInt(id) !== req.user.id) {
+  if (id !== req.user.id) {
     return res.status(403).json({ message: 'No tienes permiso para actualizar esta ubicación.' });
   }
 
@@ -2233,7 +2302,7 @@ app.post('/api/login', async (req, res) => {
 
     // Generar el token JWT
     const token = jwt.sign(
-      { id: user.id, name: user.name, user_type: user.user_type, imageUrl: user.imageUrl },
+      { id: user.id, name: user.name, email: user.email, phone_number: user.phone_number, user_type: user.user_type, imageUrl: user.imageUrl },
       JWT_SECRET,
       { expiresIn: '7d' } // El token expira en 7 días
     );
@@ -2279,15 +2348,13 @@ app.post('/api/chats/start', authMiddleware, async (req, res) => {
   const { recipientId } = req.body;
   const senderId = req.user.id;
 
-  const targetId = parseInt(recipientId);
-
-  if (!targetId || senderId == targetId) {
+  if (!recipientId || senderId === recipientId) {
     return res.status(400).json({ message: 'ID de destinatario inválido.' });
   }
 
   try {
-    const user1 = Math.min(senderId, targetId);
-    const user2 = Math.max(senderId, targetId);
+    const user1 = senderId < recipientId ? senderId : recipientId;
+    const user2 = senderId > recipientId ? senderId : recipientId;
 
     let { rows: [conversation] } = await db.query('SELECT * FROM conversations WHERE user1_id = $1 AND user2_id = $2', [user1, user2]);
 
@@ -2317,8 +2384,8 @@ app.post('/api/chats/support', authMiddleware, async (req, res) => {
       return res.status(400).json({ message: 'No puedes abrir un chat de soporte contigo mismo.' });
     }
 
-    const user1 = Math.min(senderId, recipientId);
-    const user2 = Math.max(senderId, recipientId);
+    const user1 = senderId < recipientId ? senderId : recipientId;
+    const user2 = senderId > recipientId ? senderId : recipientId;
 
     let { rows: [conversation] } = await db.query('SELECT * FROM conversations WHERE user1_id = $1 AND user2_id = $2', [user1, user2]);
 
@@ -2526,6 +2593,31 @@ async function initDatabase() {
         user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
         details TEXT NOT NULL,
         status VARCHAR(20) DEFAULT 'open',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // 4c. Crear la tabla de denuncias/reclamos si no existe
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS complaints (
+        id SERIAL PRIMARY KEY,
+        reporter_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        reported_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        job_id INTEGER REFERENCES jobs(id) ON DELETE SET NULL,
+        reason VARCHAR(255) NOT NULL,
+        details TEXT NOT NULL,
+        status VARCHAR(50) DEFAULT 'open',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    // 4d. Crear la tabla de fotos de portafolio si no existe
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS portfolio_photos (
+        id SERIAL PRIMARY KEY,
+        professional_id UUID NOT NULL REFERENCES professionals(id) ON DELETE CASCADE,
+        image_url VARCHAR(255) NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);

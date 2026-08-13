@@ -14,7 +14,7 @@ function ChatsPage() {
         const response = await fetch(window.API_URL + '/api/chats', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        if (!response.ok) throw new Error('No se pudieron cargar los chats.');
+        if (!response.ok) throw new Error('No hay mensajes');
         const data = await response.json();
         setConversations(data);
       } catch (err) {
@@ -34,11 +34,11 @@ function ChatsPage() {
         <h2 className="text-primary dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center">Chats</h2>
       </header>
 
-      <main className="flex-1 pb-16">
+      <main className="flex-1 pb-32">
         {loading && <div className="p-8 text-center text-primary/70">Cargando chats...</div>}
-        {error && <div className="p-8 text-center text-red-500">{error}</div>}
+        {error && <div className="p-8 text-center text-primary/70">{error}</div>}
         {!loading && !error && conversations.length === 0 && (
-          <div className="p-8 text-center text-primary/70">No tienes conversaciones activas.</div>
+          <div className="p-8 text-center text-primary/70">No hay mensajes</div>
         )}
         {!loading && !error && conversations.length > 0 && (
           <div className="p-4 space-y-2">

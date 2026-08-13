@@ -2,7 +2,7 @@ import React from 'react';
 
 function MinorAlert() {
   return (
-    <div className="bg-yellow-100 dark:bg-yellow-900/30 border-l-4 border-yellow-500 text-yellow-800 dark:text-yellow-300 p-4 mx-4 lg:mx-8 rounded-r-lg shadow-sm" role="alert">
+    <div className="bg-yellow-100 dark:bg-yellow-900/30 border-l-4 border-yellow-500 text-yellow-800 dark:text-yellow-300 p-4 mx-4 lg:mx-8 rounded-r-lg shadow-sm alerta-menor-edad" role="alert">
       <div className="flex items-center">
         <div className="py-1">
           <span className="material-symbols-outlined mr-3">warning</span>

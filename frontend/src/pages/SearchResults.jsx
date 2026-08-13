@@ -59,7 +59,7 @@ function SearchResults() {
         </h2>
       </header>
 
-      <main className="flex-1 pb-16 px-4 lg:px-8">
+      <main className="flex-1 pb-32 px-4 lg:px-8">
         {loading && <div className="text-center p-10 text-primary/70">Buscando...</div>}
         {error && <div className="text-center p-10 text-red-500">Error: {error}</div>}
 

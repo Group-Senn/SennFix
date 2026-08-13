@@ -4,7 +4,8 @@ import ProfessionalCard from '../components/ProfessionalCard';
 import ProfessionalCardSkeleton from '../components/ProfessionalCardSkeleton';
 
 function ProfessionalsByCategoryPage() {
-  const { categoryName } = useParams();
+  const params = useParams();
+  const categoryName = params['*'] || '';
   const [professionals, setProfessionals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
