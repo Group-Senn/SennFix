@@ -5,6 +5,9 @@ import { useTheme } from '../context/ThemeContext';
 import ThemeSwitcher from './ThemeSwitcher';
 import NotificationBell from './NotificationBell';
 import logoNav from '../assets/logoNav.svg';
+import logoNavDark from '../assets/logoNavDark.svg';
+import letra from '../assets/letra.svg';
+import letraDark from '../assets/letraDark.svg';
 import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
 
 function DesktopHeader() {
@@ -97,14 +100,29 @@ function DesktopHeader() {
     <header className="sticky top-0 left-0 right-0 z-50 h-16 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-primary/10 dark:border-slate-800 hidden md:flex items-center justify-between px-8">
       {/* Brand Identity / Logo */}
       <Link to="/home" className="flex items-center gap-2.5 group">
+        {/* Logo image responsive to dark mode */}
         <img 
           src={logoNav} 
           alt="SENN Fix Logo" 
-          className="h-8 w-auto object-contain transition-transform group-hover:scale-105" 
+          className="h-8 w-auto object-contain transition-transform group-hover:scale-105 dark:hidden" 
         />
-        <span className="font-display font-bold text-lg tracking-tight text-primary dark:text-slate-100">
-          SENN Fix
-        </span>
+        <img 
+          src={logoNavDark} 
+          alt="SENN Fix Logo" 
+          className="h-8 w-auto object-contain transition-transform group-hover:scale-105 hidden dark:block" 
+        />
+        
+        {/* Brand Text image responsive to dark mode */}
+        <img 
+          src={letra} 
+          alt="SENN Fix" 
+          className="h-5 w-auto object-contain dark:hidden" 
+        />
+        <img 
+          src={letraDark} 
+          alt="SENN Fix" 
+          className="h-5 w-auto object-contain hidden dark:block" 
+        />
       </Link>
 
       {/* Centered Navigation Links */}
@@ -134,82 +152,59 @@ function DesktopHeader() {
       </nav>
 
       {/* Right Controls */}
-      <div className="flex items-center gap-5">
-        {isAuthenticated && (
+      <div className="flex items-center gap-4">
+        {isAuthenticated ? (
           <>
             {/* Location Display */}
-            <div className="hidden lg:flex items-center gap-1 text-[11px] text-primary/60 dark:text-slate-400 font-semibold max-w-[180px]">
-              <span className="material-symbols-outlined !text-[14px] shrink-0">location_on</span>
+            <div className="hidden lg:flex items-center gap-1 text-[11px] text-primary/60 dark:text-slate-400 font-semibold max-w-[150px] mr-1">
+              <span className="material-symbols-outlined !text-[14px] shrink-0 text-primary dark:text-teal-400">location_on</span>
               <span className="truncate" title={locationName}>{locationName}</span>
             </div>
 
             <NotificationBell />
           </>
-        )}
+        ) : null}
         
         <ThemeSwitcher />
 
-        <div className="h-4 w-px bg-primary/10 dark:bg-slate-700" />
+        {/* Menu Dropdown next to ThemeSwitcher */}
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="p-1.5 rounded-full hover:bg-primary/5 dark:hover:bg-slate-800 text-primary dark:text-slate-200 transition-colors flex items-center justify-center border-none bg-transparent cursor-pointer"
+            title="Menú de opciones"
+          >
+            <span className="material-symbols-outlined text-[22px]">menu</span>
+          </button>
 
-        {isAuthenticated ? (
-          <div className="relative" ref={menuRef}>
-            {/* User Profile Button */}
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="flex items-center gap-2.5 text-left bg-transparent border-none cursor-pointer focus:outline-none group p-1 rounded-xl hover:bg-primary/5 dark:hover:bg-slate-800 transition-colors"
-            >
-              {user?.imageUrl ? (
-                <img
-                  src={getAbsoluteImageUrl(user.imageUrl)}
-                  onError={handleImageError}
-                  alt={user.name}
-                  className="w-9 h-9 rounded-full border border-primary/10 object-cover shrink-0 transition-transform group-hover:scale-105"
-                />
-              ) : (
-                <span className="material-symbols-outlined text-[36px] text-primary/60 dark:text-slate-400 shrink-0">
-                  account_circle
-                </span>
-              )}
-              <div className="hidden sm:flex flex-col">
-                <span className="text-xs font-bold text-primary dark:text-slate-100 leading-tight">
-                  {user?.name}
-                </span>
-                <span className="text-[9px] text-primary/50 dark:text-slate-400 font-medium">
-                  {user?.user_type === 'professional' ? 'Profesional' : user?.user_type === 'admin' ? 'Administrador' : 'Cliente'}
-                </span>
-              </div>
-              <span className="material-symbols-outlined text-[16px] text-primary/50 dark:text-slate-400 transition-transform duration-200 group-hover:translate-y-[1px]">
-                keyboard_arrow_down
-              </span>
-            </button>
-
-            {/* Dropdown Menu */}
-            {isMenuOpen && (
-              <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-outline-variant/10 dark:border-slate-700 overflow-hidden z-50 flex flex-col py-1 animate-scale-up">
-                <Link
-                  to="/legal/terms-and-conditions"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="px-4 py-2.5 text-xs font-bold text-primary/80 dark:text-slate-350 hover:bg-primary/5 dark:hover:bg-slate-750 flex items-center gap-2.5 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[18px]">gavel</span>
-                  Términos y Condiciones
-                </Link>
-                <Link
-                  to="/legal/privacy-policy"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="px-4 py-2.5 text-xs font-bold text-primary/80 dark:text-slate-350 hover:bg-primary/5 dark:hover:bg-slate-750 flex items-center gap-2.5 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[18px]">policy</span>
-                  Políticas de Privacidad
-                </Link>
-                <Link
-                  to="/legal/no-labor-relationship"
-                  onClick={() => setIsMenuOpen(false)}
-                  className="px-4 py-2.5 text-xs font-bold text-primary/80 dark:text-slate-350 hover:bg-primary/5 dark:hover:bg-slate-750 flex items-center gap-2.5 transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[18px]">verified_user</span>
-                  Deslinde Laboral
-                </Link>
+          {isMenuOpen && (
+            <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-outline-variant/10 dark:border-slate-700 overflow-hidden z-50 flex flex-col py-1 animate-scale-up">
+              <Link
+                to="/legal/terms-and-conditions"
+                onClick={() => setIsMenuOpen(false)}
+                className="px-4 py-2.5 text-xs font-bold text-primary/80 dark:text-slate-350 hover:bg-primary/5 dark:hover:bg-slate-750 flex items-center gap-2.5 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[18px]">gavel</span>
+                Términos y Condiciones
+              </Link>
+              <Link
+                to="/legal/privacy-policy"
+                onClick={() => setIsMenuOpen(false)}
+                className="px-4 py-2.5 text-xs font-bold text-primary/80 dark:text-slate-350 hover:bg-primary/5 dark:hover:bg-slate-750 flex items-center gap-2.5 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[18px]">policy</span>
+                Políticas de Privacidad
+              </Link>
+              <Link
+                to="/legal/no-labor-relationship"
+                onClick={() => setIsMenuOpen(false)}
+                className="px-4 py-2.5 text-xs font-bold text-primary/80 dark:text-slate-350 hover:bg-primary/5 dark:hover:bg-slate-750 flex items-center gap-2.5 transition-colors"
+              >
+                <span className="material-symbols-outlined text-[18px]">verified_user</span>
+                Deslinde Laboral
+              </Link>
+              
+              {isAuthenticated && (
                 <button
                   onClick={handleContactSupport}
                   className="w-full text-left px-4 py-2.5 text-xs font-bold text-primary/80 dark:text-slate-350 hover:bg-primary/5 dark:hover:bg-slate-750 flex items-center gap-2.5 transition-colors border-none bg-transparent cursor-pointer"
@@ -217,20 +212,22 @@ function DesktopHeader() {
                   <span className="material-symbols-outlined text-[18px]">help</span>
                   Soporte Técnico
                 </button>
-                
-                <hr className="border-outline-variant/10 dark:border-slate-700 my-1" />
-                
-                {user && user.user_type === 'admin' && (
-                  <Link
-                    to="/admin/dashboard"
-                    onClick={() => setIsMenuOpen(false)}
-                    className="px-4 py-2.5 text-xs font-bold text-teal-600 dark:text-teal-400 hover:bg-teal-500/5 flex items-center gap-2.5 transition-colors"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
-                    Consola de Administración
-                  </Link>
-                )}
-                
+              )}
+              
+              {user && user.user_type === 'admin' && (
+                <Link
+                  to="/admin/dashboard"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="px-4 py-2.5 text-xs font-bold text-teal-600 dark:text-teal-400 hover:bg-teal-500/5 flex items-center gap-2.5 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+                  Consola de Administración
+                </Link>
+              )}
+              
+              <hr className="border-outline-variant/10 dark:border-slate-700 my-1" />
+              
+              {isAuthenticated ? (
                 <button
                   onClick={handleLogout}
                   className="w-full text-left px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-500/5 flex items-center gap-2.5 transition-colors border-none bg-transparent cursor-pointer"
@@ -238,10 +235,51 @@ function DesktopHeader() {
                   <span className="material-symbols-outlined text-[18px]">logout</span>
                   Cerrar sesión
                 </button>
-              </div>
+              ) : (
+                <Link
+                  to="/login"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="px-4 py-2.5 text-xs font-bold text-primary dark:text-teal-400 hover:bg-primary/5 dark:hover:bg-slate-750 flex items-center gap-2.5 transition-colors"
+                >
+                  <span className="material-symbols-outlined text-[18px]">login</span>
+                  Iniciar sesión
+                </Link>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="h-4 w-px bg-primary/10 dark:bg-slate-700" />
+
+        {isAuthenticated ? (
+          /* User Profile Card - links directly to my-profile */
+          <Link
+            to="/my-profile"
+            className="flex items-center gap-2.5 text-left group p-1 rounded-xl hover:bg-primary/5 dark:hover:bg-slate-800 transition-colors"
+          >
+            {user?.imageUrl ? (
+              <img
+                src={getAbsoluteImageUrl(user.imageUrl)}
+                onError={handleImageError}
+                alt={user.name}
+                className="w-9 h-9 rounded-full border border-primary/10 object-cover shrink-0 transition-transform group-hover:scale-105"
+              />
+            ) : (
+              <span className="material-symbols-outlined text-[36px] text-primary/60 dark:text-slate-400 shrink-0">
+                account_circle
+              </span>
             )}
-          </div>
+            <div className="hidden lg:flex flex-col">
+              <span className="text-xs font-bold text-primary dark:text-slate-100 leading-tight">
+                {user?.name}
+              </span>
+              <span className="text-[9px] text-primary/50 dark:text-slate-400 font-medium">
+                {user?.user_type === 'professional' ? 'Profesional' : user?.user_type === 'admin' ? 'Administrador' : 'Cliente'}
+              </span>
+            </div>
+          </Link>
         ) : (
+          /* Iniciar sesión message in the navbar, shown ONLY when unauthenticated */
           <Link
             to="/login"
             className="text-xs font-bold text-primary dark:text-teal-400 hover:underline flex items-center gap-1.5"
