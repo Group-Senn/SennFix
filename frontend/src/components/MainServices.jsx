@@ -9,10 +9,18 @@ function MainServices() {
     const fetchMainServices = async () => {
       try {
         const response = await fetch(window.API_URL + '/api/services?main=true');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
-        setServices(data);
+        if (Array.isArray(data)) {
+          setServices(data);
+        } else {
+          setServices([]);
+        }
       } catch (error) {
         console.error('Error al obtener los servicios principales:', error);
+        setServices([]);
       } finally {
         setLoading(false);
       }
