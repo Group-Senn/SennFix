@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { useAuth } from '../context/AuthContext';
+import logoNav from '../assets/logoNav.svg';
+import logoNavDark from '../assets/logoNavDark.svg';
 
 function LoginPage() {
   const [email, setEmail] = useState('');
@@ -65,6 +67,8 @@ function LoginPage() {
       <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background-light dark:bg-background-dark">
         <div className="w-full max-w-md p-6 sm:p-8 space-y-5 bg-white dark:bg-slate-800 rounded-3xl shadow-xl shadow-primary/5 dark:shadow-black/20">
           <div className="text-center">
+            <img src={logoNav} alt="SENN Fix Logo" className="h-14 w-auto mx-auto mb-4 object-contain dark:hidden" />
+            <img src={logoNavDark} alt="SENN Fix Logo" className="h-14 w-auto mx-auto mb-4 object-contain hidden dark:block" />
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-primary dark:text-slate-100">Iniciar Sesión</h1>
             <p className="text-sm text-primary/60 dark:text-slate-400 mt-2 font-medium">Bienvenido de vuelta a SENN Fix</p>
           </div>
