@@ -35,7 +35,24 @@ function ChatsPage() {
       </header>
 
       <main className="flex-1 pb-32">
-        {loading && <div className="p-8 text-center text-primary/70">Cargando chats...</div>}
+        {loading && (
+          <div className="p-4 space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex items-center gap-4 p-3 rounded-xl animate-pulse">
+                {/* Avatar skeleton */}
+                <div className="w-14 h-14 rounded-full bg-slate-200 dark:bg-slate-700 shrink-0"></div>
+                {/* Content skeleton */}
+                <div className="flex-1 space-y-2">
+                  <div className="flex justify-between">
+                    <div className="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/3"></div>
+                    <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-10"></div>
+                  </div>
+                  <div className="h-3 bg-slate-200 dark:bg-slate-700 rounded w-2/3"></div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
         {error && <div className="p-8 text-center text-primary/70">{error}</div>}
         {!loading && !error && conversations.length === 0 && (
           <div className="p-8 text-center text-primary/70">No hay mensajes</div>

@@ -18,7 +18,10 @@ body {
     min-height: 100dvh;
     background-color: #FCF9F0;
     color: #2C2B27;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+body, header, footer, nav, aside, button, input, textarea, select, .bg-white, .dark\:bg-slate-800, .bg-slate-50, .dark\:bg-slate-900, .text-primary, .dark\:text-slate-100 {
+    transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 :root {
     --color-background-light: #FCF9F0;

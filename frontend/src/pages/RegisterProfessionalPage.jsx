@@ -4,6 +4,7 @@ import LocationPicker from '../components/LocationPicker';
 import SpecialtyCombobox from '../components/SpecialtyCombobox';
 import DatePicker from '../components/DatePicker';
 import PhoneVerification from '../components/PhoneVerification';
+import { compressImage } from '../utils/imageCompressor';
 
 function RegisterProfessionalPage() {
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -78,35 +79,44 @@ function RegisterProfessionalPage() {
     setFormData(prev => ({ ...prev, specialty }));
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setProfileImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
+      const compressed = await compressImage(file);
+      setProfileImageFile(compressed);
+      setImagePreview(URL.createObjectURL(compressed));
     }
   };
 
-  const handlePermitChange = (e) => {
+  const handlePermitChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
-      setDefensoriaPermitFile(e.target.files[0]);
+      const file = e.target.files[0];
+      const compressed = await compressImage(file);
+      setDefensoriaPermitFile(compressed);
     }
   };
 
-  const handleCiFrontChange = (e) => {
+  const handleCiFrontChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
-      setCiFrontFile(e.target.files[0]);
+      const file = e.target.files[0];
+      const compressed = await compressImage(file);
+      setCiFrontFile(compressed);
     }
   };
 
-  const handleCiBackChange = (e) => {
+  const handleCiBackChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
-      setCiBackFile(e.target.files[0]);
+      const file = e.target.files[0];
+      const compressed = await compressImage(file);
+      setCiBackFile(compressed);
     }
   };
 
-  const handleFelccRejapChange = (e) => {
+  const handleFelccRejapChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
-      setFelccRejapFile(e.target.files[0]);
+      const file = e.target.files[0];
+      const compressed = await compressImage(file);
+      setFelccRejapFile(compressed);
     }
   };
 

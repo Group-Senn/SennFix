@@ -46,40 +46,76 @@ function Home() {
   };
 
   useEffect(() => {
+    // 1. Intentar cargar desde el localStorage
+    const cachedLat = localStorage.getItem('senn_latitude');
+    const cachedLon = localStorage.getItem('senn_longitude');
+    const cachedName = localStorage.getItem('senn_location_name');
+
+    const fetchNearby = async (lat, lon) => {
+      try {
+        const token = localStorage.getItem('token');
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+        const profResponse = await fetch(`${window.API_URL}/api/professionals/nearby?lat=${lat}&lon=${lon}`, { headers });
+        if (!profResponse.ok) throw new Error('No se pudieron cargar los profesionales.');
+        const profData = await profResponse.json();
+        setNearbyProfessionals(profData);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (cachedLat && cachedLon && cachedName) {
+      setLocationName(cachedName);
+      fetchNearby(parseFloat(cachedLat), parseFloat(cachedLon));
+    }
+
+    // 2. Ejecutar la geolocalización en segundo plano (o si no hay caché)
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
 
+        // Comprobar si las coordenadas han cambiado significativamente
+        const isCoordsSame = cachedLat && cachedLon && 
+          Math.abs(parseFloat(cachedLat) - latitude) < 0.01 && 
+          Math.abs(parseFloat(cachedLon) - longitude) < 0.01;
+
+        if (isCoordsSame && cachedName) {
+          // Ya cargamos con las mismas coordenadas, no hacer nada más
+          return;
+        }
+
+        let newLocationName = 'Ubicación no encontrada';
         // Obtener nombre de la ubicación (Reverse Geocoding)
         try {
           const geoResponse = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=es`);
           const geoData = await geoResponse.json();
           const city = geoData.address.city || geoData.address.town || geoData.address.state;
           const country = geoData.address.country;
-          setLocationName(`${city}, ${country}`);
+          newLocationName = `${city}, ${country}`;
+          setLocationName(newLocationName);
+          
+          // Guardar en caché
+          localStorage.setItem('senn_latitude', latitude.toString());
+          localStorage.setItem('senn_longitude', longitude.toString());
+          localStorage.setItem('senn_location_name', newLocationName);
         } catch (error) {
           console.error("Error en reverse geocoding:", error);
-          setLocationName('Ubicación no encontrada');
+          if (!cachedName) {
+            setLocationName('Ubicación no encontrada');
+          }
         }
 
-        // Obtener profesionales cercanos
-        try {
-          const token = localStorage.getItem('token');
-          const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-          const profResponse = await fetch(`${window.API_URL}/api/professionals/nearby?lat=${latitude}&lon=${longitude}`, { headers });
-          if (!profResponse.ok) throw new Error('No se pudieron cargar los profesionales.');
-          const profData = await profResponse.json();
-          setNearbyProfessionals(profData);
-        } catch (error) {
-          console.error(error);
-        } finally {
-          setLoading(false);
-        }
+        // Obtener profesionales cercanos con las nuevas coordenadas
+        fetchNearby(latitude, longitude);
       },
       (error) => {
         console.error("Error de geolocalización:", error);
-        setLocationName('Permiso de ubicación denegado');
-        setLoading(false);
+        if (!cachedName) {
+          setLocationName('Permiso de ubicación denegado');
+          setLoading(false);
+        }
       },
       {
         enableHighAccuracy: false,

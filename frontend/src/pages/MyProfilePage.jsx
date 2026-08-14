@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getAbsoluteImageUrl, handleImageError, handleGalleryError } from '../utils/imageHelper';
+import { compressImage } from '../utils/imageCompressor';
 
 // Componente para la vista del usuario autenticado
 function UserDashboard({ user, login, logout }) {
@@ -57,8 +58,9 @@ function UserDashboard({ user, login, logout }) {
     setUploading(true);
     setFeedback(null);
 
+    const compressed = await compressImage(file);
     const formData = new FormData();
-    formData.append('portfolioPhoto', file);
+    formData.append('portfolioPhoto', compressed);
 
     try {
       const response = await fetch(window.API_URL + '/api/professionals/portfolio', {
@@ -121,11 +123,12 @@ function UserDashboard({ user, login, logout }) {
     }
   };
 
-  const handleEditFileChange = (e) => {
+  const handleEditFileChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      setEditFile(file);
-      setEditPreview(URL.createObjectURL(file));
+      const compressed = await compressImage(file);
+      setEditFile(compressed);
+      setEditPreview(URL.createObjectURL(compressed));
     }
   };
 
