@@ -74,7 +74,7 @@ if (!fs.existsSync(privateUploadsDir)) {
 // Configuración de Multer para guardar archivos en memoria para poder procesarlos
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-import { uploadToS3, deleteFromS3, getFromS3 } from './s3Service.js';
+import { uploadToS3, deleteFromS3, getFromS3, BUCKET_NAME, PRIVATE_BUCKET_NAME } from './s3Service.js';
 
 // Wrappers para manejo persistente de imágenes/documentos en S3
 async function saveUploadedFile(file, prefix, isPrivate = false) {
@@ -83,7 +83,8 @@ async function saveUploadedFile(file, prefix, isPrivate = false) {
   // 1. Subir a S3/R2 si está configurado
   if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
     try {
-      await uploadToS3(file.buffer, filename, file.mimetype);
+      const bucket = isPrivate ? PRIVATE_BUCKET_NAME : BUCKET_NAME;
+      await uploadToS3(file.buffer, filename, file.mimetype, bucket);
     } catch (err) {
       console.warn('Advertencia: Falló subida a S3, continuando localmente:', err.message);
     }
@@ -109,16 +110,15 @@ async function saveUploadedFile(file, prefix, isPrivate = false) {
 async function deleteUploadedFile(relativeUrl) {
   if (!relativeUrl) return;
   const filename = path.basename(relativeUrl);
-  
+  const isPrivate = relativeUrl.startsWith('private_uploads');
+
   // 1. Eliminar de S3/R2
   try {
-    await deleteFromS3(filename);
+    const bucket = isPrivate ? PRIVATE_BUCKET_NAME : BUCKET_NAME;
+    await deleteFromS3(filename, bucket);
   } catch (err) {
     console.warn('Advertencia: No se pudo eliminar de S3:', err.message);
   }
-  
-  // 2. Eliminar localmente
-  const isPrivate = relativeUrl.startsWith('private_uploads');
   const targetDir = isPrivate ? privateUploadsDir : uploadsDir;
   const localPath = path.join(targetDir, filename);
   try {
@@ -136,7 +136,7 @@ app.get('/uploads/:filename', async (req, res) => {
   const safeFilename = path.basename(filename);
 
   try {
-    const stream = await getFromS3(safeFilename);
+    const stream = await getFromS3(safeFilename, BUCKET_NAME);
     res.setHeader('Content-Type', stream.ContentType || 'image/jpeg');
     if (stream.Body && typeof stream.Body.pipe === 'function') {
       stream.Body.pipe(res);
@@ -250,7 +250,7 @@ app.get('/private_uploads/:filename', adminMiddleware, async (req, res) => {
   const safeFilename = path.basename(filename);
 
   try {
-    const stream = await getFromS3(safeFilename);
+    const stream = await getFromS3(safeFilename, PRIVATE_BUCKET_NAME);
     res.setHeader('Content-Type', stream.ContentType || 'image/webp');
     if (stream.Body && typeof stream.Body.pipe === 'function') {
       stream.Body.pipe(res);
