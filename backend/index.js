@@ -32,6 +32,27 @@ app.use(express.json());
 app.use('/api/', apiLimiter);
 app.use(sanitizeMiddleware);
 
+// --- Diagnostics endpoint ---
+app.get('/api/db-test', async (req, res) => {
+  try {
+    const result = await db.query('SELECT NOW()');
+    res.json({
+      status: 'success',
+      message: 'Database connection successful!',
+      time: result.rows[0],
+      env_db_url_exists: !!process.env.DATABASE_URL
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'error',
+      message: 'Database connection failed!',
+      error: error.message,
+      stack: error.stack,
+      env_db_url_exists: !!process.env.DATABASE_URL
+    });
+  }
+});
+
 // --- Configuración para subida de archivos ---
 
 // Definir el directorio actual
