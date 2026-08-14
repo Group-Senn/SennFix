@@ -97,7 +97,7 @@ function DesktopHeader() {
   ];
 
   return (
-    <header className="sticky top-0 left-0 right-0 z-50 h-16 w-full bg-[#FCF9F0]/80 dark:bg-[#120F1A]/80 backdrop-blur-md border-b border-primary/10 dark:border-slate-800 hidden md:flex items-center justify-between px-8">
+    <header className="sticky top-0 left-0 right-0 z-[2000] h-16 w-full bg-[#FCF9F0]/80 dark:bg-[#120F1A]/80 backdrop-blur-md border-b border-primary/10 dark:border-slate-800 hidden md:flex items-center justify-between px-8">
       {/* Brand Identity / Logo */}
       <Link to="/home" className="flex items-center gap-2.5 group">
         {/* Logo image responsive to dark mode */}
