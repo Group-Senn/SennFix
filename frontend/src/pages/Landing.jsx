@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import javaLogo from '../assets/JAVA LOGO.svg';
+import javaLogoV2 from '../assets/JAVA LOGO V2.svg';
 
 // Componente interno para los botones de acción principales
 const LandingButton = ({ to, children, primary = false, className = '' }) => {
@@ -23,7 +24,8 @@ function Landing() {
       {/* Middle Content (grows to fill space) */}
       <div className="flex flex-col items-center justify-center grow w-full">
         <div className="flex flex-col items-center gap-6 w-full">
-          <img src={javaLogo} alt="SENN Fix Logo" className="w-4/5 max-w-[280px] sm:max-w-[360px] md:max-w-[420px] aspect-square object-contain mx-auto transition-all dark:brightness-110" />
+          <img src={javaLogo} alt="SENN Fix Logo" className="w-4/5 max-w-[280px] sm:max-w-[360px] md:max-w-[420px] aspect-square object-contain mx-auto transition-all dark:hidden" />
+          <img src={javaLogoV2} alt="SENN Fix Logo" className="w-4/5 max-w-[280px] sm:max-w-[360px] md:max-w-[420px] aspect-square object-contain mx-auto transition-all hidden dark:block" />
           {/* 1. Lema actualizado */}
           <p className="text-primary/60 dark:text-[#C0C9C4]/80 text-sm font-medium tracking-[0.2em] mt-2 text-center uppercase">Soluciones a un toque</p>
         </div>
