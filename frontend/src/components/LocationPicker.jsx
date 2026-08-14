@@ -84,7 +84,19 @@ function LocationPicker({ onLocationChange, address, onAddressChange }) {
   const [searchQuery, setSearchQuery] = useState(address || '');
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
+  const containerRef = useRef(null);
   const defaultCenter = { lat: -17.7833, lng: -63.1821 }; // Santa Cruz, Bolivia
+
+  // Cierra los resultados de búsqueda cuando se hace clic fuera del buscador
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setSearchResults([]);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Inicializa la posición del mapa de forma segura
   useEffect(() => {
@@ -204,7 +216,7 @@ function LocationPicker({ onLocationChange, address, onAddressChange }) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3" ref={containerRef}>
       <div className="relative">
         <input
           type="text"

@@ -66,6 +66,37 @@ function RegisterProfessionalPage() {
       if (numericValue.length <= 8) {
         setFormData(prev => ({ ...prev, [name]: numericValue }));
       }
+    } else if (name === 'hashtags') {
+      const prevValue = formData.hashtags || '';
+      let formatted = value;
+
+      if (value.length >= prevValue.length && value.length > 0) {
+        // Si no empieza con '#', le agregamos el '#' al principio
+        if (!formatted.startsWith('#')) {
+          formatted = '#' + formatted;
+        }
+        
+        // Si termina con un espacio, agregamos ' #'
+        if (formatted.endsWith(' ')) {
+          if (!formatted.endsWith('  ') && !formatted.endsWith('# ')) {
+            formatted = formatted.trim() + ' #';
+          }
+        }
+        
+        // Asegurar que cada palabra empiece con '#'
+        const parts = formatted.split(' ');
+        const processedParts = parts.map(part => {
+          if (part.length > 0 && !part.startsWith('#')) {
+            return '#' + part;
+          }
+          return part;
+        });
+        formatted = processedParts.join(' ');
+        // Reemplazar múltiples '#' seguidos por uno solo
+        formatted = formatted.replace(/#+/g, '#');
+      }
+      
+      setFormData(prev => ({ ...prev, hashtags: formatted }));
     } else {
       setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     }
