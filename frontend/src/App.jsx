@@ -21,6 +21,7 @@ import SearchResults from './pages/SearchResults';
 import AllServices from './pages/AllServices';
 import ProtectedRoute from './components/ProtectedRoute';
 import BottomNav from './components/BottomNav';
+import DesktopHeader from './components/DesktopHeader';
 import { useAuth } from './context/AuthContext';
 import NoLaborRelationshipPage from './pages/NoLaborRelationshipPage';
 import TermsAndConditionsPage from './pages/TermsAndConditionsPage';
@@ -65,6 +66,7 @@ function App() {
 
   return (
     <div className="relative w-full min-h-screen overflow-x-hidden bg-background-light dark:bg-background-dark">
+      {showNav && <DesktopHeader />}
       {showNav && <div className="senn-text-watermark">SENN Fix</div>}
       <Routes>
         <Route path="/" element={<Landing />} />

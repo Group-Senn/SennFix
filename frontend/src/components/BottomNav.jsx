@@ -33,7 +33,7 @@ function BottomNav() {
   const activeBgColor = theme === 'dark' ? '#120F1A' : '#FCF9F0';
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 flex justify-center z-50 p-4">
+    <div className="fixed bottom-0 left-0 right-0 flex justify-center z-50 p-4 md:hidden">
       <div className="w-full max-w-sm h-[70px] bg-primary/95 dark:bg-slate-900/95 backdrop-blur-lg rounded-2xl shadow-[0_-4px_16px_rgba(4,63,59,0.08),_0_8px_32px_rgba(0,0,0,0.15)] dark:shadow-[0_-4px_16px_rgba(0,0,0,0.2),_0_8px_32px_rgba(0,0,0,0.4)] border border-white/10 dark:border-slate-800">
         <ul className="relative flex h-full">
           <div
@@ -42,10 +42,7 @@ function BottomNav() {
               left: `calc(${(activeIndex * 25) + 12.5}% - 35px)`,
               display: activeIndex === -1 ? 'none' : 'block',
             }}
-          >
-            <span className="absolute top-1/2 left-[-22px] w-[20px] h-[20px] bg-transparent rounded-tr-[20px] bottom-nav-cutout-left"></span>
-            <span className="absolute top-1/2 right-[-22px] w-[20px] h-[20px] bg-transparent rounded-tl-[20px] bottom-nav-cutout-right"></span>
-          </div>
+          />
 
           {navItems.map((item) => (
             <li key={item.to} className="relative flex-1 h-full list-none z-10">
