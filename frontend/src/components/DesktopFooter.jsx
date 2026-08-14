@@ -8,19 +8,19 @@ function DesktopFooter() {
   return (
     <footer className="w-full bg-[#032e2b] text-[#f1eee6]/80 dark:bg-slate-950 dark:text-slate-400 border-t border-primary/10 dark:border-slate-800 py-12 px-8 hidden md:block mt-auto">
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
-        
+
         {/* Brand & Description */}
         <div className="flex flex-col gap-4">
           <Link to="/home" className="flex items-center gap-2 group">
-            <img 
-              src={javaLogo} 
-              alt="SENN Fix Logo" 
-              className="h-20 w-auto object-contain transition-transform group-hover:scale-105 dark:hidden" 
+            <img
+              src={javaLogo}
+              alt="SENN Fix Logo"
+              className="h-30 w-auto object-contain transition-transform group-hover:scale-105 dark:hidden"
             />
-            <img 
-              src={javaLogoV2} 
-              alt="SENN Fix Logo" 
-              className="h-20 w-auto object-contain transition-transform group-hover:scale-105 hidden dark:block" 
+            <img
+              src={javaLogoV2}
+              alt="SENN Fix Logo"
+              className="h-30 w-auto object-contain transition-transform group-hover:scale-105 hidden dark:block"
             />
           </Link>
           <p className="text-xs leading-relaxed max-w-[200px] text-[#f1eee6]/60 dark:text-slate-450 mt-1">
