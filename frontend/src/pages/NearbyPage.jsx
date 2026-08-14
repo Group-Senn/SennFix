@@ -64,28 +64,46 @@ function NearbyPage() {
   const [mapType, setMapType] = useState('normal');
 
   useEffect(() => {
+    const cachedLat = localStorage.getItem('senn_latitude');
+    const cachedLon = localStorage.getItem('senn_longitude');
+
+    const fetchNearby = async (lat, lon) => {
+      try {
+        const token = localStorage.getItem('token');
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+        const response = await fetch(`${window.API_URL}/api/professionals/nearby?lat=${lat}&lon=${lon}`, { headers });
+        if (!response.ok) throw new Error('No se pudieron cargar los profesionales.');
+        const data = await response.json();
+        setProfessionals(data);
+        setStatus('success');
+      } catch (error) {
+        console.error(error);
+        setStatus('error');
+      }
+    };
+
+    if (cachedLat && cachedLon) {
+      const location = { lat: parseFloat(cachedLat), lng: parseFloat(cachedLon) };
+      setUserLocation(location);
+      fetchNearby(location.lat, location.lng);
+    }
+
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
         const location = { lat: latitude, lng: longitude };
         setUserLocation(location);
-
-        try {
-          const token = localStorage.getItem('token');
-          const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-          const response = await fetch(`${window.API_URL}/api/professionals/nearby?lat=${latitude}&lon=${longitude}`, { headers });
-          if (!response.ok) throw new Error('No se pudieron cargar los profesionales.');
-          const data = await response.json();
-          setProfessionals(data);
-          setStatus('success');
-        } catch (error) {
-          console.error(error);
-          setStatus('error');
-        }
+        fetchNearby(latitude, longitude);
+        
+        // Guardar en caché la nueva ubicación
+        localStorage.setItem('senn_latitude', latitude.toString());
+        localStorage.setItem('senn_longitude', longitude.toString());
       },
       (error) => {
         console.error("Error de geolocalización:", error);
-        setStatus(error.code === error.PERMISSION_DENIED ? 'denied' : 'error');
+        if (!cachedLat || !cachedLon) {
+          setStatus(error.code === error.PERMISSION_DENIED ? 'denied' : 'error');
+        }
       },
       {
         enableHighAccuracy: false,

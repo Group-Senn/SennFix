@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import LocationPicker from '../components/LocationPicker';
 import { useAuth } from '../context/AuthContext';
+import { compressImage } from '../utils/imageCompressor';
 
 function EditProfessionalPage() {
   const { id } = useParams();
@@ -53,6 +54,30 @@ function EditProfessionalPage() {
     if (name === 'identity_card' || name === 'phone_number') {
       const numericValue = value.replace(/[^0-9]/g, '');
       setFormData(prev => ({ ...prev, [name]: numericValue }));
+    } else if (name === 'hashtags') {
+      const prevValue = formData.hashtags || '';
+      let formatted = value;
+
+      if (value.length >= prevValue.length && value.length > 0) {
+        if (!formatted.startsWith('#')) {
+          formatted = '#' + formatted;
+        }
+        if (formatted.endsWith(' ')) {
+          if (!formatted.endsWith('  ') && !formatted.endsWith('# ')) {
+            formatted = formatted.trim() + ' #';
+          }
+        }
+        const parts = formatted.split(' ');
+        const processedParts = parts.map(part => {
+          if (part.length > 0 && !part.startsWith('#')) {
+            return '#' + part;
+          }
+          return part;
+        });
+        formatted = processedParts.join(' ');
+        formatted = formatted.replace(/#+/g, '#');
+      }
+      setFormData(prev => ({ ...prev, hashtags: formatted }));
     } else {
       setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     }
@@ -119,17 +144,20 @@ function EditProfessionalPage() {
     } catch (err) { setError(err.message); }
   };
 
-  const handleImageChange = (e) => {
+  const handleImageChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      setProfileImageFile(file);
-      setImagePreview(URL.createObjectURL(file));
+      const compressed = await compressImage(file);
+      setProfileImageFile(compressed);
+      setImagePreview(URL.createObjectURL(compressed));
     }
   };
 
-  const handleFelccRejapChange = (e) => {
+  const handleFelccRejapChange = async (e) => {
     if (e.target.files && e.target.files[0]) {
-      setFelccRejapFile(e.target.files[0]);
+      const file = e.target.files[0];
+      const compressed = await compressImage(file);
+      setFelccRejapFile(compressed);
     }
   };
 
