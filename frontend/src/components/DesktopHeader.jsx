@@ -97,7 +97,7 @@ function DesktopHeader() {
   ];
 
   return (
-    <header className="sticky top-0 left-0 right-0 z-50 h-16 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-primary/10 dark:border-slate-800 hidden md:flex items-center justify-between px-8">
+    <header className="sticky top-0 left-0 right-0 z-50 h-16 w-full bg-[#FCF9F0]/80 dark:bg-[#120F1A]/80 backdrop-blur-md border-b border-primary/10 dark:border-slate-800 hidden md:flex items-center justify-between px-8">
       {/* Brand Identity / Logo */}
       <Link to="/home" className="flex items-center gap-2.5 group">
         {/* Logo image responsive to dark mode */}
@@ -168,7 +168,7 @@ function DesktopHeader() {
         <ThemeSwitcher />
 
         {/* Menu Dropdown next to ThemeSwitcher */}
-        <div className="relative" ref={menuRef}>
+        <div className="relative z-50" ref={menuRef}>
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="p-1.5 rounded-full hover:bg-primary/5 dark:hover:bg-slate-800 text-primary dark:text-slate-200 transition-colors flex items-center justify-center border-none bg-transparent cursor-pointer"
@@ -178,7 +178,7 @@ function DesktopHeader() {
           </button>
 
           {isMenuOpen && (
-            <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-outline-variant/10 dark:border-slate-700 overflow-hidden z-50 flex flex-col py-1 animate-scale-up">
+            <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-outline-variant/10 dark:border-slate-700 overflow-hidden z-[60] flex flex-col py-1 animate-scale-up">
               <Link
                 to="/legal/terms-and-conditions"
                 onClick={() => setIsMenuOpen(false)}

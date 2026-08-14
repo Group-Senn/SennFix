@@ -43,7 +43,12 @@ export function getAbsoluteImageUrl(imagePath) {
  */
 export function handleImageError(e) {
   e.target.onerror = null; // Evita bucle infinito si la imagen fallback falla
-  e.target.src = DEFAULT_AVATAR;
+  const name = e.target.alt;
+  if (name && name !== 'Avatar' && name !== 'Invitado' && name.trim() !== '') {
+    e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=004744&color=fff&size=128`;
+  } else {
+    e.target.src = DEFAULT_AVATAR;
+  }
 }
 
 /**

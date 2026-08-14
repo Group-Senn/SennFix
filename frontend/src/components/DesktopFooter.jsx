@@ -1,9 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import logoNav from '../assets/logoNav.svg';
-import logoNavDark from '../assets/logoNavDark.svg';
-import letra from '../assets/letra.svg';
-import letraDark from '../assets/letraDark.svg';
+import javaLogo from '../assets/JAVA LOGO.svg';
+import javaLogoV2 from '../assets/JAVA LOGO V2.svg';
 
 function DesktopFooter() {
   return (
@@ -13,28 +12,15 @@ function DesktopFooter() {
         {/* Brand & Description */}
         <div className="flex flex-col gap-4">
           <Link to="/home" className="flex items-center gap-2 group">
-            {/* Logo image responsive to dark mode */}
             <img 
-              src={logoNav} 
+              src={javaLogo} 
               alt="SENN Fix Logo" 
-              className="h-8 w-auto object-contain transition-transform group-hover:scale-105 dark:hidden" 
+              className="h-10 w-auto object-contain transition-transform group-hover:scale-105 dark:hidden" 
             />
             <img 
-              src={logoNavDark} 
+              src={javaLogoV2} 
               alt="SENN Fix Logo" 
-              className="h-8 w-auto object-contain transition-transform group-hover:scale-105 hidden dark:block" 
-            />
-            
-            {/* Brand Text image responsive to dark mode */}
-            <img 
-              src={letra} 
-              alt="SENN Fix" 
-              className="h-4.5 w-auto object-contain dark:hidden" 
-            />
-            <img 
-              src={letraDark} 
-              alt="SENN Fix" 
-              className="h-4.5 w-auto object-contain hidden dark:block" 
+              className="h-10 w-auto object-contain transition-transform group-hover:scale-105 hidden dark:block" 
             />
           </Link>
           <p className="text-xs leading-relaxed max-w-[200px] text-[#f1eee6]/60 dark:text-slate-450 mt-1">
