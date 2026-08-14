@@ -5,7 +5,7 @@ import { useAuth } from './AuthContext';
 const NotificationContext = createContext(null);
 
 export const NotificationProvider = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [toasts, setToasts] = useState([]);
   const navigate = useNavigate();
@@ -20,6 +20,10 @@ export const NotificationProvider = ({ children }) => {
       const response = await fetch(window.API_URL + '/api/notifications', {
         headers: { 'Authorization': `Bearer ${token}` }
       });
+      if (response.status === 401) {
+        logout();
+        return;
+      }
       if (response.ok) {
         const data = await response.json();
         
