@@ -101,7 +101,7 @@ function Home() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex items-center justify-between bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-2.5 border-b border-primary/10 dark:border-slate-700 gap-2">
+      <header className="sticky top-0 z-40 flex items-center justify-between bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-2.5 border-b border-primary/10 dark:border-slate-700 gap-2 md:hidden">
         <div className="flex items-center gap-3">
           {user ? (
             <div className="flex items-center gap-2.5">
