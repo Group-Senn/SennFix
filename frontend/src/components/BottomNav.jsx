@@ -34,7 +34,7 @@ function BottomNav() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 flex justify-center z-50 p-4">
-      <div className="w-full max-w-sm h-[70px] bg-primary/90 dark:bg-slate-900/90 backdrop-blur-lg rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.25)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] border border-white/10 dark:border-slate-800">
+      <div className="w-full max-w-sm h-[70px] bg-primary/95 dark:bg-slate-900/95 backdrop-blur-lg rounded-2xl shadow-[0_-4px_16px_rgba(4,63,59,0.08),_0_8px_32px_rgba(0,0,0,0.15)] dark:shadow-[0_-4px_16px_rgba(0,0,0,0.2),_0_8px_32px_rgba(0,0,0,0.4)] border border-white/10 dark:border-slate-800">
         <ul className="relative flex h-full">
           <div
             className="absolute -top-1/2 w-[70px] h-[70px] bg-primary rounded-full transition-all duration-300 ease-in-out bottom-nav-circle"

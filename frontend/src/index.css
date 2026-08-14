@@ -190,12 +190,19 @@ body {
   animation: scale-up 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-/* Custom Bottom Nav Cutout Curves */
+/* Custom Bottom Nav Cutout Curves with Gradient Borders and Depth Shadows */
 .bottom-nav-circle {
-    border: 6px solid #FCF9F0 !important;
+    background: linear-gradient(135deg, #065f46 0%, #043f3b 100%) padding-box,
+                linear-gradient(to bottom, #FCF9F0 0%, #043f3b 100%) border-box !important;
+    border: 6px solid transparent !important;
+    box-shadow: 0 -4px 16px rgba(4, 63, 59, 0.2), 0 4px 10px rgba(0, 0, 0, 0.1) !important;
 }
+
 .dark .bottom-nav-circle, body.dark .bottom-nav-circle, html.dark .bottom-nav-circle {
-    border: 6px solid #120F1A !important;
+    background: linear-gradient(135deg, #0f766e 0%, #0f172a 100%) padding-box,
+                linear-gradient(to bottom, #120F1A 0%, #0f172a 100%) border-box !important;
+    border: 6px solid transparent !important;
+    box-shadow: 0 -4px 16px rgba(15, 118, 110, 0.25), 0 4px 12px rgba(0, 0, 0, 0.4) !important;
 }
 
 .bottom-nav-cutout-left {
