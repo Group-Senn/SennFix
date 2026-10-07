@@ -29,6 +29,7 @@ import TermsAndConditionsPage from './pages/TermsAndConditionsPage';
 import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import JobCompletionPage from './pages/JobCompletionPage';
 import CookieConsent from './components/CookieConsent';
+import { Analytics } from '@vercel/analytics/react';
 
 function App() {
   const location = useLocation();
@@ -116,6 +117,7 @@ function App() {
       {showNav && <BottomNav />}
       {showNav && <DesktopFooter />}
       <CookieConsent />
+      <Analytics />
     </div>
   )
 }
