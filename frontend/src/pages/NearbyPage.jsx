@@ -56,11 +56,13 @@ function MapResizer() {
   return null;
 }
 
+const DEFAULT_COORDS = { lat: -17.7833, lng: -63.1821 }; // Santa Cruz, Bolivia
+
 function NearbyPage() {
   const navigate = useNavigate();
   const [userLocation, setUserLocation] = useState(null);
   const [professionals, setProfessionals] = useState([]);
-  const [status, setStatus] = useState('loading'); // 'loading', 'success', 'denied', 'error'
+  const [status, setStatus] = useState('loading'); // 'loading', 'success', 'denied'
   const [mapType, setMapType] = useState('normal');
 
   useEffect(() => {
@@ -74,11 +76,12 @@ function NearbyPage() {
         const response = await fetch(`${window.API_URL}/api/professionals/nearby?lat=${lat}&lon=${lon}`, { headers });
         if (!response.ok) throw new Error('No se pudieron cargar los profesionales.');
         const data = await response.json();
-        setProfessionals(data);
-        setStatus('success');
+        setProfessionals(Array.isArray(data) ? data : []);
       } catch (error) {
-        console.error(error);
-        setStatus('error');
+        console.error("Error al cargar profesionales cercanos:", error);
+        setProfessionals([]);
+      } finally {
+        setStatus('success');
       }
     };
 
@@ -88,30 +91,52 @@ function NearbyPage() {
       fetchNearby(location.lat, location.lng);
     }
 
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        const location = { lat: latitude, lng: longitude };
-        setUserLocation(location);
-        fetchNearby(latitude, longitude);
-        
-        // Guardar en caché la nueva ubicación
-        localStorage.setItem('senn_latitude', latitude.toString());
-        localStorage.setItem('senn_longitude', longitude.toString());
-      },
-      (error) => {
-        console.error("Error de geolocalización:", error);
-        if (!cachedLat || !cachedLon) {
-          setStatus(error.code === error.PERMISSION_DENIED ? 'denied' : 'error');
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
+          const location = { lat: latitude, lng: longitude };
+          setUserLocation(location);
+          fetchNearby(latitude, longitude);
+          
+          // Guardar en caché la nueva ubicación
+          localStorage.setItem('senn_latitude', latitude.toString());
+          localStorage.setItem('senn_longitude', longitude.toString());
+        },
+        (error) => {
+          console.warn("Geolocalización no disponible o permiso rechazado:", error);
+          if (cachedLat && cachedLon) {
+            // Ya cargamos con caché
+            return;
+          }
+          if (error.code === error.PERMISSION_DENIED) {
+            setStatus('denied');
+          } else {
+            // Error de timeout u otro: usar coordenadas por defecto
+            setUserLocation(DEFAULT_COORDS);
+            fetchNearby(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng);
+          }
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 6000,
+          maximumAge: 300000
         }
-      },
-      {
-        enableHighAccuracy: false,
-        timeout: 5000,
-        maximumAge: 300000
-      }
-    );
+      );
+    } else if (!cachedLat) {
+      setUserLocation(DEFAULT_COORDS);
+      fetchNearby(DEFAULT_COORDS.lat, DEFAULT_COORDS.lng);
+    }
   }, []);
+
+  const handleUseDefaultLocation = () => {
+    setUserLocation(DEFAULT_COORDS);
+    setStatus('success');
+    fetch(`${window.API_URL}/api/professionals/nearby?lat=${DEFAULT_COORDS.lat}&lon=${DEFAULT_COORDS.lng}`)
+      .then(res => res.json())
+      .then(data => setProfessionals(Array.isArray(data) ? data : []))
+      .catch(() => setProfessionals([]));
+  };
 
   const renderContent = () => {
     switch (status) {
@@ -124,13 +149,22 @@ function NearbyPage() {
         );
       case 'denied':
         return (
-          <div className="flex flex-col items-center justify-center h-full text-center p-4 bg-background-light dark:bg-background-dark">
-            <span className="material-symbols-outlined text-5xl text-red-500">location_off</span>
+          <div className="flex flex-col items-center justify-center h-full text-center p-6 bg-background-light dark:bg-background-dark max-w-md mx-auto">
+            <span className="material-symbols-outlined text-5xl text-amber-500">location_off</span>
             <h2 className="mt-4 text-xl font-bold text-primary dark:text-slate-100">Permiso de Ubicación Denegado</h2>
-            <p className="mt-2 text-primary/70 dark:text-slate-300">Para encontrar profesionales cerca de ti, necesitamos acceso a tu ubicación. Por favor, habilita los permisos en tu navegador y recarga la página.</p>
+            <p className="mt-2 text-sm text-primary/70 dark:text-slate-300">
+              Para encontrar profesionales exactamente cerca de ti, puedes habilitar los permisos de ubicación en tu navegador.
+            </p>
+            <button
+              onClick={handleUseDefaultLocation}
+              className="mt-6 px-6 py-3 bg-primary dark:bg-teal-600 text-white font-bold rounded-2xl shadow-lg hover:opacity-90 active:scale-95 transition-all text-sm cursor-pointer border-none"
+            >
+              Explorar mapa en Santa Cruz
+            </button>
           </div>
         );
       case 'success':
+        if (!userLocation) return null;
         return (
           <div className="relative w-full h-full">
             <MapContainer center={userLocation} zoom={13} style={{ height: '100%', width: '100%' }}>
