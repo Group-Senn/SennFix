@@ -11,10 +11,14 @@ function SpecialtyCombobox({ onSpecialtyChange }) {
     const fetchServices = async () => {
       try {
         const response = await fetch(window.API_URL + '/api/services');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
-        setServices(data);
+        setServices(Array.isArray(data) ? data : []);
       } catch (error) {
         console.error("Error al cargar las especialidades:", error);
+        setServices([]);
       }
     };
     fetchServices();
@@ -31,11 +35,12 @@ function SpecialtyCombobox({ onSpecialtyChange }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [wrapperRef]);
 
+  const safeServices = Array.isArray(services) ? services : [];
   const filteredServices = query
-    ? services.filter(service =>
-        service.name.toLowerCase().includes(query.toLowerCase())
+    ? safeServices.filter(service =>
+        service?.name?.toLowerCase().includes(query.toLowerCase())
       )
-    : services;
+    : safeServices;
 
   const handleSelect = (specialtyName) => {
     setQuery(specialtyName);
@@ -44,7 +49,9 @@ function SpecialtyCombobox({ onSpecialtyChange }) {
   };
 
   const handleInputChange = (e) => {
-    setQuery(e.target.value);
+    const val = e.target.value;
+    setQuery(val);
+    onSpecialtyChange(val);
     setShowDropdown(true);
   };
 
@@ -67,11 +74,21 @@ function SpecialtyCombobox({ onSpecialtyChange }) {
       </div>
       {showDropdown && (
         <ul className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-primary/10 rounded-lg shadow-lg z-20 max-h-60 overflow-y-auto">
-          {filteredServices.map(service => (
-            <li key={service.id} onClick={() => handleSelect(service.name)} className="px-4 py-2 cursor-pointer hover:bg-primary/10">
-              {service.name}
+          {filteredServices.length > 0 ? (
+            filteredServices.map(service => (
+              <li key={service.id || service.name} onClick={() => handleSelect(service.name)} className="px-4 py-2 cursor-pointer hover:bg-primary/10 text-slate-800 dark:text-slate-200">
+                {service.name}
+              </li>
+            ))
+          ) : query ? (
+            <li onClick={() => handleSelect(query)} className="px-4 py-2 cursor-pointer hover:bg-primary/10 text-primary dark:text-teal-400 font-semibold text-xs">
+              Usar "{query}" como especialidad personalizada
             </li>
-          ))}
+          ) : (
+            <li className="px-4 py-3 text-xs text-primary/60 dark:text-slate-400 text-center">
+              Escribe el nombre de tu especialidad
+            </li>
+          )}
         </ul>
       )}
     </div>

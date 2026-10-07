@@ -9,11 +9,15 @@ function AllServices() {
     const fetchAllServices = async () => {
       try {
         const response = await fetch(window.API_URL + '/api/services');
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
 
         // Agrupamos los servicios por categoría para mostrarlos ordenadamente
-        const groups = data.reduce((acc, service) => {
-          const category = service.category || 'Otros';
+        const list = Array.isArray(data) ? data : [];
+        const groups = list.reduce((acc, service) => {
+          const category = service?.category || 'Otros';
           if (!acc[category]) {
             acc[category] = [];
           }
