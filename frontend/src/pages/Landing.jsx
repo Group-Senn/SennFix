@@ -18,9 +18,10 @@ function Landing() {
       {/* ============================================================ */}
       {/* 1. NAVBAR / HEADER                                          */}
       {/* ============================================================ */}
-      <header className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-5 sm:py-6 flex items-center justify-between z-20 relative">
-        {/* Brand Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
+      <header className="w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-4 sm:py-6 flex items-center justify-between z-20 relative">
+        
+        {/* Brand Logo (Solo visible en Desktop >= md) */}
+        <Link to="/" className="hidden md:flex items-center gap-3 group">
           <img 
             src={logoNav} 
             alt="SENN Fix Logo" 
@@ -43,21 +44,24 @@ function Landing() {
           />
         </Link>
 
+        {/* Espaciador en móvil para alinear el ThemeSwitcher a la derecha */}
+        <div className="md:hidden"></div>
+
         {/* Header Right Actions */}
         <div className="flex items-center gap-2 sm:gap-4">
-          {/* Badge Cobertura Santa Cruz */}
+          {/* Badge Cobertura Santa Cruz (Solo visible en Desktop) */}
           <div className="hidden md:flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EAF3EF] dark:bg-[#1E293B] border border-[#043F3B]/10 dark:border-slate-700 text-xs font-semibold text-[#043F3B] dark:text-[#A1D9CD] shadow-sm">
             <span className="material-symbols-outlined text-[16px] text-[#043F3B] dark:text-teal-400">location_on</span>
             <span>Plataforma líder en Santa Cruz</span>
           </div>
 
-          {/* Theme switcher */}
+          {/* Theme switcher directo */}
           <ThemeSwitcher />
 
-          {/* Iniciar Sesión Button */}
+          {/* Iniciar Sesión Button (Solo visible en Desktop >= md, eliminado en móvil) */}
           <Link 
             to="/login" 
-            className="px-4 sm:px-5 py-2 sm:py-2.5 rounded-2xl bg-white dark:bg-[#1E293B] text-[#043F3B] dark:text-[#A1D9CD] font-bold text-xs sm:text-sm border border-[#043F3B]/15 dark:border-slate-700 shadow-sm hover:shadow-md hover:bg-slate-50 dark:hover:bg-slate-750 transition-all flex items-center gap-1.5 cursor-pointer no-underline"
+            className="hidden md:flex px-4 sm:px-5 py-2 sm:py-2.5 rounded-2xl bg-white dark:bg-[#1E293B] text-[#043F3B] dark:text-[#A1D9CD] font-bold text-xs sm:text-sm border border-[#043F3B]/15 dark:border-slate-700 shadow-sm hover:shadow-md hover:bg-slate-50 dark:hover:bg-slate-750 transition-all items-center gap-1.5 cursor-pointer no-underline"
           >
             <span className="material-symbols-outlined text-[18px]">login</span>
             <span>Iniciar Sesión</span>
@@ -68,14 +72,14 @@ function Landing() {
       {/* ============================================================ */}
       {/* 2. MAIN CONTENT                                             */}
       {/* ============================================================ */}
-      <main className="flex-1 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-4 sm:py-6 flex flex-col justify-center z-10 relative">
+      <main className="flex-1 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-12 py-2 sm:py-6 flex flex-col justify-center z-10 relative">
         
         {/* ========================================================== */}
-        {/* HERO SECTION (Text on left, Luxury House graphic on right) */}
+        {/* HERO SECTION (Text + Casa en Desktop, Solo esencial en Móvil) */}
         {/* ========================================================== */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center mb-10 lg:mb-14 pt-2">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-12 items-center mb-8 lg:mb-14">
           
-          {/* Left Text Block */}
+          {/* Left Text Block (En móvil centrado y enfocado a lo esencial) */}
           <div className="lg:col-span-7 flex flex-col items-start text-left space-y-4 sm:space-y-5">
             
             {/* Tag Pill */}
@@ -94,7 +98,7 @@ function Landing() {
             </p>
 
             {/* 3 Trust Badges Inline */}
-            <div className="pt-2 flex flex-wrap items-center gap-4 sm:gap-6 text-xs sm:text-sm font-semibold text-[#043F3B]/80 dark:text-slate-300">
+            <div className="pt-2 flex flex-wrap items-center gap-3.5 sm:gap-6 text-xs sm:text-sm font-semibold text-[#043F3B]/80 dark:text-slate-300">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#043F3B] dark:text-teal-400 text-lg">shield</span>
                 <span>Profesionales verificados</span>
@@ -112,13 +116,13 @@ function Landing() {
             </div>
           </div>
 
-          {/* Right Visual Graphic (Luxury House + Doodles + Badges) */}
-          <div className="lg:col-span-5 relative flex items-center justify-end pt-12 pb-6 lg:py-6">
+          {/* Right Visual Graphic (CASA + BADGE + PIN AGRANDADO: Solo visible en pantallas medianas y grandes md:) */}
+          <div className="hidden md:flex lg:col-span-5 relative items-center justify-end pt-12 pb-8 lg:py-6">
             
             {/* Organic background aura */}
             <div className="absolute inset-0 bg-gradient-to-tr from-[#043F3B]/10 to-teal-500/10 dark:from-teal-900/20 dark:to-emerald-900/20 rounded-[3rem] filter blur-2xl -z-10"></div>
 
-            {/* Handwritten Label + Curved Arrow (Floating neatly outside and above house roof) */}
+            {/* Handwritten Label + Curved Arrow */}
             <div className="absolute -top-6 sm:-top-8 -left-2 sm:-left-6 lg:-left-10 z-30 flex flex-col items-start select-none pointer-events-none">
               <span className="font-handwriting text-2xl sm:text-3xl text-[#043F3B] dark:text-[#A1D9CD] font-bold -rotate-6 drop-shadow-sm leading-tight">
                 Tu hogar <br />
@@ -139,7 +143,7 @@ function Landing() {
             </div>
 
             {/* House Container with Modern Rounded Curve */}
-            <div className="relative w-full max-w-[400px] aspect-[4/3] rounded-[2.2rem] sm:rounded-[2.8rem] overflow-hidden shadow-2xl border-4 border-white/90 dark:border-slate-700/90 group mt-4 sm:mt-0">
+            <div className="relative w-full max-w-[410px] aspect-[4/3] rounded-[2.2rem] sm:rounded-[2.8rem] overflow-hidden shadow-2xl border-4 border-white/90 dark:border-slate-700/90 group mt-4 sm:mt-0">
               <img 
                 src={heroHouse} 
                 alt="Tu hogar en buenas manos" 
@@ -148,7 +152,7 @@ function Landing() {
               <div className="absolute inset-0 bg-gradient-to-t from-[#043F3B]/25 via-transparent to-transparent"></div>
             </div>
 
-            {/* Floating Badge: "Profesionales confiables ✔" (Top-right corner overlap) */}
+            {/* Floating Badge: "Profesionales confiables ✔" */}
             <div className="absolute -top-2 sm:top-1 -right-2 sm:-right-4 z-30 bg-white/95 dark:bg-[#1E293B]/95 backdrop-blur-md px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-2xl shadow-xl border border-[#043F3B]/10 dark:border-slate-700 flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-xl bg-[#EAF3EF] dark:bg-teal-500/20 flex items-center justify-center text-[#043F3B] dark:text-teal-400">
                 <span className="material-symbols-outlined text-[18px]">verified_user</span>
@@ -162,17 +166,23 @@ function Landing() {
               </div>
             </div>
 
-            {/* Map Pin on bottom right of house with ripples */}
-            <div className="absolute -bottom-5 sm:-bottom-6 right-8 sm:right-12 z-30 flex flex-col items-center">
-              {/* Concentric rings */}
+            {/* Icono de ubicación agrandado y con ondas de radar */}
+            <div className="absolute -bottom-8 -right-2 sm:-bottom-10 sm:right-2 z-30 flex flex-col items-center select-none pointer-events-none">
               <div className="relative flex items-center justify-center">
-                <div className="absolute w-16 h-8 rounded-full border-2 border-[#043F3B]/30 dark:border-teal-400/40 animate-ping"></div>
-                <div className="w-14 h-7 rounded-full bg-[#E5EFEA] dark:bg-teal-900/60 border border-[#043F3B]/20 dark:border-teal-500/40 flex items-center justify-center shadow-inner">
-                  <div className="w-8 h-4 rounded-full bg-[#043F3B]/20 dark:bg-teal-400/30"></div>
+                {/* Ondas concéntricas en perspectiva */}
+                <div className="absolute w-36 h-14 rounded-[100%] border-2 border-[#043F3B]/25 dark:border-teal-400/35 animate-ping" />
+                <div className="w-32 h-12 rounded-[100%] border border-[#043F3B]/30 dark:border-teal-400/40 bg-[#E8F3EE]/85 dark:bg-teal-900/40 flex items-center justify-center shadow-md">
+                  <div className="w-22 h-8 rounded-[100%] border border-[#043F3B]/40 dark:border-teal-400/50 bg-[#D7ECE2] dark:bg-teal-800/50 flex items-center justify-center">
+                    <div className="w-12 h-4 rounded-[100%] bg-[#043F3B]/25 dark:bg-teal-400/35"></div>
+                  </div>
                 </div>
-                {/* Pin Icon */}
-                <div className="absolute -top-4 w-9 h-9 rounded-full bg-[#043F3B] text-white flex items-center justify-center shadow-lg transform hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined text-[20px]">location_on</span>
+                
+                {/* Pin de Mapa Grande y Destacado */}
+                <div className="absolute -top-11 flex flex-col items-center drop-shadow-xl transform hover:scale-110 transition-transform">
+                  <svg width="48" height="60" viewBox="0 0 46 58" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M23 0C10.2975 0 0 10.2975 0 23C0 37.5 23 58 23 58C23 58 46 37.5 46 23C46 10.2975 35.7025 0 23 0Z" fill="#043F3B" />
+                    <circle cx="23" cy="22" r="8.5" fill="white" />
+                  </svg>
                 </div>
               </div>
             </div>
@@ -195,21 +205,21 @@ function Landing() {
 
 
         {/* ========================================================== */}
-        {/* 3. TWO BIG ACTION CARDS (Para Clientes vs Para Especialistas) */}
+        {/* 3. TWO ACTION CARDS                                        */}
         {/* ========================================================== */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 sm:gap-6 lg:gap-8 w-full">
           
           {/* -------------------------------------------------------- */}
           {/* TARJETA 1: BUSCAR AYUDA (Para Clientes)                  */}
           {/* -------------------------------------------------------- */}
-          <div className="group bg-white/95 dark:bg-[#1E293B]/95 backdrop-blur-md rounded-[2.2rem] sm:rounded-[2.5rem] p-6 sm:p-8 lg:p-9 border border-[#E2EBE5] dark:border-slate-700 shadow-[0_8px_30px_rgba(4,63,59,0.04)] hover:shadow-xl hover:border-[#043F3B]/30 dark:hover:border-teal-500/40 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+          <div className="group bg-white/95 dark:bg-[#1E293B]/95 backdrop-blur-md rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-8 lg:p-9 border border-[#E2EBE5] dark:border-slate-700 shadow-[0_8px_30px_rgba(4,63,59,0.04)] hover:shadow-xl hover:border-[#043F3B]/30 dark:hover:border-teal-500/40 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
             
             {/* Subtle corner decorative circle */}
             <div className="absolute -top-16 -right-16 w-32 h-32 bg-[#EAF3EF] dark:bg-teal-500/5 rounded-full pointer-events-none"></div>
 
             <div>
               {/* Badge */}
-              <div className="flex items-center justify-between mb-4 sm:mb-5">
+              <div className="flex items-center justify-between mb-3 sm:mb-5">
                 <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EAF3EF] dark:bg-slate-700 text-[#043F3B] dark:text-[#A1D9CD] text-[11px] font-bold uppercase tracking-wider border border-[#043F3B]/10 dark:border-slate-600">
                   <span className="material-symbols-outlined text-[15px]">person</span>
                   <span>Para Clientes</span>
@@ -217,18 +227,18 @@ function Landing() {
               </div>
 
               {/* Title & Description */}
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#043F3B] dark:text-white mb-2 sm:mb-3 font-display">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#043F3B] dark:text-white mb-2 sm:mb-3 font-display">
                 Buscar Ayuda y Servicios
               </h2>
-              <p className="text-xs sm:text-sm text-[#043F3B]/75 dark:text-slate-300 mb-6 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#043F3B]/75 dark:text-slate-300 mb-4 sm:mb-6 leading-relaxed">
                 Encuentra plomeros, electricistas, pintores, arquitectos y expertos calificados cerca de ti con presupuestos transparentes y reseñas verificadas.
               </p>
 
-              {/* Card Body: Checklist + Illustration side by side */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 sm:gap-6 items-center mb-6 sm:mb-8">
+              {/* Card Body: Checklist + Illustration */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 sm:gap-6 items-center mb-5 sm:mb-8">
                 
                 {/* Left: Checklist */}
-                <div className="sm:col-span-7 space-y-3 sm:space-y-3.5">
+                <div className="sm:col-span-7 space-y-2.5 sm:space-y-3.5">
                   <div className="flex items-start gap-2.5">
                     <div className="w-5 h-5 rounded-full bg-[#043F3B] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
                       <span className="material-symbols-outlined text-[13px] font-bold">check</span>
@@ -257,52 +267,41 @@ function Landing() {
                   </div>
                 </div>
 
-                {/* Right: Modern SVG Graphic (Phone + Plumber/Electrician/Painter tools) */}
-                <div className="sm:col-span-5 flex items-center justify-center">
+                {/* Right: SVG Graphic (Visible en tablet/desktop) */}
+                <div className="hidden sm:flex sm:col-span-5 items-center justify-center">
                   <div className="relative w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center">
-                    {/* Mint organic blob */}
                     <div className="absolute inset-0 bg-[#E8F3EE] dark:bg-teal-900/20 rounded-full scale-95 transform group-hover:scale-105 transition-transform duration-500"></div>
 
-                    {/* SVG Smartphone & Floating Tools */}
                     <svg viewBox="0 0 160 160" className="w-full h-full relative z-10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      {/* Floating Water Tap (Plumbing) */}
                       <g className="transform -translate-y-1 transition-transform group-hover:translate-y-0">
                         <circle cx="125" cy="35" r="16" fill="#D2E8DE" />
                         <path d="M120 30 H130 V34 H120 Z M122 34 V38 H125 M127 42 C127 44 125 45 125 45 C125 45 123 44 123 42 C123 41 125 39 125 39 C125 39 127 41 127 42 Z" stroke="#043F3B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="#043F3B" />
                       </g>
 
-                      {/* Floating Lightning (Electricity) */}
                       <g className="transform translate-x-1 transition-transform group-hover:translate-x-0">
                         <circle cx="140" cy="80" r="14" fill="#D2E8DE" />
                         <path d="M141 72 L136 81 H141 L139 88 L145 79 H140 L141 72 Z" fill="#043F3B" />
                       </g>
 
-                      {/* Floating Paint Roller */}
                       <g className="transform translate-y-1 transition-transform group-hover:translate-y-0">
                         <circle cx="130" cy="122" r="15" fill="#D2E8DE" />
                         <rect x="123" y="115" width="14" height="6" rx="2" fill="#043F3B" />
                         <path d="M130 121 V129 M127 129 H133" stroke="#043F3B" strokeWidth="2" strokeLinecap="round" />
                       </g>
 
-                      {/* Smartphone Body */}
                       <rect x="38" y="24" width="62" height="112" rx="12" fill="#043F3B" stroke="#043F3B" strokeWidth="3" />
                       <rect x="42" y="32" width="54" height="96" rx="8" fill="#FFFFFF" />
-                      
-                      {/* Speaker pill */}
                       <rect x="62" y="27" width="14" height="3" rx="1.5" fill="#FFFFFF" opacity="0.6" />
                       
-                      {/* Map routes on phone screen */}
                       <path d="M46 60 Q65 75 75 55 T90 90" stroke="#E2EBE5" strokeWidth="4" strokeLinecap="round" fill="none" />
                       <path d="M46 95 Q65 90 70 110" stroke="#E2EBE5" strokeWidth="3" strokeLinecap="round" fill="none" />
                       
-                      {/* Location Pin inside screen */}
                       <g transform="translate(62, 60)">
                         <circle cx="7" cy="7" r="7" fill="#043F3B" />
                         <path d="M7 14 L3.5 8.5 A4 4 0 0 1 10.5 8.5 Z" fill="#043F3B" />
                         <circle cx="7" cy="6" r="2.5" fill="#FFFFFF" />
                       </g>
 
-                      {/* Sparkle lines */}
                       <path d="M24 100 L28 102 M22 108 L27 106 M25 116 L29 112" stroke="#043F3B" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
                     </svg>
                   </div>
@@ -314,7 +313,7 @@ function Landing() {
             {/* Action Button */}
             <Link 
               to="/home" 
-              className="w-full py-4 rounded-2xl bg-[#043F3B] hover:bg-[#07534E] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-md hover:shadow-xl hover:shadow-[#043F3B]/20 transition-all active:scale-[0.99] cursor-pointer no-underline group-hover:bg-[#054C46]"
+              className="w-full py-3.5 sm:py-4 rounded-2xl bg-[#043F3B] hover:bg-[#07534E] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-md hover:shadow-xl hover:shadow-[#043F3B]/20 transition-all active:scale-[0.99] cursor-pointer no-underline group-hover:bg-[#054C46]"
             >
               <span>Explorar Profesionales</span>
               <span className="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</span>
@@ -325,14 +324,14 @@ function Landing() {
           {/* -------------------------------------------------------- */}
           {/* TARJETA 2: CONSEGUIR TRABAJO (Para Especialistas)        */}
           {/* -------------------------------------------------------- */}
-          <div className="group bg-white/95 dark:bg-[#1E293B]/95 backdrop-blur-md rounded-[2.2rem] sm:rounded-[2.5rem] p-6 sm:p-8 lg:p-9 border border-[#E2EBE5] dark:border-slate-700 shadow-[0_8px_30px_rgba(4,63,59,0.04)] hover:shadow-xl hover:border-[#10594F]/40 dark:hover:border-teal-400/40 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+          <div className="group bg-white/95 dark:bg-[#1E293B]/95 backdrop-blur-md rounded-[2rem] sm:rounded-[2.5rem] p-5 sm:p-8 lg:p-9 border border-[#E2EBE5] dark:border-slate-700 shadow-[0_8px_30px_rgba(4,63,59,0.04)] hover:shadow-xl hover:border-[#10594F]/40 dark:hover:border-teal-400/40 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
             
             {/* Subtle corner decorative circle */}
             <div className="absolute -top-16 -right-16 w-32 h-32 bg-[#EAF3EF] dark:bg-teal-500/5 rounded-full pointer-events-none"></div>
 
             <div>
               {/* Badge */}
-              <div className="flex items-center justify-between mb-4 sm:mb-5">
+              <div className="flex items-center justify-between mb-3 sm:mb-5">
                 <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EAF3EF] dark:bg-slate-700 text-[#043F3B] dark:text-[#A1D9CD] text-[11px] font-bold uppercase tracking-wider border border-[#043F3B]/10 dark:border-slate-600">
                   <span className="material-symbols-outlined text-[15px]">construction</span>
                   <span>Para Especialistas</span>
@@ -340,18 +339,18 @@ function Landing() {
               </div>
 
               {/* Title & Description */}
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#043F3B] dark:text-white mb-2 sm:mb-3 font-display">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-[#043F3B] dark:text-white mb-2 sm:mb-3 font-display">
                 Conseguir Trabajo y Clientes
               </h2>
-              <p className="text-xs sm:text-sm text-[#043F3B]/75 dark:text-slate-300 mb-6 leading-relaxed">
+              <p className="text-xs sm:text-sm text-[#043F3B]/75 dark:text-slate-300 mb-4 sm:mb-6 leading-relaxed">
                 Únete a la mayor red de técnicos y profesionales. Recibe solicitudes de clientes de tu zona, aumenta tus ingresos y haz crecer tu negocio.
               </p>
 
-              {/* Card Body: Checklist + Illustration side by side */}
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 sm:gap-6 items-center mb-6 sm:mb-8">
+              {/* Card Body: Checklist + Illustration */}
+              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 sm:gap-6 items-center mb-5 sm:mb-8">
                 
                 {/* Left: Checklist */}
-                <div className="sm:col-span-7 space-y-3 sm:space-y-3.5">
+                <div className="sm:col-span-7 space-y-2.5 sm:space-y-3.5">
                   <div className="flex items-start gap-2.5">
                     <div className="w-5 h-5 rounded-full bg-[#043F3B] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
                       <span className="material-symbols-outlined text-[13px] font-bold">check</span>
@@ -380,48 +379,33 @@ function Landing() {
                   </div>
                 </div>
 
-                {/* Right: Modern SVG Graphic (Worker with Cap & Rosette Verified Badge) */}
-                <div className="sm:col-span-5 flex items-center justify-center">
+                {/* Right: SVG Graphic (Visible en tablet/desktop) */}
+                <div className="hidden sm:flex sm:col-span-5 items-center justify-center">
                   <div className="relative w-36 h-36 sm:w-40 sm:h-40 flex items-center justify-center">
-                    {/* Mint organic blob */}
                     <div className="absolute inset-0 bg-[#E8F3EE] dark:bg-teal-900/20 rounded-full scale-95 transform group-hover:scale-105 transition-transform duration-500"></div>
 
-                    {/* SVG Worker Avatar & Rosette Badge */}
                     <svg viewBox="0 0 160 160" className="w-full h-full relative z-10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      {/* Worker Torso / Apron */}
                       <path d="M42 145 C42 118 55 106 72 104 L88 104 C105 106 118 118 118 145 Z" fill="#043F3B" />
-                      {/* Suspenders / straps */}
                       <path d="M58 106 V145" stroke="#FFFFFF" strokeWidth="2.5" opacity="0.5" />
                       <path d="M102 106 V145" stroke="#FFFFFF" strokeWidth="2.5" opacity="0.5" />
                       
-                      {/* Neck */}
                       <rect x="73" y="88" width="14" height="18" fill="#F3D5B5" />
-
-                      {/* Head */}
                       <ellipse cx="80" cy="74" rx="18" ry="20" fill="#F3D5B5" />
-
-                      {/* Eyes and friendly smile */}
                       <circle cx="74" cy="74" r="2" fill="#043F3B" />
                       <circle cx="86" cy="74" r="2" fill="#043F3B" />
                       <path d="M76 82 Q80 86 84 82" stroke="#043F3B" strokeWidth="2" strokeLinecap="round" fill="none" />
 
-                      {/* Worker Cap / Gorra */}
                       <path d="M60 65 C60 50 100 50 100 65 Z" fill="#043F3B" />
                       <path d="M56 65 Q80 58 108 65 Q114 67 106 70 Q80 66 56 65 Z" fill="#043F3B" />
                       <circle cx="80" cy="53" r="2.5" fill="#53A599" />
 
-                      {/* Rosette Verified Badge floating */}
                       <g className="transform translate-x-1 -translate-y-1 transition-transform group-hover:translate-x-0 group-hover:translate-y-0">
-                        {/* Rosette ribbons */}
                         <path d="M124 104 L121 122 L128 118 L135 122 L132 104 Z" fill="#043F3B" opacity="0.8" />
-                        {/* Rosette Scalloped Circle */}
                         <circle cx="128" cy="98" r="16" fill="#043F3B" stroke="#FFFFFF" strokeWidth="2" />
                         <circle cx="128" cy="98" r="12" fill="#043F3B" />
-                        {/* Checkmark */}
                         <path d="M123 98 L126.5 101.5 L133.5 94.5" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                       </g>
 
-                      {/* Sparkle accents */}
                       <path d="M38 68 L42 70 M35 76 L40 74" stroke="#043F3B" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
                       <path d="M120 48 L123 44 M128 48 L132 50" stroke="#043F3B" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
                     </svg>
@@ -434,7 +418,7 @@ function Landing() {
             {/* Action Button */}
             <Link 
               to="/register-professional" 
-              className="w-full py-4 rounded-2xl bg-[#10594F] hover:bg-[#0D4A41] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-md hover:shadow-xl hover:shadow-[#10594F]/20 transition-all active:scale-[0.99] cursor-pointer no-underline"
+              className="w-full py-3.5 sm:py-4 rounded-2xl bg-[#10594F] hover:bg-[#0D4A41] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 shadow-md hover:shadow-xl hover:shadow-[#10594F]/20 transition-all active:scale-[0.99] cursor-pointer no-underline"
             >
               <span>Registrarme como Profesional</span>
               <span className="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</span>
@@ -447,7 +431,7 @@ function Landing() {
         {/* ========================================================== */}
         {/* 4. VALUE PROPOSITION ROW                                   */}
         {/* ========================================================== */}
-        <div className="mt-10 lg:mt-14 py-4 flex flex-wrap items-center justify-center gap-6 sm:gap-12 text-xs sm:text-sm font-semibold text-[#043F3B]/70 dark:text-slate-400">
+        <div className="mt-8 sm:mt-10 lg:mt-14 py-4 flex flex-wrap items-center justify-center gap-4 sm:gap-12 text-xs sm:text-sm font-semibold text-[#043F3B]/70 dark:text-slate-400">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-[#043F3B] dark:text-teal-400 text-lg">verified_user</span>
             <span>Perfiles verificados y seguros</span>
@@ -474,7 +458,7 @@ function Landing() {
       {/* ============================================================ */}
       {/* 5. FOOTER & ORGANIC BOTTOM WAVES                            */}
       {/* ============================================================ */}
-      <footer className="w-full pt-6 pb-12 text-center text-[#043F3B]/60 dark:text-slate-500 z-10 relative">
+      <footer className="w-full pt-4 sm:pt-6 pb-10 sm:pb-12 text-center text-[#043F3B]/60 dark:text-slate-500 z-10 relative">
         <div className="flex justify-center items-center gap-3">
           <span className="h-px w-12 bg-[#043F3B]/20 dark:bg-slate-700"></span>
           <span className="text-xs font-semibold uppercase tracking-widest text-[#043F3B]/70 dark:text-slate-300">By Group Senn</span>
@@ -486,7 +470,7 @@ function Landing() {
       </footer>
 
       {/* Organic Bottom Wave Accents (Matching mockup bottom flourishes) */}
-      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-24 sm:h-32 overflow-hidden z-0 opacity-90">
+      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-20 sm:h-32 overflow-hidden z-0 opacity-90">
         <svg 
           viewBox="0 0 1440 180" 
           fill="none" 
