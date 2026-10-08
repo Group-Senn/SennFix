@@ -56,7 +56,8 @@ export default {
       },
       fontFamily: {
         "display": ["Outfit", "sans-serif"],
-        "sans": ["Inter", "sans-serif"]
+        "sans": ["Inter", "sans-serif"],
+        "handwriting": ["Caveat", "cursive"]
       },
       borderRadius: {
         "sm": "0.25rem",
