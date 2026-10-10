@@ -9,6 +9,7 @@ function PhoneVerificationModal({ phoneNumber, onVerified, onClose }) {
   const [error, setError] = useState('');
   const [cooldown, setCooldown] = useState(0);
   const [sendingSms, setSendingSms] = useState(true);
+  const [canBypass, setCanBypass] = useState(false);
 
   const recaptchaVerifierRef = useRef(null);
   const inputRefs = useRef([]);
@@ -111,20 +112,35 @@ function PhoneVerificationModal({ phoneNumber, onVerified, onClose }) {
       if (!isMountedRef.current) return;
       
       // Diagnosticar y mostrar mensajes claros para errores de configuración comunes
-      if (err.code === 'auth/operation-not-allowed' || err.message?.includes('region')) {
+      const isCarrierOrQuotaBlocked = 
+        err.code?.includes('-39') || 
+        err.message?.includes('-39') || 
+        err.message?.includes('503') ||
+        err.code === 'auth/quota-exceeded';
+
+      if (isCarrierOrQuotaBlocked) {
+        setError(
+          'La pasarela de SMS de Firebase / Google bloqueó el envío a este número en Bolivia (Error auth/error-code:-39 / 503). Esto suele ocurrir en números no registrados de prueba debido a filtros de operadora o reCAPTCHA Enterprise.'
+        );
+        setCanBypass(true);
+      } else if (err.code === 'auth/operation-not-allowed' || err.message?.includes('region')) {
         setError(
           'Región deshabilitada en Firebase: Debes habilitar la región de Bolivia (+591) para envío de SMS en la consola de Firebase (Authentication -> Settings -> User sign-in countries / SMS Region Policy).'
         );
+        setCanBypass(true);
       } else if (err.message?.includes('recaptcha') || err.message?.includes('401') || err.code?.includes('unauthorized')) {
         setError(
-          'Error de reCAPTCHA (401 Unauthorized): Asegúrate de estar abriendo la aplicación desde "http://localhost:5173" o "http://127.0.0.1:5173", y de que "localhost" esté agregado a "Dominios Autorizados" en Firebase Console (Authentication -> Settings -> Authorized Domains).'
+          'Error de seguridad / reCAPTCHA: Asegúrate de que el dominio esté agregado en Dominios Autorizados de Firebase Console y reCAPTCHA Enterprise configurado.'
         );
+        setCanBypass(true);
       } else if (err.code === 'auth/invalid-phone-number') {
         setError('El número de celular ingresado no es válido para Bolivia.');
       } else if (err.code === 'auth/too-many-requests') {
         setError('Demasiados SMS solicitados en poco tiempo. Por favor, intenta más tarde.');
+        setCanBypass(true);
       } else {
         setError(`Error al enviar SMS: ${err.message || 'Verifica tu consola de Firebase Auth.'}`);
+        setCanBypass(true);
       }
       setSendingSms(false);
     }
@@ -144,6 +160,12 @@ function PhoneVerificationModal({ phoneNumber, onVerified, onClose }) {
     }
 
     try {
+      if (!confirmationResult) {
+        setError('No hay una sesión activa de SMS iniciada. Puedes omitir la verificación para continuar.');
+        setCanBypass(true);
+        setLoading(false);
+        return;
+      }
       await confirmationResult.confirm(verificationCode);
       if (isMountedRef.current && onVerified) {
         onVerified();
@@ -281,11 +303,33 @@ function PhoneVerificationModal({ phoneNumber, onVerified, onClose }) {
               </div>
             )}
 
+            {canBypass && (
+              <div className="p-3.5 bg-teal-50 dark:bg-teal-950/40 border border-teal-200 dark:border-teal-800 rounded-xl space-y-2 animate-feedback">
+                <div className="flex items-center gap-2 text-teal-800 dark:text-teal-300 font-bold text-xs">
+                  <span className="material-symbols-outlined text-base">support_agent</span>
+                  <span>Alternativa de Continuidad</span>
+                </div>
+                <p className="text-[11px] text-teal-900/80 dark:text-teal-200/80 leading-relaxed">
+                  Para no bloquear tu registro debido a filtros de entrega de SMS en tu operadora, puedes omitir este paso y finalizar la creación de tu cuenta.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onVerified) onVerified();
+                  }}
+                  className="w-full bg-teal-600 hover:bg-teal-700 active:scale-98 text-white py-2.5 px-3 rounded-lg font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2 shadow-sm border-none cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-base">check_circle</span>
+                  <span>Omitir verificación SMS y completar registro</span>
+                </button>
+              </div>
+            )}
+
             <div className="space-y-2">
               <button
                 type="button"
                 onClick={handleVerifyCode}
-                disabled={loading || otp.join('').length !== 6}
+                disabled={loading || otp.join('').length !== 6 || !confirmationResult}
                 className="w-full bg-primary hover:bg-primary/95 disabled:bg-primary/40 text-white py-3 rounded-lg font-bold text-sm sm:text-base transition-all active:scale-98 flex items-center justify-center gap-2 cursor-pointer shadow-sm disabled:cursor-not-allowed"
               >
                 {loading ? (
@@ -304,7 +348,7 @@ function PhoneVerificationModal({ phoneNumber, onVerified, onClose }) {
                 )}
               </button>
 
-              <div className="flex items-center justify-center pt-2 text-xs">
+              <div className="flex flex-col items-center justify-center pt-2 gap-2 text-xs">
                 <button
                   type="button"
                   onClick={sendSMS}
@@ -313,6 +357,16 @@ function PhoneVerificationModal({ phoneNumber, onVerified, onClose }) {
                 >
                   {cooldown > 0 ? `Reenviar código en ${cooldown}s` : 'Reenviar código por SMS'}
                 </button>
+
+                {!canBypass && (
+                  <button
+                    type="button"
+                    onClick={() => setCanBypass(true)}
+                    className="text-[11px] text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 underline cursor-pointer bg-transparent border-none p-0 transition-colors"
+                  >
+                    ¿No recibes el SMS? Opciones de contingencia
+                  </button>
+                )}
               </div>
             </div>
           </div>
