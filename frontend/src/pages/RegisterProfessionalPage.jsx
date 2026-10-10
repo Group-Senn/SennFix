@@ -4,6 +4,7 @@ import LocationPicker from '../components/LocationPicker';
 import SpecialtyCombobox from '../components/SpecialtyCombobox';
 import DatePicker from '../components/DatePicker';
 import PhoneVerification from '../components/PhoneVerification';
+import DocumentUploadCard from '../components/DocumentUploadCard';
 import { compressImage } from '../utils/imageCompressor';
 
 function RegisterProfessionalPage() {
@@ -42,11 +43,12 @@ function RegisterProfessionalPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isProfileSectionEnabled, setIsProfileSectionEnabled] = useState(false);
   const [isMinor, setIsMinor] = useState(false);
+  const [isCompany, setIsCompany] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (formData.birth_date) {
+    if (formData.birth_date && !isCompany) {
       const birthDate = new Date(formData.birth_date);
       const today = new Date();
       let age = today.getFullYear() - birthDate.getFullYear();
@@ -55,15 +57,18 @@ function RegisterProfessionalPage() {
         age--;
       }
       setIsMinor(age < 18);
+    } else {
+      setIsMinor(false);
     }
-  }, [formData.birth_date]);
+  }, [formData.birth_date, isCompany]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
     if (name === 'identity_card' || name === 'phone_number') {
       const numericValue = value.replace(/[^0-9]/g, '');
-      if (numericValue.length <= 8) {
+      const maxLen = name === 'identity_card' ? 15 : 8;
+      if (numericValue.length <= maxLen) {
         setFormData(prev => ({ ...prev, [name]: numericValue }));
       }
     } else if (name === 'hashtags') {
@@ -216,8 +221,8 @@ function RegisterProfessionalPage() {
     if (pwdError) return setError(pwdError);
 
     if (!profileImageFile) return setError('La foto de perfil del rostro es obligatoria para tu verificación KYC.');
-    if (!ciFrontFile) return setError('Debes adjuntar la imagen del anverso del carnet.');
-    if (!ciBackFile) return setError('Debes adjuntar la imagen del reverso del carnet.');
+    if (!ciFrontFile) return setError(isCompany ? 'Debes adjuntar la imagen del anverso del NIT o carnet.' : 'Debes adjuntar la imagen del anverso del carnet.');
+    if (!ciBackFile) return setError(isCompany ? 'Debes adjuntar el reverso o documento de respaldo de la empresa.' : 'Debes adjuntar la imagen del reverso del carnet.');
 
     if (isMinor) {
       if (!formData.tutor_name.trim()) return setError('El campo "Nombre del Tutor" es obligatorio para menores de edad.');
@@ -238,6 +243,8 @@ function RegisterProfessionalPage() {
 
     const submissionData = new FormData();
     const fullPhoneNumber = `+591${formData.phone_number}`;
+
+    submissionData.append('is_company', isCompany ? 'true' : 'false');
 
     for (const key in formData) {
       if (key === 'phone_number') {
@@ -404,8 +411,43 @@ function RegisterProfessionalPage() {
                 </div>
               )}
             </div>
+
+            {/* Selector de Tipo de Cuenta: Profesional Individual o Empresa/Negocio */}
+            <div className="p-3.5 bg-slate-50/80 dark:bg-slate-900/50 rounded-2xl border border-primary/10 dark:border-slate-700 space-y-2">
+              <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase block">
+                Tipo de Registro
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsCompany(false)}
+                  className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border ${
+                    !isCompany
+                      ? 'bg-primary text-white border-primary shadow-sm'
+                      : 'bg-white dark:bg-slate-800 text-primary/70 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/60'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-base">person</span>
+                  <span>Profesional Individual</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsCompany(true)}
+                  className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border ${
+                    isCompany
+                      ? 'bg-primary text-white border-primary shadow-sm'
+                      : 'bg-white dark:bg-slate-800 text-primary/70 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/60'
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-base">domain</span>
+                  <span>Empresa o Negocio (NIT)</span>
+                </button>
+              </div>
+            </div>
+
             <div>
               <DatePicker
+                label={isCompany ? "Fecha de Fundación de la Empresa" : "Fecha de Nacimiento o Fundación"}
                 value={formData.birth_date}
                 onChange={(dateStr) => setFormData(prev => ({ ...prev, birth_date: dateStr }))}
               />
@@ -419,28 +461,46 @@ function RegisterProfessionalPage() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">C.I. <span className="text-red-500">*</span></label>
-                    <div className="relative">
-                      <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">badge</span>
+                    <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">
+                      {isCompany ? "NIT de la Empresa" : "C.I. o NIT de la Empresa"} <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative mb-3">
+                      <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">
+                        {isCompany ? "domain" : "badge"}
+                      </span>
                       <input
                         type="text"
                         inputMode="numeric"
                         name="identity_card"
-                        maxLength={8}
+                        maxLength={15}
                         value={formData.identity_card}
                         onChange={handleChange}
-                        placeholder="12345678"
+                        placeholder={isCompany ? "Ej: 1028465029" : "Ej: 12345678 o 1028465029"}
                         required
                         className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
                       />
                     </div>
-                    <div className="mt-2">
-                      <label className="text-xs font-bold text-primary/85 dark:text-slate-350 block mb-1">Anverso del C.I. <span className="text-red-500">*</span></label>
-                      <input type="file" name="ci_front" onChange={handleCiFrontChange} required accept="image/*" className="w-full text-xs text-primary/80 dark:text-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 dark:file:bg-white/10 file:text-primary dark:file:text-white hover:file:bg-primary/20 dark:hover:file:bg-white/20 transition-all cursor-pointer" />
-                    </div>
-                    <div className="mt-2">
-                      <label className="text-xs font-bold text-primary/85 dark:text-slate-350 block mb-1">Reverso del C.I. <span className="text-red-500">*</span></label>
-                      <input type="file" name="ci_back" onChange={handleCiBackChange} required accept="image/*" className="w-full text-xs text-primary/80 dark:text-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 dark:file:bg-white/10 file:text-primary dark:file:text-white hover:file:bg-primary/20 dark:hover:file:bg-white/20 transition-all cursor-pointer" />
+                    
+                    <div className="space-y-3">
+                      <DocumentUploadCard
+                        label={isCompany ? "Anverso del NIT o C.I. del Representante" : "Anverso del Carnet de Identidad (C.I.)"}
+                        file={ciFrontFile}
+                        onFileChange={(newFile) => setCiFrontFile(newFile)}
+                        onRemove={() => setCiFrontFile(null)}
+                        required={true}
+                        helpText="Foto nítida del frente del documento"
+                        icon={isCompany ? "receipt_long" : "badge"}
+                      />
+
+                      <DocumentUploadCard
+                        label={isCompany ? "Reverso o Documento de Respaldo de Empresa" : "Reverso del Carnet de Identidad (C.I.)"}
+                        file={ciBackFile}
+                        onFileChange={(newFile) => setCiBackFile(newFile)}
+                        onRemove={() => setCiBackFile(null)}
+                        required={true}
+                        helpText="Foto nítida de la parte posterior"
+                        icon={isCompany ? "description" : "badge"}
+                      />
                     </div>
                   </div>
                   <div>
@@ -469,7 +529,7 @@ function RegisterProfessionalPage() {
 
                 <div>
                   <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Especialidad Principal <span className="text-red-500">*</span></label>
-                  <SpecialtyCombobox onSpecialtyChange={handleSpecialtyChange} />
+                  <SpecialtyCombobox onSpecialtyChange={handleSpecialtyChange} initialValue={formData.specialty} />
                 </div>
 
                 {formData.specialty === 'Otro' && (

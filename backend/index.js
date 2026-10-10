@@ -1904,8 +1904,10 @@ app.post('/api/register-professional', upload.fields([
   const {
     name, email, password, specialty, bio, identity_card, phone_number, birth_date,
     services_offered, has_store, store_address, latitude, longitude,
-    legal_accepted, tutor_name, tutor_phone, action_radius, hashtags
+    legal_accepted, tutor_name, tutor_phone, action_radius, hashtags, is_company
   } = req.body;
+
+  const isCompany = is_company === 'true' || is_company === true;
 
   // --- Validación de Contenido ---
   const contentToValidate = `${bio || ''} ${services_offered || ''} ${specialty || ''}`;
@@ -1920,28 +1922,30 @@ app.post('/api/register-professional', upload.fields([
     return res.status(400).json({ message: 'Por favor, completa todos los campos obligatorios.' });
   }
 
-  // Nueva validación para imágenes de CI
+  // Validación para imágenes de CI / NIT
   if (!req.files || !req.files.ci_front || !req.files.ci_back) {
-    return res.status(400).json({ message: 'Se requieren las imágenes del anverso y reverso del carnet de identidad.' });
+    return res.status(400).json({ message: 'Se requieren las imágenes del anverso y reverso del documento (C.I. o NIT).' });
   }
 
-  // Regla: Si es menor de 18, exigir campos de tutor y permiso.
+  // Regla: Si es menor de 18 (y no es empresa), exigir campos de tutor y permiso.
   const age = calculateAge(birth_date);
 
   const client = await db.connect();
   try {
-    // Lógica de Menores (Ley 548): Validar rango de edad y requisitos.
-    if (age < 14) {
-      return res.status(403).json({ message: 'Debes tener al menos 14 años para registrarte como profesional.' });
-    }
-    if (age >= 14 && age < 18) {
-      if (!tutor_name || !tutor_phone || !req.files || !req.files.defensoriaPermit) {
-        return res.status(400).json({ message: 'Para menores de edad, se requiere el nombre y teléfono del tutor, y adjuntar el permiso de la defensoría.' });
+    // Lógica de Menores (Ley 548): Solo aplica a profesionales individuales, no a empresas/negocios
+    if (!isCompany) {
+      if (age < 14) {
+        return res.status(403).json({ message: 'Debes tener al menos 14 años para registrarte como profesional.' });
       }
-      if (specialty) {
-        const { rows: [service] } = await client.query('SELECT is_high_risk FROM services WHERE name = $1', [specialty]);
-        if (service && service.is_high_risk) {
-          return res.status(403).json({ message: `Registro bloqueado. Según la Ley 548, los menores de edad no pueden realizar trabajos de alto riesgo como "${specialty}".` });
+      if (age >= 14 && age < 18) {
+        if (!tutor_name || !tutor_phone || !req.files || !req.files.defensoriaPermit) {
+          return res.status(400).json({ message: 'Para menores de edad, se requiere el nombre y teléfono del tutor, y adjuntar el permiso de la defensoría.' });
+        }
+        if (specialty) {
+          const { rows: [service] } = await client.query('SELECT is_high_risk FROM services WHERE name = $1', [specialty]);
+          if (service && service.is_high_risk) {
+            return res.status(403).json({ message: `Registro bloqueado. Según la Ley 548, los menores de edad no pueden realizar trabajos de alto riesgo como "${specialty}".` });
+          }
         }
       }
     }

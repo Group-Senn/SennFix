@@ -69,3 +69,58 @@ export function compressImage(file, { maxWidth = 1200, maxHeight = 1200, quality
     reader.readAsDataURL(file);
   });
 }
+
+/**
+ * Rotates an image file by a given angle (default 90 deg clockwise).
+ * Returns the rotated File object.
+ * 
+ * @param {File} file The original file.
+ * @param {number} angle Degrees to rotate (e.g., 90, 180, 270).
+ * @returns {Promise<File>} A promise resolving to the rotated File object.
+ */
+export function rotateImage(file, angle = 90) {
+  return new Promise((resolve) => {
+    if (!file || !file.type?.startsWith('image/')) {
+      resolve(file);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        const isOrthogonal = Math.abs(angle % 180) === 90;
+        canvas.width = isOrthogonal ? img.height : img.width;
+        canvas.height = isOrthogonal ? img.width : img.height;
+
+        ctx.translate(canvas.width / 2, canvas.height / 2);
+        ctx.rotate((angle * Math.PI) / 180);
+        ctx.drawImage(img, -img.width / 2, -img.height / 2);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              resolve(file);
+              return;
+            }
+            const rotatedFile = new File([blob], file.name, {
+              type: file.type || 'image/jpeg',
+              lastModified: Date.now()
+            });
+            resolve(rotatedFile);
+          },
+          file.type || 'image/jpeg',
+          0.85
+        );
+      };
+      img.onerror = () => resolve(file);
+      img.src = event.target.result;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+}
+
