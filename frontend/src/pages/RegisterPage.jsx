@@ -170,7 +170,7 @@ function RegisterPage() {
                     }}
                     placeholder="7XXXXXXX"
                     required
-                    className="w-full px-4 py-3 bg-transparent text-primary dark:text-slate-100 border-none outline-none focus:ring-0 text-sm sm:text-base"
+                    className="w-full px-4 py-3 bg-transparent text-primary dark:text-slate-100 border-none outline-none focus:ring-0 text-base"
                   />
                 </div>
               </div>
