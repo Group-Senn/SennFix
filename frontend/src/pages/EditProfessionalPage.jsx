@@ -3,6 +3,8 @@ import { Link, useNavigate, useParams } from 'react-router-dom';
 import LocationPicker from '../components/LocationPicker';
 import { useAuth } from '../context/AuthContext';
 import { compressImage } from '../utils/imageCompressor';
+import PhoneVerification from '../components/PhoneVerification';
+import { toLocalBolivianNumber } from '../utils/phone';
 
 function EditProfessionalPage() {
   const { id } = useParams();
@@ -17,6 +19,7 @@ function EditProfessionalPage() {
   const [imagePreview, setImagePreview] = useState('');
   const [loading, setLoading] = useState(true);
   const [locationInterval, setLocationInterval] = useState(null); // Para el intervalo de envío de ubicación
+  const [phoneToVerify, setPhoneToVerify] = useState(null); // Número nuevo pendiente de verificar por WhatsApp
 
   useEffect(() => {
     // Redirigir si el usuario no es el dueño del perfil
@@ -169,8 +172,8 @@ function EditProfessionalPage() {
     setFormData(prev => ({ ...prev, store_address: address }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e, phoneVerificationToken) => {
+    if (e) e.preventDefault();
     setError('');
     setSuccess('');
 
@@ -184,6 +187,9 @@ function EditProfessionalPage() {
     if (felccRejapFile) {
       submissionData.append('felcc_rejap', felccRejapFile);
     }
+    if (phoneVerificationToken) {
+      submissionData.append('phone_verification_token', phoneVerificationToken);
+    }
 
     try {
       const token = localStorage.getItem('token');
@@ -194,6 +200,11 @@ function EditProfessionalPage() {
       });
 
       const data = await response.json();
+      // Cambiar el celular exige verificar el nuevo número por WhatsApp
+      if (response.status === 403 && data.code === 'PHONE_NOT_VERIFIED') {
+        setPhoneToVerify(toLocalBolivianNumber(formData.phone_number));
+        return;
+      }
       if (!response.ok) throw new Error(data.message || 'Error al actualizar el perfil.');
 
       // Si el backend devuelve un nuevo token, lo actualizamos en el contexto.
@@ -408,6 +419,16 @@ function EditProfessionalPage() {
           </form>
         </div>
       </div>
+      {phoneToVerify && (
+        <PhoneVerification
+          phoneNumber={phoneToVerify}
+          onVerified={(phoneVerificationToken) => {
+            setPhoneToVerify(null);
+            handleSubmit(null, phoneVerificationToken);
+          }}
+          onClose={() => setPhoneToVerify(null)}
+        />
+      )}
     </>
   );
 }

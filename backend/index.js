@@ -8,50 +8,102 @@ import fs from 'fs';
 import 'dotenv/config';
 import db from './db.js';
 import { watermarkAndSave } from './imageService.js';
-import { containsBlacklistedWords } from './validationService.js';
+import { containsBlacklistedWords, validatePassword } from './validationService.js';
 import { startGoldSealCron } from './cronService.js';
 import { fileURLToPath } from 'url';
 import rateLimit from 'express-rate-limit';
 import { sanitizeMiddleware } from './sanitizeService.js';
+import { createPhoneVerification, ensurePhoneVerificationSchema, normalizeBolivianPhone, isPhoneVerificationRequired } from './phoneVerificationService.js';
+
+// --- Auth Constants ---
+// El secreto es obligatorio: sin él cualquiera podría firmar tokens de administrador.
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET || JWT_SECRET.length < 32) {
+  console.error('FATAL: JWT_SECRET no está definido o es demasiado corto (mínimo 32 caracteres). Configúralo en .env / Render.');
+  process.exit(1);
+}
+// Secreto separado para los enlaces temporales a documentos privados (no sirve como token de sesión)
+const FILE_TOKEN_SECRET = `${JWT_SECRET}:private-file`;
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Render / Vercel están detrás de un proxy: sin esto todos los usuarios comparten la misma IP en el rate limit
+app.set('trust proxy', 1);
+
 // Rate limiting configuration
 const apiLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // Límite de 100 peticiones por ventana de tiempo por IP
+  max: 1000, // Holgado: el chat (cada 3 s) y las notificaciones (cada 8 s) ya suman ~400 peticiones en 15 min
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: 'Demasiadas solicitudes desde esta IP, por favor intente de nuevo más tarde.' }
 });
 
+// Límites estrictos para endpoints sensibles (fuerza bruta / abuso de envíos)
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  skipSuccessfulRequests: true,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Demasiados intentos de inicio de sesión. Intenta de nuevo en 15 minutos.' }
+});
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Demasiados registros desde esta IP. Intenta más tarde.' }
+});
+const otpSendLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 8,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Demasiados códigos solicitados desde esta IP. Intenta más tarde.' }
+});
+const otpVerifyLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Demasiados intentos de verificación. Intenta más tarde.' }
+});
+
+// CORS: orígenes permitidos separados por comas en CORS_ORIGINS (ej: https://sennfix.com,https://senn-fix.vercel.app)
+const DEFAULT_CORS_ORIGINS = [
+  'http://localhost:5173', 'http://localhost:4173', 'http://127.0.0.1:5173',
+  'capacitor://localhost', 'http://localhost', 'https://localhost' // App Android/iOS (Capacitor)
+];
+const corsOrigins = process.env.CORS_ORIGINS
+  ? [...DEFAULT_CORS_ORIGINS, ...process.env.CORS_ORIGINS.split(',').map(o => o.trim()).filter(Boolean)]
+  : null;
+if (!corsOrigins) {
+  console.warn('ADVERTENCIA: CORS_ORIGINS no está definido; se aceptan peticiones de cualquier origen.');
+}
+
 // Middlewares
-app.use(cors());
+app.use(cors({ origin: corsOrigins || true }));
 app.use(express.json());
 app.use('/api/', apiLimiter);
 app.use(sanitizeMiddleware);
 
-// --- Diagnostics endpoint ---
+// --- Health check (sin exponer detalles internos) ---
 app.get('/api/db-test', async (req, res) => {
   try {
-    const result = await db.query('SELECT NOW()');
-    res.json({
-      status: 'success',
-      message: 'Database connection successful!',
-      time: result.rows[0],
-      env_db_url_exists: !!process.env.DATABASE_URL
-    });
+    await db.query('SELECT 1');
+    res.json({ status: 'success' });
   } catch (error) {
-    res.status(500).json({
-      status: 'error',
-      message: 'Database connection failed!',
-      error: error.message,
-      stack: error.stack,
-      env_db_url_exists: !!process.env.DATABASE_URL
-    });
+    console.error('Health check de base de datos falló:', error);
+    res.status(500).json({ status: 'error' });
   }
 });
+
+// --- Verificación de celular por WhatsApp ---
+const phoneVerification = createPhoneVerification(JWT_SECRET);
+app.post('/api/phone/send-code', otpSendLimiter, phoneVerification.sendCode);
+app.post('/api/phone/verify-code', otpVerifyLimiter, phoneVerification.verifyCode);
 
 // --- Configuración para subida de archivos ---
 
@@ -73,7 +125,10 @@ if (!fs.existsSync(privateUploadsDir)) {
 
 // Configuración de Multer para guardar archivos en memoria para poder procesarlos
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024, files: 6 } // Máx. 10 MB por archivo (evita agotar la memoria del servidor)
+});
 import { uploadToS3, deleteFromS3, getFromS3, BUCKET_NAME, PRIVATE_BUCKET_NAME } from './s3Service.js';
 
 // Wrappers para manejo persistente de imágenes/documentos en S3
@@ -162,9 +217,6 @@ app.get('/uploads/:filename', async (req, res) => {
   }
 });
 
-// --- Auth Constants ---
-const JWT_SECRET = process.env.JWT_SECRET || 'tu-secreto-super-secreto-cambiar-en-produccion-12345'; // ¡IMPORTANTE! Cambia esto por una frase larga y aleatoria en .env
-
 // --- Auth Middleware ---
 const authMiddleware = (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -185,17 +237,11 @@ const authMiddleware = (req, res, next) => {
 
 // --- Admin Middleware ---
 const adminMiddleware = (req, res, next) => {
-  let token = null;
   const authHeader = req.headers.authorization;
-  if (authHeader && authHeader.startsWith('Bearer ')) {
-    token = authHeader.split(' ')[1];
-  } else if (req.query.token) {
-    token = req.query.token;
-  }
-
-  if (!token) {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
     return res.status(401).json({ message: 'Acceso denegado. No se proporcionó token.' });
   }
+  const token = authHeader.split(' ')[1];
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
@@ -247,8 +293,31 @@ function isValidPrivateFile(file) {
   return ALLOWED_PRIVATE_EXTENSIONS.includes(ext) && ALLOWED_PRIVATE_MIMETYPES.includes(mime);
 }
 
+// Token temporal (10 min) para abrir documentos privados en <img>/<a>, donde no se puede enviar el header Authorization.
+// Así el token de sesión del admin nunca viaja en la URL (logs, historial, Referer).
+app.get('/api/admin/file-token', adminMiddleware, (req, res) => {
+  const fileToken = jwt.sign({ id: req.user.id, purpose: 'private_file' }, FILE_TOKEN_SECRET, { expiresIn: '10m' });
+  res.json({ fileToken, expiresIn: 600 });
+});
+
+const privateFileMiddleware = (req, res, next) => {
+  const token = req.query.token;
+  if (!token) {
+    return res.status(401).json({ message: 'Acceso denegado. No se proporcionó token.' });
+  }
+  try {
+    const decoded = jwt.verify(token, FILE_TOKEN_SECRET);
+    if (decoded.purpose !== 'private_file') throw new Error('Propósito inválido');
+    res.setHeader('Referrer-Policy', 'no-referrer');
+    res.setHeader('Cache-Control', 'private, no-store');
+    next();
+  } catch (error) {
+    res.status(401).json({ message: 'Enlace expirado. Recarga el panel de administración.' });
+  }
+};
+
 // Endpoint para servir archivos privados con verificación de token de administrador (CPE Art. 21)
-app.get('/private_uploads/:filename', adminMiddleware, async (req, res) => {
+app.get('/private_uploads/:filename', privateFileMiddleware, async (req, res) => {
   const { filename } = req.params;
 
   // Prevención de ataques de path traversal
@@ -1524,16 +1593,51 @@ app.put('/api/admin/profile', adminMiddleware, upload.single('adminAvatar'), asy
   }
 });
 
+/**
+ * Cambiar el celular exige verificar el NUEVO número por WhatsApp; si no cambia, se conserva el actual.
+ * Devuelve { phone } o { status, body } con el error a responder.
+ */
+async function resolvePhoneUpdate(userId, requestedPhone, verificationToken) {
+  const { rows: [current] } = await db.query('SELECT phone_number FROM users WHERE id = $1', [userId]);
+  const currentPhone = current?.phone_number || '';
+  if (!requestedPhone || requestedPhone === currentPhone) {
+    return { phone: currentPhone };
+  }
+  const newPhone = normalizeBolivianPhone(requestedPhone);
+  if (!newPhone) {
+    return { status: 400, body: { message: 'El número debe ser un celular válido de Bolivia (8 dígitos, empezando con 6 o 7).' } };
+  }
+  if (newPhone === normalizeBolivianPhone(currentPhone)) {
+    return { phone: currentPhone };
+  }
+  const verified = phoneVerification.isPhoneVerified(verificationToken, newPhone);
+  if (!verified && isPhoneVerificationRequired()) {
+    return { status: 403, body: { code: 'PHONE_NOT_VERIFIED', message: 'Debes verificar el nuevo número por WhatsApp antes de guardarlo.' } };
+  }
+  const { rows: [taken] } = await db.query('SELECT 1 FROM users WHERE phone_number = $1 AND id <> $2', [newPhone, userId]);
+  if (taken) {
+    return { status: 409, body: { message: 'El número de teléfono ya está en uso.' } };
+  }
+  await db.query('UPDATE users SET phone_verified = $1 WHERE id = $2', [verified, userId]);
+  return { phone: newPhone };
+}
+
 // Endpoint para actualizar el perfil de un usuario cliente regular (CPE)
 app.put('/api/users/profile', authMiddleware, upload.single('avatar'), async (req, res) => {
   const userId = req.user.id;
-  const { name, email, phone_number } = req.body;
+  const { name, email, phone_verification_token } = req.body;
 
   if (!name || !email) {
     return res.status(400).json({ message: 'Nombre y correo electrónico son requeridos.' });
   }
 
   try {
+    const phoneUpdate = await resolvePhoneUpdate(userId, req.body.phone_number, phone_verification_token);
+    if (phoneUpdate.status) {
+      return res.status(phoneUpdate.status).json(phoneUpdate.body);
+    }
+    const phone_number = phoneUpdate.phone;
+
     let imageUrl = null;
     if (req.file) {
       if (!isValidImage(req.file)) {
@@ -1846,14 +1950,26 @@ app.put('/api/admin/posts/:id/verify', adminMiddleware, async (req, res) => {
 // --- Auth Endpoints ---
 
 // Endpoint para registrar un nuevo usuario (Cliente)
-app.post('/api/register', async (req, res) => {
-  const { name, email, password, phone_number, birth_date, identity_card } = req.body;
+app.post('/api/register', registerLimiter, async (req, res) => {
+  const { name, email, password, birth_date, identity_card, phone_verification_token } = req.body;
   // Seguridad: el tipo de usuario NUNCA se toma del cliente (evita registrarse como 'admin').
   // Los profesionales se registran por /api/register-professional.
   const user_type = 'client';
+  const phone_number = normalizeBolivianPhone(req.body.phone_number);
 
   if (!name || !email || !password || !phone_number || !birth_date) {
     return res.status(400).json({ message: 'Nombre, email, contraseña, teléfono y fecha de nacimiento son requeridos.' });
+  }
+
+  const passwordError = validatePassword(password);
+  if (passwordError) {
+    return res.status(400).json({ message: passwordError });
+  }
+
+  // Con WhatsApp configurado el celular debe estar verificado (no hay forma de omitirlo)
+  const phoneVerified = phoneVerification.isPhoneVerified(phone_verification_token, phone_number);
+  if (!phoneVerified && isPhoneVerificationRequired()) {
+    return res.status(403).json({ code: 'PHONE_NOT_VERIFIED', message: 'Debes verificar tu número de celular por WhatsApp antes de registrarte.' });
   }
 
   try {
@@ -1881,8 +1997,8 @@ app.post('/api/register', async (req, res) => {
 
     // Insertar el nuevo usuario
     const { rows: [newUser] } = await db.query(
-      'INSERT INTO users (name, email, password_hash, user_type, "imageUrl", phone_number, birth_date, identity_card, account_status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
-      [name, email, passwordHash, user_type, imageUrl, phone_number, birth_date, identity_card || null, account_status]
+      'INSERT INTO users (name, email, password_hash, user_type, "imageUrl", phone_number, birth_date, identity_card, account_status, phone_verified) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id',
+      [name, email, passwordHash, user_type, imageUrl, phone_number, birth_date, identity_card || null, account_status, phoneVerified]
     );
 
     // Insertar notificación legal de bienvenida
@@ -1904,7 +2020,7 @@ app.post('/api/register', async (req, res) => {
 });
 
 // Endpoint para registrar un nuevo profesional (usuario + perfil)
-app.post('/api/register-professional', upload.fields([
+app.post('/api/register-professional', registerLimiter, upload.fields([
   { name: 'profileImage', maxCount: 1 },
   { name: 'defensoriaPermit', maxCount: 1 },
   { name: 'ci_front', maxCount: 1 },
@@ -1913,10 +2029,30 @@ app.post('/api/register-professional', upload.fields([
   { name: 'academic_certificate', maxCount: 1 }
 ]), async (req, res) => {
   const {
-    name, email, password, specialty, bio, identity_card, phone_number, birth_date,
+    name, email, password, specialty, bio, identity_card, birth_date,
     services_offered, has_store, store_address, latitude, longitude,
-    legal_accepted, tutor_name, tutor_phone, action_radius, hashtags, is_company
+    legal_accepted, tutor_name, tutor_phone, action_radius, hashtags, is_company,
+    phone_verification_token
   } = req.body;
+  const phone_number = normalizeBolivianPhone(req.body.phone_number);
+
+  if (!phone_number) {
+    return res.status(400).json({ message: 'El número debe ser un celular válido de Bolivia (8 dígitos, empezando con 6 o 7).' });
+  }
+  // Con WhatsApp configurado el celular debe estar verificado (no hay forma de omitirlo)
+  const phoneVerified = phoneVerification.isPhoneVerified(phone_verification_token, phone_number);
+  if (!phoneVerified && isPhoneVerificationRequired()) {
+    return res.status(403).json({ code: 'PHONE_NOT_VERIFIED', message: 'Debes verificar tu número de celular por WhatsApp antes de registrarte.' });
+  }
+  // El carnet/NIT se usa en nombres de archivo: solo letras, números y guiones
+  if (req.body.identity_card && !/^[0-9A-Za-z-]{4,20}$/.test(req.body.identity_card)) {
+    return res.status(400).json({ message: 'El número de C.I. o NIT solo puede tener letras, números y guiones.' });
+  }
+
+  const passwordError = validatePassword(password);
+  if (passwordError) {
+    return res.status(400).json({ message: passwordError });
+  }
 
   const isCompany = is_company === 'true' || is_company === true;
 
@@ -2053,15 +2189,16 @@ app.post('/api/register-professional', upload.fields([
 
     const userInsertQuery = `
       INSERT INTO users (
-          name, email, password_hash, user_type, phone_number, birth_date, legal_accepted, "imageUrl", account_status, identity_card
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id, "imageUrl"
+          name, email, password_hash, user_type, phone_number, birth_date, legal_accepted, "imageUrl", account_status, identity_card, phone_verified
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING id, "imageUrl"
     `;
     const userInsertParams = [
       name, email, passwordHash, 'professional', phone_number, birth_date,
       true, // legal_accepted
       imageUrl,
       account_status,
-      identity_card
+      identity_card,
+      phoneVerified
     ];
 
     const { rows: [userResult] } = await client.query(
@@ -2149,7 +2286,7 @@ app.put('/api/professionals/:id', authMiddleware, upload.fields([
     return res.status(403).json({ message: 'No tienes permiso para editar este perfil.' });
   }
 
-  const { name, specialty, bio, phone_number, services_offered, has_store, store_address, latitude, longitude, felcc_rejap_url: existingFelccRejapUrl, action_radius, hashtags } = req.body;
+  const { name, specialty, bio, services_offered, has_store, store_address, latitude, longitude, felcc_rejap_url: existingFelccRejapUrl, action_radius, hashtags, phone_verification_token } = req.body;
 
   const client = await db.connect();
   // --- Validación de Contenido ---
@@ -2157,6 +2294,12 @@ app.put('/api/professionals/:id', authMiddleware, upload.fields([
   const hasBlacklistedContent = containsBlacklistedWords(contentToValidate);
 
   try {
+    const phoneUpdate = await resolvePhoneUpdate(userId, req.body.phone_number, phone_verification_token);
+    if (phoneUpdate.status) {
+      return res.status(phoneUpdate.status).json(phoneUpdate.body);
+    }
+    const phone_number = phoneUpdate.phone;
+
     // --- VALIDACIÓN DE ARCHIVOS SUBIDOS (Seguridad y Mimetypes) ---
     if (req.files) {
       if (req.files.profileImage) {
@@ -2315,7 +2458,7 @@ app.put('/api/professionals/:id/location', authMiddleware, async (req, res) => {
 
 
 // Endpoint para iniciar sesión
-app.post('/api/login', async (req, res) => {
+app.post('/api/login', loginLimiter, async (req, res) => {
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -2817,20 +2960,43 @@ app.get('/api/explore/posts', async (req, res) => {
 });
 
 // Endpoint para dar like a una publicación en Explorar
-app.post('/api/explore/posts/:id/like', async (req, res) => {
+// Requiere sesión y un like por usuario (un segundo clic lo quita)
+app.post('/api/explore/posts/:id/like', authMiddleware, async (req, res) => {
   const { id } = req.params;
+  const userId = String(req.user.id);
+  const client = await db.connect();
   try {
-    const { rows: [post] } = await db.query(
-      'UPDATE professional_posts SET likes_count = likes_count + 1 WHERE id = $1 RETURNING likes_count',
-      [id]
-    );
-    if (!post) {
+    await client.query('BEGIN');
+    const { rows: [exists] } = await client.query('SELECT 1 FROM professional_posts WHERE id = $1', [id]);
+    if (!exists) {
+      await client.query('ROLLBACK');
       return res.status(404).json({ message: 'Publicación no encontrada.' });
     }
-    res.json({ likes_count: post.likes_count });
+
+    const { rowCount: inserted } = await client.query(
+      'INSERT INTO post_likes (post_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+      [String(id), userId]
+    );
+    let liked = true;
+    if (!inserted) {
+      await client.query('DELETE FROM post_likes WHERE post_id = $1 AND user_id = $2', [String(id), userId]);
+      liked = false;
+    }
+
+    const { rows: [post] } = await client.query(
+      `UPDATE professional_posts
+       SET likes_count = GREATEST(likes_count + $2, 0)
+       WHERE id = $1 RETURNING likes_count`,
+      [id, liked ? 1 : -1]
+    );
+    await client.query('COMMIT');
+    res.json({ likes_count: post.likes_count, liked });
   } catch (error) {
+    await client.query('ROLLBACK').catch(() => {});
     console.error('Error al dar like:', error);
     res.status(500).json({ message: 'Error interno en el servidor.' });
+  } finally {
+    client.release();
   }
 });
 
@@ -2896,8 +3062,26 @@ app.get('/', (req, res) => {
   });
 });
 
+// Tablas de seguridad: verificación de celular y likes únicos por usuario
+async function ensureSecuritySchema() {
+  try {
+    await ensurePhoneVerificationSchema();
+    await db.query(`
+      CREATE TABLE IF NOT EXISTS post_likes (
+        post_id TEXT NOT NULL,
+        user_id TEXT NOT NULL,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        PRIMARY KEY (post_id, user_id)
+      )
+    `);
+  } catch (error) {
+    console.error('Error al preparar tablas de seguridad (phone_verifications / post_likes):', error);
+  }
+}
+
 app.listen(port, async () => {
   console.log(`Backend server corriendo en http://localhost:${port}`);
   await initDatabase();
+  await ensureSecuritySchema();
   startGoldSealCron();
 });

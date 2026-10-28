@@ -236,15 +236,16 @@ function RegisterProfessionalPage() {
     setShowVerificationModal(true);
   };
 
-  const handleVerificationSuccess = async () => {
+  const handleVerificationSuccess = async (phoneVerificationToken) => {
     setShowVerificationModal(false);
     setError('');
-    setSuccess('Celular verificado. Creando perfil profesional...');
+    setSuccess(phoneVerificationToken ? 'Celular verificado. Creando perfil profesional...' : 'Creando perfil profesional...');
 
     const submissionData = new FormData();
     const fullPhoneNumber = `+591${formData.phone_number}`;
 
     submissionData.append('is_company', isCompany ? 'true' : 'false');
+    if (phoneVerificationToken) submissionData.append('phone_verification_token', phoneVerificationToken);
 
     for (const key in formData) {
       if (key === 'phone_number') {

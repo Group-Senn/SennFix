@@ -68,9 +68,15 @@ function ExplorePage() {
   };
 
   const handleLikePost = async (postId) => {
+    // Los likes requieren sesión (uno por usuario)
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
     try {
       const response = await fetch(`${window.API_URL}/api/explore/posts/${postId}/like`, {
-        method: 'POST'
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
       if (response.ok) {
         const data = await response.json();

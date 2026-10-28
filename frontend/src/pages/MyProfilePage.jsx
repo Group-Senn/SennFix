@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getAbsoluteImageUrl, handleImageError, handleGalleryError } from '../utils/imageHelper';
 import { compressImage } from '../utils/imageCompressor';
+import PhoneVerification from '../components/PhoneVerification';
+import { toLocalBolivianNumber } from '../utils/phone';
 
 // Componente para la vista del usuario autenticado
 function UserDashboard({ user, login, logout }) {
@@ -21,6 +23,7 @@ function UserDashboard({ user, login, logout }) {
   const [editFile, setEditFile] = useState(null);
   const [editPreview, setEditPreview] = useState(null);
   const [updateFeedback, setUpdateFeedback] = useState(null);
+  const [phoneToVerify, setPhoneToVerify] = useState(null); // Número nuevo pendiente de verificar por WhatsApp
 
   // Sincronizar campos cuando cambia el objeto 'user'
   useEffect(() => {
@@ -132,8 +135,8 @@ function UserDashboard({ user, login, logout }) {
     }
   };
 
-  const handleUpdateProfile = async (e) => {
-    e.preventDefault();
+  const handleUpdateProfile = async (e, phoneVerificationToken) => {
+    if (e) e.preventDefault();
     setUploading(true);
     setUpdateFeedback(null);
 
@@ -144,6 +147,9 @@ function UserDashboard({ user, login, logout }) {
     if (editFile) {
       formData.append('avatar', editFile);
     }
+    if (phoneVerificationToken) {
+      formData.append('phone_verification_token', phoneVerificationToken);
+    }
 
     try {
       const response = await fetch(window.API_URL + '/api/users/profile', {
@@ -152,6 +158,11 @@ function UserDashboard({ user, login, logout }) {
         body: formData
       });
       const data = await response.json();
+      // Cambiar el celular exige verificar el nuevo número por WhatsApp
+      if (response.status === 403 && data.code === 'PHONE_NOT_VERIFIED') {
+        setPhoneToVerify(toLocalBolivianNumber(editPhone));
+        return;
+      }
       if (!response.ok) throw new Error(data.message || 'Error al actualizar el perfil.');
 
       // Actualizar token en AuthContext
@@ -442,6 +453,16 @@ function UserDashboard({ user, login, logout }) {
           </button>
         </div>
       </main>
+      {phoneToVerify && (
+        <PhoneVerification
+          phoneNumber={phoneToVerify}
+          onVerified={(phoneVerificationToken) => {
+            setPhoneToVerify(null);
+            handleUpdateProfile(null, phoneVerificationToken);
+          }}
+          onClose={() => setPhoneToVerify(null)}
+        />
+      )}
     </>
   );
 }

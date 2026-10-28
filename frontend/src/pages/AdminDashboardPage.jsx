@@ -56,6 +56,28 @@ function AdminDashboardPage() {
   const [pendingPortfolio, setPendingPortfolio] = useState([]);
   const [securityAlerts, setSecurityAlerts] = useState([]);
   const [pendingExplorePosts, setPendingExplorePosts] = useState([]);
+
+  // Token temporal (10 min) para ver documentos privados; el token de sesión nunca va en la URL
+  const [fileToken, setFileToken] = useState('');
+  useEffect(() => {
+    if (!token) return;
+    const fetchFileToken = async () => {
+      try {
+        const response = await fetch(`${window.API_URL}/api/admin/file-token`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setFileToken(data.fileToken);
+        }
+      } catch (err) {
+        console.error('Error al obtener token de documentos:', err);
+      }
+    };
+    fetchFileToken();
+    const interval = setInterval(fetchFileToken, 8 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, [token]);
   
   // Perfil del Administrador
   const [adminProfileName, setAdminProfileName] = useState(user?.name || 'admin');
@@ -1107,7 +1129,7 @@ function AdminDashboardPage() {
                               {selectedVerificationItem.ci_front_url ? (
                                 <img
                                   className="w-full h-full object-cover"
-                                  src={`${getAbsoluteImageUrl(selectedVerificationItem.ci_front_url)}?token=${token}`}
+                                  src={`${getAbsoluteImageUrl(selectedVerificationItem.ci_front_url)}?token=${fileToken}`}
                                   onError={handleGalleryError}
                                   alt="Anverso CI"
                                 />
@@ -1153,7 +1175,7 @@ function AdminDashboardPage() {
                               {selectedVerificationItem.ci_back_url ? (
                                 <img
                                   className="w-full h-full object-cover"
-                                  src={`${getAbsoluteImageUrl(selectedVerificationItem.ci_back_url)}?token=${token}`}
+                                  src={`${getAbsoluteImageUrl(selectedVerificationItem.ci_back_url)}?token=${fileToken}`}
                                   onError={handleGalleryError}
                                   alt="Reverso CI"
                                 />
@@ -1197,7 +1219,7 @@ function AdminDashboardPage() {
 
                             {selectedVerificationItem.felcc_rejap_url ? (
                               <a
-                                href={selectedVerificationItem.felcc_rejap_url.startsWith('http') ? selectedVerificationItem.felcc_rejap_url : `${window.API_URL}/${selectedVerificationItem.felcc_rejap_url}?token=${token}`}
+                                href={selectedVerificationItem.felcc_rejap_url.startsWith('http') ? selectedVerificationItem.felcc_rejap_url : `${window.API_URL}/${selectedVerificationItem.felcc_rejap_url}?token=${fileToken}`}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-full h-24 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-dashed border-outline-variant/40 flex flex-col items-center justify-center gap-1 hover:bg-primary/5 transition-colors cursor-pointer"
@@ -1269,7 +1291,7 @@ function AdminDashboardPage() {
                         </div>
                         {selectedVerificationItem.defensoria_permit_url ? (
                           <a
-                            href={selectedVerificationItem.defensoria_permit_url.startsWith('http') ? selectedVerificationItem.defensoria_permit_url : `${window.API_URL}/${selectedVerificationItem.defensoria_permit_url}?token=${token}`}
+                            href={selectedVerificationItem.defensoria_permit_url.startsWith('http') ? selectedVerificationItem.defensoria_permit_url : `${window.API_URL}/${selectedVerificationItem.defensoria_permit_url}?token=${fileToken}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="w-full h-16 bg-amber-500/5 hover:bg-amber-500/10 text-amber-700 dark:text-amber-400 rounded-lg border border-dashed border-amber-500/20 flex items-center justify-center gap-2 transition-colors cursor-pointer text-xs font-semibold"

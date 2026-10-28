@@ -75,10 +75,10 @@ function RegisterPage() {
     setShowVerificationModal(true);
   };
 
-  const handleVerificationSuccess = async () => {
+  const handleVerificationSuccess = async (phoneVerificationToken) => {
     setShowVerificationModal(false);
     setError('');
-    setSuccess('Celular verificado. Procesando registro...');
+    setSuccess(phoneVerificationToken ? 'Celular verificado. Procesando registro...' : 'Procesando registro...');
 
     try {
       const fullPhoneNumber = `+591${phoneNumber}`;
@@ -92,7 +92,8 @@ function RegisterPage() {
           phone_number: fullPhoneNumber, 
           birth_date: birthDate, 
           identity_card: identityCard || null, 
-          user_type: userType 
+          user_type: userType,
+          phone_verification_token: phoneVerificationToken
         }),
       });
 
