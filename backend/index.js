@@ -370,7 +370,7 @@ app.get('/api/professionals', async (req, res) => {
           p.id, u.name, p.specialty, p.rating, p.reviews, p.is_verified as verified, 
           p.has_gold_seal, p.bio, u."imageUrl", p.services_offered, p.has_store, 
           p.store_address, p.latitude, p.longitude, p.action_radius, p.is_online, 
-          p.current_latitude, p.current_longitude, p.is_minor, u.phone_number, p.hashtags 
+          p.is_minor, u.phone_number, p.hashtags 
         FROM professionals p
         JOIN users u ON p.id = u.id
         WHERE u.account_status = 'active'
@@ -474,27 +474,11 @@ app.get('/api/professionals/nearby', async (req, res) => {
     }
 
     // Aplicar fuzzing de coordenadas para profesionales que estén online y agregar coordenadas de visualización
-    const fuzzedRows = rows.map(prof => {
-      let displayLat = prof.latitude;
-      let displayLon = prof.longitude;
-
-      if (prof.is_online && prof.current_latitude !== null && prof.current_longitude !== null) {
-        const fuzzed = fuzzCoordinates(prof.current_latitude, prof.current_longitude);
-        displayLat = fuzzed.latitude;
-        displayLon = fuzzed.longitude;
-        return {
-          ...prof,
-          current_latitude: fuzzed.latitude,
-          current_longitude: fuzzed.longitude,
-          display_latitude: displayLat,
-          display_longitude: displayLon
-        };
-      }
-      return {
-        ...prof,
-        display_latitude: displayLat,
-        display_longitude: displayLon
-      };
+    // Nunca se envía el GPS en vivo ni la distancia exacta: con varias consultas permitirían ubicar a la persona
+    const fuzzedRows = rows.map(({ current_latitude, current_longitude, distance, ...prof }) => {
+      const live = prof.is_online && current_latitude !== null && current_longitude !== null;
+      const display = live ? fuzzCoordinates(current_latitude, current_longitude) : { latitude: prof.latitude, longitude: prof.longitude };
+      return { ...prof, display_latitude: display.latitude, display_longitude: display.longitude };
     });
 
     res.json(fuzzedRows);
@@ -536,12 +520,12 @@ app.get('/api/professionals/:id', async (req, res, next) => {
         }
       }
 
-      // Aplicar fuzzing si el solicitante es un cliente y el profesional está online
-      if (requester?.user_type === 'client' && professional.account_status === 'active' && professional.is_online && professional.current_latitude !== null && professional.current_longitude !== null) {
-        const fuzzed = fuzzCoordinates(professional.current_latitude, professional.current_longitude);
-        return res.json({ ...professional, current_latitude: fuzzed.latitude, current_longitude: fuzzed.longitude });
+      // Correo, fecha de nacimiento y GPS en vivo: solo para el propio profesional o un admin
+      if (requester && (String(requester.id) === String(professional.id) || requester.user_type === 'admin')) {
+        return res.json(professional);
       }
-      res.json(professional);
+      const { email, birth_date, current_latitude, current_longitude, ...publicProfile } = professional;
+      res.json({ ...publicProfile, is_minor: birth_date ? calculateAge(birth_date) < 18 : professional.is_minor });
     } else {
       res.status(404).json({ message: 'Profesional no encontrado' });
     }

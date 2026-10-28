@@ -86,17 +86,8 @@ function Profile() {
       if (!profResponse.ok) throw new Error('Profesional no encontrado');
       const profData = await profResponse.json();
 
-      // Calcular si el profesional es menor de edad
-      if (profData.birth_date) {
-        const birthDate = new Date(profData.birth_date);
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const m = today.getMonth() - birthDate.getMonth();
-        if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-          age--;
-        }
-        setIsMinor(age < 18);
-      }
+      // El servidor calcula la edad; la fecha de nacimiento ya no se envía al público
+      setIsMinor(Boolean(profData.is_minor));
       setProfessional(profData);
 
       // Fetch reviews
