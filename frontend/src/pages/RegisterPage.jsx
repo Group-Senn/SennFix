@@ -240,7 +240,7 @@ function RegisterPage() {
             </div>
 
             <div className="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-primary/5 dark:border-slate-750">
-              <input type="checkbox" id="legal_accepted" required className="size-5 rounded text-primary focus:ring-primary mt-0.5 shrink-0" />
+              <input type="checkbox" id="legal_accepted" required className="size-6 rounded text-primary focus:ring-primary shrink-0" />
               <label htmlFor="legal_accepted" className="text-sm text-primary/70 dark:text-slate-350">
                 He leído y acepto la{' '}
                 <button type="button" onClick={() => setShowPrivacyModal(true)} className="font-bold text-primary dark:text-teal-400 underline hover:opacity-80 transition-opacity bg-transparent border-none p-0 inline cursor-pointer">
