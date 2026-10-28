@@ -581,13 +581,16 @@ app.get('/api/search', async (req, res) => {
 
   try {
     const { rows: professionals } = await db.query(`
-        SELECT p.*, u.phone_number FROM professionals p
+        -- Solo columnas públicas: nunca carnet, documentos, tutor ni GPS en vivo
+        SELECT p.id, u.name, p.specialty, p.rating, p.reviews, p.is_verified as verified,
+          p.has_gold_seal, u."imageUrl", p.services_offered, p.is_online, p.is_minor, p.hashtags
+        FROM professionals p
         JOIN users u ON p.id = u.id
-        WHERE p.name ILIKE $1 
+        WHERE u.account_status = 'active' AND (p.name ILIKE $1 
            OR p.specialty ILIKE $1 
            OR p.bio ILIKE $1 
            OR p.services_offered ILIKE $1 
-           OR p.hashtags ILIKE $1
+           OR p.hashtags ILIKE $1)
         ORDER BY p.has_gold_seal DESC, p.rating DESC
       `,
       [searchTerm]
