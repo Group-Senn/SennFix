@@ -218,44 +218,56 @@ app.get('/uploads/:filename', async (req, res) => {
 });
 
 // --- Auth Middleware ---
-const authMiddleware = (req, res, next) => {
+// Verifica el token y que la cuenta siga activa: una suspensión corta el acceso al instante,
+// sin esperar a que venza el token (7 días). Devuelve el usuario o null si ya respondió con error.
+async function authenticate(req, res) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Acceso denegado. No se proporcionó token.' });
+    res.status(401).json({ message: 'Acceso denegado. No se proporcionó token.' });
+    return null;
   }
 
-  const token = authHeader.split(' ')[1];
-
+  let decoded;
   try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded; // Añade la info del usuario al request
-    next();
+    decoded = jwt.verify(authHeader.split(' ')[1], JWT_SECRET);
   } catch (error) {
     res.status(401).json({ message: 'Token inválido o expirado.' });
+    return null;
   }
+
+  try {
+    const { rows: [account] } = await db.query('SELECT account_status FROM users WHERE id = $1', [decoded.id]);
+    if (!account || account.account_status !== 'active') {
+      res.status(403).json({ code: 'ACCOUNT_INACTIVE', message: 'Tu cuenta no está activa. Contacta a soporte.' });
+      return null;
+    }
+  } catch (error) {
+    console.error('Error al verificar el estado de la cuenta:', error);
+    res.status(500).json({ message: 'Error en el servidor.' });
+    return null;
+  }
+  return decoded;
+}
+
+const authMiddleware = async (req, res, next) => {
+  const user = await authenticate(req, res);
+  if (!user) return;
+  req.user = user; // Añade la info del usuario al request
+  next();
 };
 
 // --- Admin Middleware ---
-const adminMiddleware = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ message: 'Acceso denegado. No se proporcionó token.' });
+const adminMiddleware = async (req, res, next) => {
+  const user = await authenticate(req, res);
+  if (!user) return;
+  req.user = user; // Añade la info del usuario al request
+
+  // Verificación de rol de administrador
+  if (req.user.user_type !== 'admin') {
+    return res.status(403).json({ message: 'Acceso denegado. Se requieren permisos de administrador.' });
   }
-  const token = authHeader.split(' ')[1];
 
-  try {
-    const decoded = jwt.verify(token, JWT_SECRET);
-    req.user = decoded; // Añade la info del usuario al request
-
-    // Verificación de rol de administrador
-    if (req.user.user_type !== 'admin') {
-      return res.status(403).json({ message: 'Acceso denegado. Se requieren permisos de administrador.' });
-    }
-
-    next();
-  } catch (error) {
-    res.status(401).json({ message: 'Token inválido o expirado.' });
-  }
+  next();
 };
 // --- Admin Notification Function ---
 /**
