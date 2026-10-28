@@ -280,8 +280,8 @@ function RegisterPage() {
           </form>
 
           <div className="text-sm text-center space-y-3">
-            <p className="text-primary/60 dark:text-slate-400">¿Ya tienes una cuenta? <Link to="/login" className="font-bold text-primary dark:text-teal-400 hover:underline">Inicia Sesión</Link></p>
-            <p className="text-xs text-primary/50 dark:text-slate-455">¿Eres un profesional? <Link to="/register-professional" className="font-bold text-primary dark:text-teal-400 hover:underline">Regístrate como Profesional aquí</Link></p>
+            <p className="text-primary/60 dark:text-slate-400">¿Ya tienes una cuenta? <Link to="/login" className="font-bold text-primary dark:text-teal-400 hover:underline">Inicia sesión</Link></p>
+            <p className="text-xs text-primary/50 dark:text-slate-455">¿Eres un profesional? <Link to="/register-professional" className="font-bold text-primary dark:text-teal-400 hover:underline">Regístrate como profesional aquí</Link></p>
           </div>
         </div>
       </div>

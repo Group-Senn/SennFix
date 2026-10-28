@@ -7,7 +7,7 @@ const MONTHS = [
 
 const DAYS_OF_WEEK = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'];
 
-function DatePicker({ value, onChange, label = 'Fecha de Nacimiento' }) {
+function DatePicker({ value, onChange, label = 'Fecha de nacimiento' }) {
   const [isOpen, setIsOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(value ? new Date(value + 'T00:00:00') : new Date(2000, 0, 1));
   const containerRef = useRef(null);
@@ -89,7 +89,7 @@ function DatePicker({ value, onChange, label = 'Fecha de Nacimiento' }) {
 
   return (
     <div className="relative w-full" ref={containerRef}>
-      <label className="text-sm font-bold text-primary/80 dark:text-slate-300 block mb-2">{label} <span className="text-red-500">*</span></label>
+      <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">{label} <span className="text-red-500">*</span></label>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
