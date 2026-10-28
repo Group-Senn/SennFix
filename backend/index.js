@@ -135,6 +135,11 @@ app.get('/uploads/:filename', async (req, res) => {
   const { filename } = req.params;
   const safeFilename = path.basename(filename);
 
+  // Carnets, permisos y certificados solo se sirven por /private_uploads (requiere admin)
+  if (/^(ci-front|ci-back|permit|felcc-rejap|academic)-/.test(safeFilename)) {
+    return res.status(404).json({ message: 'Archivo no encontrado.' });
+  }
+
   try {
     const stream = await getFromS3(safeFilename, BUCKET_NAME);
     res.setHeader('Content-Type', stream.ContentType || 'image/jpeg');

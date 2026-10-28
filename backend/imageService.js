@@ -2,7 +2,7 @@ import sharp from 'sharp';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { uploadToS3 } from './s3Service.js';
+import { uploadToS3, PRIVATE_BUCKET_NAME } from './s3Service.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,7 +47,7 @@ async function watermarkAndSave(fileBuffer, filenamePrefix) {
   // 1. Subir a S3 si está configurado
   if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
     try {
-      await uploadToS3(outputBuffer, filename, 'image/webp');
+      await uploadToS3(outputBuffer, filename, 'image/webp', PRIVATE_BUCKET_NAME);
     } catch (err) {
       console.warn('Advertencia: Falló subida a S3 de marca de agua, continuando localmente:', err.message);
     }
