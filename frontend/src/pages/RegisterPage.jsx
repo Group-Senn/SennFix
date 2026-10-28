@@ -35,6 +35,7 @@ function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const userType = searchParams.get('type') || 'client';
@@ -42,6 +43,14 @@ function RegisterPage() {
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const [showConditionsModal, setShowConditionsModal] = useState(false);
   const [showNoLaborModal, setShowNoLaborModal] = useState(false);
+
+  // Valida al salir del campo para mostrar el error junto a él, sin esperar al envío
+  const validateField = (field, value) => {
+    let message = '';
+    if (field === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) message = 'Escribe un correo válido, por ejemplo nombre@correo.com.';
+    if (field === 'phone' && value && !/^[67]\d{7}$/.test(value)) message = 'Escribe 8 dígitos que empiecen con 6 o 7.';
+    setFieldErrors(prev => ({ ...prev, [field]: message }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -141,13 +150,14 @@ function RegisterPage() {
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">alternate_email</span>
                 <input 
                   type="email" 
-                  value={email} autoComplete="email" 
-                  onChange={e => setEmail(e.target.value)} 
+                  value={email} autoComplete="email" onBlur={e => validateField('email', e.target.value)} aria-invalid={!!fieldErrors.email} 
+                  onChange={e => { setEmail(e.target.value); if (fieldErrors.email) validateField('email', e.target.value); }} 
                   required 
                   className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
                   placeholder="ejemplo@correo.com"
                 />
               </div>
+              {fieldErrors.email && <p role="alert" className="mt-1.5 text-xs font-semibold text-red-700 dark:text-red-400">{fieldErrors.email}</p>}
             </div>
             <div className="space-y-4">
               <div>
@@ -164,15 +174,21 @@ function RegisterPage() {
                     inputMode="numeric"
                     value={phoneNumber}
                     autoComplete="tel-national"
+                    onBlur={e => validateField('phone', e.target.value)}
+                    aria-invalid={!!fieldErrors.phone}
                     onChange={(e) => {
                       const numeric = e.target.value.replace(/[^0-9]/g, '');
-                      if (numeric.length <= 8) setPhoneNumber(numeric);
+                      if (numeric.length <= 8) {
+                        setPhoneNumber(numeric);
+                        if (fieldErrors.phone) validateField('phone', numeric);
+                      }
                     }}
                     placeholder="7XXXXXXX"
                     required
                     className="w-full px-4 py-3 bg-transparent text-primary dark:text-slate-100 border-none outline-none focus:ring-0 text-base"
                   />
                 </div>
+                {fieldErrors.phone && <p role="alert" className="mt-1.5 text-xs font-semibold text-red-700 dark:text-red-400">{fieldErrors.phone}</p>}
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
