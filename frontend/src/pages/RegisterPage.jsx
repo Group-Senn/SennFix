@@ -139,7 +139,7 @@ function RegisterPage() {
                   value={name} autoComplete="name" 
                   onChange={e => setName(e.target.value)} 
                   required 
-                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
+                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
                   placeholder="Tu nombre completo"
                 />
               </div>
@@ -153,7 +153,7 @@ function RegisterPage() {
                   value={email} autoComplete="email" onBlur={e => validateField('email', e.target.value)} aria-invalid={!!fieldErrors.email} 
                   onChange={e => { setEmail(e.target.value); if (fieldErrors.email) validateField('email', e.target.value); }} 
                   required 
-                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
+                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
                   placeholder="ejemplo@correo.com"
                 />
               </div>
@@ -185,7 +185,7 @@ function RegisterPage() {
                     }}
                     placeholder="7XXXXXXX"
                     required
-                    className="w-full px-4 py-3 bg-transparent text-primary dark:text-slate-100 border-none outline-none focus:ring-0 text-base"
+                    className="w-full px-4 py-3 bg-transparent text-primary dark:text-slate-100 border-none outline-none focus:ring-0 text-base placeholder:text-slate-500 dark:placeholder:text-slate-500"
                   />
                 </div>
                 {fieldErrors.phone && <p role="alert" className="mt-1.5 text-xs font-semibold text-red-700 dark:text-red-400">{fieldErrors.phone}</p>}
@@ -204,7 +204,7 @@ function RegisterPage() {
                       value={identityCard} autoComplete="off" 
                       onChange={e => setIdentityCard(e.target.value.replace(/[^0-9]/g, ''))} 
                       placeholder="12345678"
-                      className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
+                      className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
                     />
                   </div>
                 </div>
@@ -219,7 +219,7 @@ function RegisterPage() {
                   value={password} autoComplete="new-password" 
                   onChange={e => setPassword(e.target.value)} 
                   required 
-                  className="w-full pl-11 pr-12 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
+                  className="w-full pl-11 pr-12 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
                   placeholder="••••••••"
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/40 dark:text-slate-455 hover:text-primary dark:hover:text-slate-200 transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center">
