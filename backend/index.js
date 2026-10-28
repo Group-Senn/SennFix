@@ -1839,7 +1839,10 @@ app.put('/api/admin/posts/:id/verify', adminMiddleware, async (req, res) => {
 
 // Endpoint para registrar un nuevo usuario (Cliente)
 app.post('/api/register', async (req, res) => {
-  const { name, email, password, phone_number, birth_date, identity_card, user_type = 'client' } = req.body;
+  const { name, email, password, phone_number, birth_date, identity_card } = req.body;
+  // Seguridad: el tipo de usuario NUNCA se toma del cliente (evita registrarse como 'admin').
+  // Los profesionales se registran por /api/register-professional.
+  const user_type = 'client';
 
   if (!name || !email || !password || !phone_number || !birth_date) {
     return res.status(400).json({ message: 'Nombre, email, contraseña, teléfono y fecha de nacimiento son requeridos.' });
