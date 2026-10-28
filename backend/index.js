@@ -572,6 +572,15 @@ app.post('/api/professionals/:id/reviews', authMiddleware, async (req, res) => {
 
   const client = await db.connect();
   try {
+    // Una reseña por persona a cada profesional (evita bajar el promedio con reseñas repetidas)
+    const { rows: [already] } = await client.query(
+      'SELECT 1 FROM reviews WHERE reviewer_id = $1 AND reviewee_id = $2 AND job_id IS NULL',
+      [reviewerId, revieweeId]
+    );
+    if (already) {
+      return res.status(409).json({ message: 'Ya calificaste a este profesional.' });
+    }
+
     await client.query('BEGIN');
 
     // 1. Insertar la nueva reseña
@@ -591,8 +600,8 @@ app.post('/api/professionals/:id/reviews', authMiddleware, async (req, res) => {
       // Actualizar la tabla de profesionales
       await client.query('UPDATE professionals SET rating = $1, reviews = $2 WHERE id = $3', [avg, stats.reviewCount, revieweeId]);
 
-      // 3. Comprobar si baja de un promedio de 3 estrellas
-      if (avg < 3.0) {
+      // 3. Comprobar si baja de un promedio de 3 estrellas (con al menos 5 reseñas, como en client-confirm)
+      if (avg < 3.0 && stats.reviewCount >= 5) {
         // Obtener detalles del profesional para la alerta
         const { rows: [userToSuspend] } = await client.query('SELECT name, email, account_status FROM users WHERE id = $1', [revieweeId]);
         
@@ -1302,6 +1311,9 @@ app.post('/api/complaints', authMiddleware, async (req, res) => {
   if (!reported_id || !reason || !details) {
     return res.status(400).json({ message: 'El ID de la persona reportada, la razón y los detalles son obligatorios.' });
   }
+  if (String(reported_id) === String(reporter_id)) {
+    return res.status(400).json({ message: 'No puedes denunciarte a ti mismo.' });
+  }
 
   const client = await db.connect();
   try {
@@ -1315,7 +1327,8 @@ app.post('/api/complaints', authMiddleware, async (req, res) => {
 
     // 2. Contar denuncias acumuladas contra el usuario
     const { rows: [complaintCount] } = await client.query(
-      'SELECT COUNT(*) FROM complaints WHERE reported_id = $1',
+      // Personas distintas: una sola cuenta no puede suspender a alguien con varias denuncias
+      'SELECT COUNT(DISTINCT reporter_id) AS count FROM complaints WHERE reported_id = $1',
       [reported_id]
     );
     const count = parseInt(complaintCount.count);
@@ -1323,9 +1336,10 @@ app.post('/api/complaints', authMiddleware, async (req, res) => {
     let isSuspended = false;
     if (count >= 3) {
       // Obtener detalles del usuario para la alerta
-      const { rows: [userToSuspend] } = await client.query('SELECT name, email, account_status FROM users WHERE id = $1', [reported_id]);
+      const { rows: [userToSuspend] } = await client.query('SELECT name, email, account_status, user_type FROM users WHERE id = $1', [reported_id]);
       
-      if (userToSuspend && userToSuspend.account_status !== 'suspended') {
+      // Un admin nunca se suspende automáticamente (lo revisa una persona)
+      if (userToSuspend && userToSuspend.account_status !== 'suspended' && userToSuspend.user_type !== 'admin') {
         // Suspender de forma automática
         await client.query("UPDATE users SET account_status = 'suspended' WHERE id = $1", [reported_id]);
         await client.query("UPDATE professionals SET is_verified = false WHERE id = $1", [reported_id]);
