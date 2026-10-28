@@ -17,7 +17,8 @@ const userIcon = new L.Icon({
 
 const createProIcon = (imageUrl, name) => {
   const absoluteUrl = getAbsoluteImageUrl(imageUrl);
-  const fallbackUrl = name ? `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=004744&color=fff&size=128` : DEFAULT_AVATAR;
+  // El nombre va dentro de un onerror='...': escapar ' evita que un nombre malicioso ejecute código
+  const fallbackUrl = name ? `https://ui-avatars.com/api/?name=${encodeURIComponent(name).replace(/'/g, '%27')}&background=004744&color=fff&size=128` : DEFAULT_AVATAR;
   return L.divIcon({
     html: `
       <div class="relative flex flex-col items-center" style="width: 40px !important; height: 48px !important; display: flex !important; flex-direction: column !important; align-items: center !important;">
