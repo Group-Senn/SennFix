@@ -127,7 +127,7 @@ function RegisterPage() {
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">person</span>
                 <input 
                   type="text" 
-                  value={name} 
+                  value={name} autoComplete="name" 
                   onChange={e => setName(e.target.value)} 
                   required 
                   className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
@@ -141,7 +141,7 @@ function RegisterPage() {
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">alternate_email</span>
                 <input 
                   type="email" 
-                  value={email} 
+                  value={email} autoComplete="email" 
                   onChange={e => setEmail(e.target.value)} 
                   required 
                   className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
@@ -163,6 +163,7 @@ function RegisterPage() {
                     type="tel"
                     inputMode="numeric"
                     value={phoneNumber}
+                    autoComplete="tel-national"
                     onChange={(e) => {
                       const numeric = e.target.value.replace(/[^0-9]/g, '');
                       if (numeric.length <= 8) setPhoneNumber(numeric);
@@ -184,7 +185,7 @@ function RegisterPage() {
                     <input 
                       type="text" 
                       maxLength={8} 
-                      value={identityCard} 
+                      value={identityCard} autoComplete="off" 
                       onChange={e => setIdentityCard(e.target.value.replace(/[^0-9]/g, ''))} 
                       placeholder="12345678"
                       className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
@@ -199,7 +200,7 @@ function RegisterPage() {
                 <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">lock</span>
                 <input 
                   type={showPassword ? 'text' : 'password'} 
-                  value={password} 
+                  value={password} autoComplete="new-password" 
                   onChange={e => setPassword(e.target.value)} 
                   required 
                   className="w-full pl-11 pr-12 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
