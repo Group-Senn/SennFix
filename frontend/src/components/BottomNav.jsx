@@ -1,81 +1,58 @@
 import React from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { useTheme } from '../context/ThemeContext';
+import { useNotifications } from '../context/NotificationContext';
 
+// Barra de pestañas estándar: fija, a ancho completo y con nombre visible en cada pestaña
 function BottomNav() {
   const { user } = useAuth();
-  const { theme } = useTheme();
-  const location = useLocation();
+  const { notifications } = useNotifications();
 
-  const isAdmin = user && user.user_type === 'admin';
-
-  if (isAdmin) {
+  if (user && user.user_type === 'admin') {
     return null;
   }
+
+  const unreadChats = notifications.filter(n => !n.is_read && n.type === 'new_message').length;
 
   const navItems = [
     { to: '/home', icon: 'home', text: 'Inicio' },
     { to: '/explore', icon: 'explore', text: 'Explorar' },
-    { to: '/chats', icon: 'forum', text: 'Chats' },
+    { to: '/chats', icon: 'forum', text: 'Chats', badge: unreadChats },
     { to: '/my-profile', icon: 'person', text: 'Perfil' },
   ];
-  const activeIndex = navItems.findIndex(item => {
-    const baseTo = item.to.split('?')[0];
-    if (item.to.includes('?')) {
-      const searchParams = new URLSearchParams(location.search);
-      const tabParam = new URLSearchParams(item.to.split('?')[1]).get('tab');
-      return location.pathname === baseTo && searchParams.get('tab') === tabParam;
-    }
-    return location.pathname === baseTo;
-  });
-
-  const activeBgColor = theme === 'dark' ? '#0F1614' : '#F4F6F3';
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 flex justify-center z-50 p-4 md:hidden">
-      <div className="w-full max-w-sm h-[70px] bg-primary/95 dark:bg-slate-900/95 backdrop-blur-lg rounded-2xl shadow-[0_-4px_16px_rgba(4,63,59,0.08),_0_8px_32px_rgba(0,0,0,0.15)] dark:shadow-[0_-4px_16px_rgba(0,0,0,0.2),_0_8px_32px_rgba(0,0,0,0.4)] border border-white/10 dark:border-slate-800">
-        <ul className="relative flex h-full">
-          <div
-            className="absolute -top-1/2 w-[70px] h-[70px] bg-primary rounded-full transition-all duration-300 ease-in-out bottom-nav-circle"
-            style={{
-              left: `calc(${(activeIndex * 25) + 12.5}% - 35px)`,
-              display: activeIndex === -1 ? 'none' : 'block',
-            }}
-          />
-
-          {navItems.map((item) => (
-            <li key={item.to} className="relative flex-1 h-full list-none z-10">
-              <NavLink
-                to={item.to}
-                className="relative flex flex-col justify-center items-center w-full h-full text-center font-semibold group"
-              >
-                {({ isActive }) => (
-                  <>
-                    <span
-                      className={`material-symbols-outlined !text-3xl transition-transform duration-300 ease-in-out ${isActive
-                          ? 'text-white -translate-y-[35px]'
-                          : 'text-white group-hover:text-white/80'
-                        }`}
-                    >
-                      {item.icon}
-                    </span>
-                    <span
-                      className={`text-xs font-normal tracking-wide transition-opacity duration-300 ease-in-out ${isActive
-                          ? 'opacity-0 pointer-events-none absolute'
-                          : 'text-white opacity-100'
-                        }`}
-                    >
-                      {item.text}
-                    </span>
-                  </>
+    <nav
+      aria-label="Navegación principal"
+      className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-white/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 pb-[env(safe-area-inset-bottom)]"
+    >
+      <ul className="flex h-16">
+        {navItems.map((item) => (
+          <li key={item.to} className="flex-1 list-none">
+            <NavLink
+              to={item.to}
+              className={({ isActive }) =>
+                `flex flex-col items-center justify-center gap-0.5 h-full text-xs transition-colors ${isActive
+                  ? 'text-primary dark:text-teal-400 font-bold'
+                  : 'text-muted dark:text-slate-400 font-medium'
+                }`
+              }
+            >
+              <span className="relative">
+                <span className="material-symbols-outlined text-2xl block" aria-hidden="true">{item.icon}</span>
+                {item.badge > 0 && (
+                  <span className="absolute -top-1 -right-2.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-700 text-white text-xs font-bold leading-[18px] text-center">
+                    {item.badge > 9 ? '9+' : item.badge}
+                  </span>
                 )}
-              </NavLink>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </div>
+              </span>
+              {item.text}
+              {item.badge > 0 && <span className="sr-only">, {item.badge} sin leer</span>}
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+    </nav>
   );
 }
 

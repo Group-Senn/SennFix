@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { NavLink, Link, useNavigate } from 'react-router-dom';
+import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import ThemeSwitcher from './ThemeSwitcher';
 import NotificationBell from './NotificationBell';
+import SearchBar from './SearchBar';
 import logoNav from '../assets/logoNav.svg';
 import logoNavDark from '../assets/logoNavDark.svg';
 import letra from '../assets/letra.svg';
@@ -13,6 +14,8 @@ import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
 function DesktopHeader() {
   const { user, isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const showSearch = !['/home', '/search'].includes(location.pathname);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [locationName, setLocationName] = useState(() => localStorage.getItem('locationName') || 'Buscando ubicación...');
   const menuRef = useRef(null);
@@ -153,6 +156,11 @@ function DesktopHeader() {
 
       {/* Right Controls */}
       <div className="flex items-center gap-4">
+        {showSearch && (
+          <div className="w-56 lg:w-72">
+            <SearchBar compact />
+          </div>
+        )}
         {isAuthenticated ? (
           <>
             {/* Location Display */}
