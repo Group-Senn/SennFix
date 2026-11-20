@@ -59,4 +59,24 @@ function ProfessionalCredential({ professional }) {
   );
 }
 
+// Carrusel horizontal en celular (conserva la credencial completa) y grilla de 4 en escritorio
+export function CredentialRow({ professionals, loading, label }) {
+  if (loading) {
+    return (
+      <div className="flex gap-3 overflow-hidden lg:grid lg:grid-cols-4 lg:gap-4" aria-busy="true" aria-label={`Cargando ${label}`}>
+        {[0, 1, 2, 3].map(i => (
+          <div key={i} className="h-56 w-64 shrink-0 lg:w-auto rounded-2xl bg-slate-200/70 dark:bg-slate-800 animate-pulse" />
+        ))}
+      </div>
+    );
+  }
+  return (
+    <ul aria-label={label} className="flex gap-3 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 pb-2 lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:mx-0 lg:px-0 lg:pb-0">
+      {professionals.map(pro => (
+        <li key={pro.id} className="w-64 shrink-0 snap-start lg:w-auto"><ProfessionalCredential professional={pro} /></li>
+      ))}
+    </ul>
+  );
+}
+
 export default ProfessionalCredential;

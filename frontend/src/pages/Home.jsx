@@ -1,24 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import ProfessionalCard from '../components/ProfessionalCard';
 import SearchBar from '../components/SearchBar';
-import ProfessionalCardSkeleton from '../components/ProfessionalCardSkeleton';
-import MainServices from '../components/MainServices';
+import { CredentialRow } from '../components/ProfessionalCredential';
+import { POPULAR_TRADES } from '../utils/trades';
 import AdBanner from '../components/AdBanner';
 import ThemeSwitcher from '../components/ThemeSwitcher';
-import { useTheme } from '../context/ThemeContext';
-import logoNav from '../assets/logoNav.svg';
 import NotificationBell from '../components/NotificationBell';
 import { getAbsoluteImageUrl, handleImageError, DEFAULT_AVATAR } from '../utils/imageHelper';
 
 function Home() {
-  const { theme, toggleTheme } = useTheme();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [locationName, setLocationName] = useState('Buscando ubicación...');
   const [nearbyProfessionals, setNearbyProfessionals] = useState([]);
   const [loading, setLoading] = useState(true);
+  // Sin ubicación se muestran todos los profesionales de Santa Cruz en lugar de una sección vacía
+  const [hasLocation, setHasLocation] = useState(true);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
@@ -113,8 +111,13 @@ function Home() {
       (error) => {
         console.error("Error de geolocalización:", error);
         if (!cachedName) {
-          setLocationName('Permiso de ubicación denegado');
-          setLoading(false);
+          setLocationName('Santa Cruz, Bolivia');
+          setHasLocation(false);
+          fetch(`${window.API_URL}/api/professionals`)
+            .then(res => (res.ok ? res.json() : []))
+            .then(setNearbyProfessionals)
+            .catch(() => setNearbyProfessionals([]))
+            .finally(() => setLoading(false));
         }
       },
       {
@@ -124,6 +127,10 @@ function Home() {
       }
     );
   }, []);
+
+  // Los disponibles ahora van en su propia fila; "Cerca de ti" muestra al resto, sin repetir
+  const onlineNow = nearbyProfessionals.filter(p => p.is_online);
+  const others = nearbyProfessionals.filter(p => !p.is_online);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -265,30 +272,72 @@ function Home() {
                </Link>
              </div>
            )}
-           <h2 className="text-3xl font-bold text-primary dark:text-slate-100 mt-2">Encuentra la ayuda que necesitas</h2>
+           <h1 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-primary dark:text-white mt-2">¿Qué necesitas arreglar hoy?</h1>
          </div>
 
-        <main className="flex-1 pb-32 px-6 lg:px-8 space-y-8">
+        <main className="flex-1 pb-12 px-4 md:px-6 lg:px-8 space-y-10">
           <SearchBar />
-          <MainServices />
-          <AdBanner />
-          <section>
+
+          <section aria-labelledby="oficios-titulo">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold text-primary dark:text-slate-100">Cerca de ti</h2>
-              <Link to="/map" className="text-sm font-bold text-primary dark:text-primary/90 hover:underline">Ver mapa</Link>
+              <h2 id="oficios-titulo" className="text-xl md:text-2xl font-extrabold text-primary dark:text-white">Oficios más pedidos</h2>
+              <Link to="/services" className="text-sm font-bold text-primary dark:text-teal-400 hover:underline">Ver todos</Link>
             </div>
-            {loading ? (
-              <div className="flex gap-4 overflow-x-auto -mx-6 px-6 pb-4 lg:mx-0 lg:px-0" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                {[...Array(4)].map((_, i) => <ProfessionalCardSkeleton key={i} />)}
-              </div>
-            ) : nearbyProfessionals.length > 0 ? (
-              <div className="flex gap-4 overflow-x-auto -mx-6 px-6 pb-4 lg:mx-0 lg:px-0" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                {nearbyProfessionals.map(prof => <ProfessionalCard key={prof.id} professional={prof} />)}
-              </div>
+            <ul className="grid grid-cols-4 lg:grid-cols-8 gap-2 md:gap-3">
+              {POPULAR_TRADES.map(trade => (
+                <li key={trade.name}>
+                  <Link
+                    to={`/services/${trade.name}`}
+                    className="flex flex-col items-center gap-2 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-1 py-3 text-center hover:border-primary dark:hover:border-teal-400 transition-colors"
+                  >
+                    <span className="w-11 h-11 rounded-xl bg-primary/5 dark:bg-teal-400/10 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-2xl text-primary dark:text-teal-400" aria-hidden="true">{trade.icon}</span>
+                    </span>
+                    <span className="text-xs font-semibold text-ink dark:text-slate-200">{trade.label}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </section>
+
+          <AdBanner />
+
+          {!loading && onlineNow.length > 0 && (
+            <section aria-labelledby="disponibles-titulo">
+              <h2 id="disponibles-titulo" className="mb-4 flex items-center gap-2 text-xl md:text-2xl font-extrabold text-primary dark:text-white">
+                <span className="w-2.5 h-2.5 rounded-full bg-casco" aria-hidden="true" />
+                Disponibles ahora
+              </h2>
+              <CredentialRow professionals={onlineNow} label="Profesionales disponibles ahora" />
+            </section>
+          )}
+
+          {(loading || others.length > 0 || onlineNow.length === 0) && (
+          <section aria-labelledby="cerca-titulo">
+            <div className="flex justify-between items-center mb-4">
+              <h2 id="cerca-titulo" className="text-xl md:text-2xl font-extrabold text-primary dark:text-white">
+                {hasLocation ? 'Cerca de ti' : 'Profesionales en Santa Cruz'}
+              </h2>
+              <Link to="/map" className="text-sm font-bold text-primary dark:text-teal-400 hover:underline">Ver mapa</Link>
+            </div>
+            {loading || others.length > 0 ? (
+              <CredentialRow professionals={others} loading={loading} label={hasLocation ? 'Profesionales cerca de ti' : 'Profesionales en Santa Cruz'} />
             ) : (
-              <div className="text-sm font-medium text-primary/80 dark:text-slate-350">No se encontraron profesionales cerca de tu ubicación.</div>
+              <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-6 text-center">
+                <p className="font-semibold text-ink dark:text-slate-100">Aún no hay profesionales en tu zona.</p>
+                <p className="mt-1 text-sm text-muted dark:text-slate-400">Busca por oficio o mira el mapa de Santa Cruz.</p>
+                <Link to="/services" className="mt-4 inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white">
+                  Ver todos los oficios
+                </Link>
+              </div>
+            )}
+            {!hasLocation && (
+              <p className="mt-3 text-sm text-muted dark:text-slate-400">
+                Activa tu ubicación en el navegador para ver primero a quienes están más cerca.
+              </p>
             )}
           </section>
+          )}
         </main>
       </div>
     </>

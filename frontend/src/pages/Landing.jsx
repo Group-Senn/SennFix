@@ -6,19 +6,8 @@ import letra from '../assets/letra.svg';
 import letraDark from '../assets/letraDark.svg';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import SearchBar from '../components/SearchBar';
-import ProfessionalCredential from '../components/ProfessionalCredential';
-
-// Oficios más pedidos en el hogar; el nombre debe coincidir con el de la base de datos
-const POPULAR_TRADES = [
-  { name: 'Plomero / Fontanero', label: 'Plomero', icon: 'plumbing' },
-  { name: 'Electricista (Baja Tensión / Residencial)', label: 'Electricista', icon: 'electrical_services' },
-  { name: 'Albañil / Maestro de Obra', label: 'Albañil', icon: 'construction' },
-  { name: 'Limpieza de Casas / Hogar', label: 'Limpieza', icon: 'cleaning_services' },
-  { name: 'Pintor Domiciliario', label: 'Pintor', icon: 'format_paint' },
-  { name: 'Gasista Domiciliario', label: 'Gasista', icon: 'propane' },
-  { name: 'Instalador de Cerrajería / Cerrajero', label: 'Cerrajero', icon: 'lock_open' },
-  { name: 'Jardinero', label: 'Jardinero', icon: 'yard' },
-];
+import { CredentialRow } from '../components/ProfessionalCredential';
+import { POPULAR_TRADES } from '../utils/trades';
 
 const STEPS = [
   { title: 'Busca el oficio', text: 'Escribe lo que necesitas o elige un oficio. Te mostramos a quienes trabajan en Santa Cruz.' },
@@ -95,18 +84,8 @@ function Landing() {
             <h2 className="text-2xl md:text-3xl font-extrabold text-primary dark:text-white">Profesionales en Santa Cruz</h2>
             <Link to="/home" className="shrink-0 text-sm font-bold text-primary dark:text-teal-400 hover:underline">Ver todos</Link>
           </div>
-          {professionals === null ? (
-            <div className="flex gap-3 overflow-hidden lg:grid lg:grid-cols-4 lg:gap-4" aria-busy="true" aria-label="Cargando profesionales">
-              {[0, 1, 2, 3].map(i => (
-                <div key={i} className="h-56 w-64 shrink-0 lg:w-auto rounded-2xl bg-slate-200/70 dark:bg-slate-800 animate-pulse" />
-              ))}
-            </div>
-          ) : professionals.length > 0 ? (
-            <ul className="flex gap-3 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 pb-2 lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:mx-0 lg:px-0 lg:pb-0">
-              {professionals.map(pro => (
-                <li key={pro.id} className="w-64 shrink-0 snap-start lg:w-auto"><ProfessionalCredential professional={pro} /></li>
-              ))}
-            </ul>
+          {professionals === null || professionals.length > 0 ? (
+            <CredentialRow professionals={professionals || []} loading={professionals === null} label="Profesionales en Santa Cruz" />
           ) : (
             <p className="text-muted dark:text-slate-400">
               Pronto verás aquí a los profesionales de tu zona. <Link to="/home" className="font-bold text-primary dark:text-teal-400 underline">Explorar oficios</Link>
