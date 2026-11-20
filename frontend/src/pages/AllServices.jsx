@@ -60,7 +60,7 @@ function AllServices() {
                     <div className="flex-1">
                       <h4 className="font-bold text-slate-900 dark:text-slate-100">{service.name}</h4>
                     </div>
-                    <div className="text-primary/50 dark:text-slate-500">
+                    <div className="text-muted dark:text-slate-500">
                       <span className="material-symbols-outlined">chevron_right</span>
                     </div>
                   </Link>

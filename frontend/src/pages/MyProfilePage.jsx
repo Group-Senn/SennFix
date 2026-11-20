@@ -230,7 +230,7 @@ function UserDashboard({ user, login, logout }) {
                     ) : user.imageUrl ? (
                       <img src={getAbsoluteImageUrl(user.imageUrl)} onError={handleImageError} alt="Avatar" className="w-full h-full object-cover" />
                     ) : (
-                      <span className="material-symbols-outlined text-4xl text-primary/45">add_a_photo</span>
+                      <span className="material-symbols-outlined text-4xl text-muted">add_a_photo</span>
                     )}
                     <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
                       <span className="material-symbols-outlined text-sm">edit</span>
@@ -238,11 +238,11 @@ function UserDashboard({ user, login, logout }) {
                   </div>
                   <input type="file" accept="image/*" onChange={handleEditFileChange} className="hidden" />
                 </label>
-                <span className="text-xs font-bold text-primary/50 dark:text-slate-455 uppercase tracking-wider">Actualizar Foto de Perfil</span>
+                <span className="text-xs font-bold text-muted dark:text-slate-455 uppercase tracking-wider">Actualizar Foto de Perfil</span>
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-primary/50 dark:text-slate-450 uppercase tracking-wider block mb-1.5">Nombre Completo <span className="text-red-500">*</span></label>
+                <label className="text-[10px] font-bold text-muted dark:text-slate-450 uppercase tracking-wider block mb-1.5">Nombre Completo <span className="text-red-500">*</span></label>
                 <input 
                   type="text" 
                   value={editName} 
@@ -253,7 +253,7 @@ function UserDashboard({ user, login, logout }) {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-primary/50 dark:text-slate-450 uppercase tracking-wider block mb-1.5">Correo Electrónico <span className="text-red-500">*</span></label>
+                <label className="text-[10px] font-bold text-muted dark:text-slate-450 uppercase tracking-wider block mb-1.5">Correo Electrónico <span className="text-red-500">*</span></label>
                 <input 
                   type="email" 
                   value={editEmail} 
@@ -264,7 +264,7 @@ function UserDashboard({ user, login, logout }) {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-primary/50 dark:text-slate-455 uppercase tracking-wider block mb-1.5">Número de Celular</label>
+                <label className="text-[10px] font-bold text-muted dark:text-slate-455 uppercase tracking-wider block mb-1.5">Número de Celular</label>
                 <input 
                   type="tel" 
                   value={editPhone} 
@@ -358,7 +358,7 @@ function UserDashboard({ user, login, logout }) {
                   <div className="flex justify-between items-center flex-wrap gap-2">
                     <div>
                       <h3 className="font-bold text-primary/95 dark:text-slate-100 flex items-center gap-1.5 text-sm">
-                        <span className="material-symbols-outlined text-primary/60 dark:text-teal-450">photo_library</span>
+                        <span className="material-symbols-outlined text-muted dark:text-teal-450">photo_library</span>
                         Mi Galería de Trabajos
                       </h3>
                       <p className="text-[11px] text-primary/70 dark:text-slate-350 mt-1">Sube hasta 6 fotos de tus trabajos anteriores para que los clientes las vean.</p>
@@ -380,7 +380,7 @@ function UserDashboard({ user, login, logout }) {
                   )}
 
                   {portfolio.length === 0 ? (
-                    <p className="text-xs text-primary/50 dark:text-slate-450 italic text-center py-6">Aún no has subido fotos de tus trabajos.</p>
+                    <p className="text-xs text-muted dark:text-slate-450 italic text-center py-6">Aún no has subido fotos de tus trabajos.</p>
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                       {portfolio.map(photo => {

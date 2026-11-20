@@ -806,12 +806,12 @@ function AdminDashboardPage() {
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="bg-white dark:bg-slate-900 border border-primary/10 dark:border-slate-800 p-5 rounded-2xl shadow-sm">
                     <span className="material-symbols-outlined text-primary dark:text-teal-400 text-3xl mb-2">engineering</span>
-                    <p className="text-xs font-semibold text-primary/60 dark:text-slate-400 uppercase tracking-wider">Profesionales</p>
+                    <p className="text-xs font-semibold text-muted dark:text-slate-400 uppercase tracking-wider">Profesionales</p>
                     <p className="text-2xl font-bold font-display text-primary dark:text-slate-100 mt-1">{stats.userCounts?.professionals}</p>
                   </div>
                   <div className="bg-white dark:bg-slate-900 border border-primary/10 dark:border-slate-800 p-5 rounded-2xl shadow-sm">
                     <span className="material-symbols-outlined text-primary dark:text-teal-400 text-3xl mb-2">group</span>
-                    <p className="text-xs font-semibold text-primary/60 dark:text-slate-400 uppercase tracking-wider">Clientes</p>
+                    <p className="text-xs font-semibold text-muted dark:text-slate-400 uppercase tracking-wider">Clientes</p>
                     <p className="text-2xl font-bold font-display text-primary dark:text-slate-100 mt-1">{stats.userCounts?.clients}</p>
                   </div>
                   <div className="bg-white dark:bg-slate-900 border border-primary/10 dark:border-slate-800 p-5 rounded-2xl shadow-sm">
@@ -821,7 +821,7 @@ function AdminDashboardPage() {
                   </div>
                   <div className="bg-white dark:bg-slate-900 border border-primary/10 dark:border-slate-800 p-5 rounded-2xl shadow-sm">
                     <span className="material-symbols-outlined text-primary dark:text-teal-400 text-3xl mb-2">work_history</span>
-                    <p className="text-xs font-semibold text-primary/60 dark:text-slate-400 uppercase tracking-wider">Trabajos Registrados</p>
+                    <p className="text-xs font-semibold text-muted dark:text-slate-400 uppercase tracking-wider">Trabajos Registrados</p>
                     <p className="text-2xl font-bold font-display text-primary dark:text-slate-100 mt-1">{jobs.length}</p>
                   </div>
                 </div>
@@ -871,13 +871,13 @@ function AdminDashboardPage() {
                             </span>
                             <div className="flex-1">
                               <p className="text-sm font-semibold text-primary dark:text-slate-200">{item.zone}</p>
-                              <p className="text-xs text-primary/60 dark:text-slate-400">{item.count} búsquedas</p>
+                              <p className="text-xs text-muted dark:text-slate-400">{item.count} búsquedas</p>
                             </div>
                             <span className="text-sm font-bold text-primary dark:text-teal-400">{item.percentage}%</span>
                           </div>
                         ))
                       ) : (
-                        <p className="text-xs text-primary/60 dark:text-slate-400 text-center py-4">
+                        <p className="text-xs text-muted dark:text-slate-400 text-center py-4">
                           No hay suficientes datos de zonas de búsqueda.
                         </p>
                       )}
@@ -897,11 +897,11 @@ function AdminDashboardPage() {
                             <span className="material-symbols-outlined text-primary dark:text-teal-400">pin_drop</span>
                             <p className="text-xs font-bold text-primary/80 dark:text-slate-300 line-clamp-1">{item.zone.split(' ')[0]}</p>
                             <p className="text-lg font-bold font-display text-primary dark:text-slate-100">{item.count}</p>
-                            <p className="text-[10px] text-primary/50 dark:text-slate-400 uppercase tracking-widest font-semibold">Profesionales</p>
+                            <p className="text-[10px] text-muted dark:text-slate-400 uppercase tracking-widest font-semibold">Profesionales</p>
                           </div>
                         ))
                       ) : (
-                        <p className="text-xs text-primary/60 dark:text-slate-400 text-center py-4 col-span-full">
+                        <p className="text-xs text-muted dark:text-slate-400 text-center py-4 col-span-full">
                           No hay suficientes datos de zonas registrados.
                         </p>
                       )}
@@ -977,13 +977,13 @@ function AdminDashboardPage() {
                   <div className="flex bg-surface-container dark:bg-slate-800 p-1 rounded-lg text-xs font-bold gap-1">
                     <button
                       onClick={() => { setVerificationSubTab('pending-pros'); setSelectedVerificationItemId(null); }}
-                      className={`flex-1 py-1.5 rounded transition-all ${verificationSubTab === 'pending-pros' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary dark:text-slate-100 font-bold' : 'text-primary/60 dark:text-slate-400 hover:text-primary dark:hover:text-slate-200'}`}
+                      className={`flex-1 py-1.5 rounded transition-all ${verificationSubTab === 'pending-pros' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary dark:text-slate-100 font-bold' : 'text-muted dark:text-slate-400 hover:text-primary dark:hover:text-slate-200'}`}
                     >
                       Pros Pend. ({pendingProfessionals.length})
                     </button>
                     <button
                       onClick={() => { setVerificationSubTab('pending-clients'); setSelectedVerificationItemId(null); }}
-                      className={`flex-1 py-1.5 rounded transition-all ${verificationSubTab === 'pending-clients' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary dark:text-slate-100 font-bold' : 'text-primary/60 dark:text-slate-400 hover:text-primary dark:hover:text-slate-200'}`}
+                      className={`flex-1 py-1.5 rounded transition-all ${verificationSubTab === 'pending-clients' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary dark:text-slate-100 font-bold' : 'text-muted dark:text-slate-400 hover:text-primary dark:hover:text-slate-200'}`}
                     >
                       Menores Pend. ({pendingClients.length})
                     </button>
@@ -991,26 +991,26 @@ function AdminDashboardPage() {
                   <div className="flex bg-surface-container dark:bg-slate-800 p-1 rounded-lg text-xs font-bold gap-1">
                     <button
                       onClick={() => { setVerificationSubTab('approved-pros'); setSelectedVerificationItemId(null); }}
-                      className={`flex-1 py-1.5 rounded transition-all ${verificationSubTab === 'approved-pros' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary dark:text-slate-100 font-bold' : 'text-primary/60 dark:text-slate-400 hover:text-primary dark:hover:text-slate-200'}`}
+                      className={`flex-1 py-1.5 rounded transition-all ${verificationSubTab === 'approved-pros' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary dark:text-slate-100 font-bold' : 'text-muted dark:text-slate-400 hover:text-primary dark:hover:text-slate-200'}`}
                     >
                       Aprobados
                     </button>
                     <button
                       onClick={() => { setVerificationSubTab('active-clients'); setSelectedVerificationItemId(null); }}
-                      className={`flex-1 py-1.5 rounded transition-all ${verificationSubTab === 'active-clients' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary dark:text-slate-100 font-bold' : 'text-primary/60 dark:text-slate-400 hover:text-primary dark:hover:text-slate-200'}`}
+                      className={`flex-1 py-1.5 rounded transition-all ${verificationSubTab === 'active-clients' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary dark:text-slate-100 font-bold' : 'text-muted dark:text-slate-400 hover:text-primary dark:hover:text-slate-200'}`}
                     >
                       Clientes Act. ({activeClients.length})
                     </button>
                     <button
                       onClick={() => { setVerificationSubTab('suspended-users'); setSelectedVerificationItemId(null); }}
-                      className={`flex-1 py-1.5 rounded transition-all ${verificationSubTab === 'suspended-users' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary dark:text-slate-100 font-bold' : 'text-primary/60 dark:text-slate-400 hover:text-primary dark:hover:text-slate-200'}`}
+                      className={`flex-1 py-1.5 rounded transition-all ${verificationSubTab === 'suspended-users' ? 'bg-white dark:bg-slate-700 shadow-sm text-primary dark:text-slate-100 font-bold' : 'text-muted dark:text-slate-400 hover:text-primary dark:hover:text-slate-200'}`}
                     >
                       Suspendidos
                     </button>
                   </div>
 
                   <div className="relative bg-white/70 dark:bg-slate-800/70 border border-outline-variant/20 dark:border-slate-700 rounded-lg px-3 py-1 flex items-center">
-                    <span className="material-symbols-outlined text-primary/50 dark:text-teal-400 mr-2 text-[18px]">search</span>
+                    <span className="material-symbols-outlined text-muted dark:text-teal-400 mr-2 text-[18px]">search</span>
                     <input
                       value={searchVerificationQuery}
                       onChange={e => setSearchVerificationQuery(e.target.value)}
@@ -1022,7 +1022,7 @@ function AdminDashboardPage() {
                 
                 <div className="flex-1 overflow-y-auto p-4 space-y-3 pb-24">
                   {filteredVerificationList.length === 0 ? (
-                    <div className="text-center py-12 text-xs text-primary/50 dark:text-slate-400 italic">
+                    <div className="text-center py-12 text-xs text-muted dark:text-slate-400 italic">
                       No hay solicitudes registradas en esta sección.
                     </div>
                   ) : (
@@ -1397,7 +1397,7 @@ function AdminDashboardPage() {
                 </div>
 
                 {pendingPortfolio.length === 0 ? (
-                  <div className="text-center p-12 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-primary/5 dark:border-slate-800 text-primary/60 dark:text-slate-400 animate-page-entry">
+                  <div className="text-center p-12 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-primary/5 dark:border-slate-800 text-muted dark:text-slate-400 animate-page-entry">
                     <span className="material-symbols-outlined text-5xl mb-2 block text-slate-350 dark:text-slate-650">done_all</span>
                     No hay fotos pendientes de aprobación. ¡Todo al día!
                   </div>
@@ -1407,8 +1407,8 @@ function AdminDashboardPage() {
                       <div key={photo.id} className="bg-white dark:bg-slate-900 border border-primary/5 dark:border-slate-850 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between hover-interactive">
                         <div className="p-4 border-b border-primary/5 dark:border-slate-850">
                           <p className="font-bold text-sm text-primary dark:text-slate-100">{photo.professional_name}</p>
-                          <p className="text-xs text-primary/60 dark:text-slate-450">{photo.professional_email}</p>
-                          <p className="text-[10px] text-primary/50 dark:text-slate-500 mt-1">Subido el: {new Date(photo.created_at).toLocaleDateString('es-ES')}</p>
+                          <p className="text-xs text-muted dark:text-slate-450">{photo.professional_email}</p>
+                          <p className="text-[10px] text-muted dark:text-slate-500 mt-1">Subido el: {new Date(photo.created_at).toLocaleDateString('es-ES')}</p>
                         </div>
                         
                         <div className="relative aspect-video bg-slate-50 dark:bg-slate-950 overflow-hidden flex items-center justify-center">
@@ -1459,7 +1459,7 @@ function AdminDashboardPage() {
                 </div>
 
                 {pendingExplorePosts.length === 0 ? (
-                  <div className="text-center p-12 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-primary/5 dark:border-slate-800 text-primary/60 dark:text-slate-400 animate-page-entry">
+                  <div className="text-center p-12 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-primary/5 dark:border-slate-800 text-muted dark:text-slate-400 animate-page-entry">
                     <span className="material-symbols-outlined text-5xl mb-2 block text-slate-350 dark:text-slate-650">done_all</span>
                     No hay publicaciones pendientes de aprobación en Explorar.
                   </div>
@@ -1469,8 +1469,8 @@ function AdminDashboardPage() {
                       <div key={post.id} className="bg-white dark:bg-slate-900 border border-primary/5 dark:border-slate-850 rounded-2xl overflow-hidden shadow-sm flex flex-col justify-between hover-interactive">
                         <div className="p-4 border-b border-primary/5 dark:border-slate-850">
                           <p className="font-bold text-sm text-primary dark:text-slate-100">{post.professional_name}</p>
-                          <p className="text-xs text-primary/60 dark:text-slate-455">{post.professional_email}</p>
-                          <p className="text-[10px] text-primary/40 dark:text-slate-500 font-bold uppercase tracking-wide mt-1">{post.specialty}</p>
+                          <p className="text-xs text-muted dark:text-slate-455">{post.professional_email}</p>
+                          <p className="text-[10px] text-muted dark:text-slate-500 font-bold uppercase tracking-wide mt-1">{post.specialty}</p>
                         </div>
                          
                          <div className="relative aspect-square bg-slate-50 dark:bg-slate-950 overflow-hidden flex items-center justify-center">
@@ -1521,7 +1521,7 @@ function AdminDashboardPage() {
                 <h2 className="text-2xl font-bold font-display text-primary dark:text-slate-100">Buzón de Reclamos y Disputas</h2>
                 
                 {complaints.length === 0 ? (
-                  <div className="text-center p-12 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-primary/5 dark:border-slate-800 text-primary/60 dark:text-slate-400">
+                  <div className="text-center p-12 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-primary/5 dark:border-slate-800 text-muted dark:text-slate-400">
                     <span className="material-symbols-outlined text-5xl mb-2 block">sentiment_satisfied</span>
                     No se han registrado reportes ni reclamos de soporte.
                   </div>
@@ -1536,7 +1536,7 @@ function AdminDashboardPage() {
                             </span>
                             <h4 className="text-lg font-bold text-primary dark:text-slate-100 mt-2">Motivo: {ticket.reason}</h4>
                           </div>
-                          <span className="text-xs text-primary/50 dark:text-slate-400">{new Date(ticket.created_at).toLocaleDateString('es-ES')}</span>
+                          <span className="text-xs text-muted dark:text-slate-400">{new Date(ticket.created_at).toLocaleDateString('es-ES')}</span>
                         </div>
 
                         <p className="text-sm text-primary/80 dark:text-slate-300 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl italic">
@@ -1555,7 +1555,7 @@ function AdminDashboardPage() {
                         </div>
 
                         {ticket.job_title && (
-                          <div className="text-xs text-primary/60 dark:text-slate-450 border-t border-primary/5 dark:border-slate-800 pt-2">
+                          <div className="text-xs text-muted dark:text-slate-450 border-t border-primary/5 dark:border-slate-800 pt-2">
                             <strong>Trabajo Relacionado:</strong> {ticket.job_title}
                           </div>
                         )}
@@ -1601,12 +1601,12 @@ function AdminDashboardPage() {
                   <span className="material-symbols-outlined text-red-500">gpp_bad</span>
                   Buzón de Alertas de Seguridad Automáticas
                 </h2>
-                <p className="text-sm text-primary/60 dark:text-slate-400">
+                <p className="text-sm text-muted dark:text-slate-400">
                   Control y auditoría de suspensiones automáticas del sistema (Filtro de Seguridad: usuarios con 3+ denuncias o promedio &lt; 3 estrellas).
                 </p>
                 
                 {securityAlerts.length === 0 ? (
-                  <div className="text-center p-12 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-primary/5 dark:border-slate-800 text-primary/60 dark:text-slate-400">
+                  <div className="text-center p-12 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-primary/5 dark:border-slate-800 text-muted dark:text-slate-400">
                     <span className="material-symbols-outlined text-5xl mb-2 block">verified</span>
                     No se han registrado alertas de seguridad.
                   </div>
@@ -1623,7 +1623,7 @@ function AdminDashboardPage() {
                               {alertItem.alert_type === 'three_complaints' ? 'Acumulación de Denuncias (3+)' : 'Bajo Promedio de Estrellas (<3.0)'}
                             </span>
                           </div>
-                          <span className="text-xs text-primary/50 dark:text-slate-400">{new Date(alertItem.created_at).toLocaleString('es-ES')}</span>
+                          <span className="text-xs text-muted dark:text-slate-400">{new Date(alertItem.created_at).toLocaleString('es-ES')}</span>
                         </div>
 
                         <p className="text-sm text-primary/80 dark:text-slate-350 bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl font-medium border-l-4 border-red-500">
@@ -1674,7 +1674,7 @@ function AdminDashboardPage() {
                   
                   {/* Chat Search Box */}
                   <div className="relative bg-white/70 dark:bg-slate-800/70 border border-outline-variant/20 dark:border-slate-700 rounded-lg px-3 py-1.5 flex items-center shadow-sm">
-                    <span className="material-symbols-outlined text-primary/50 dark:text-teal-400 mr-2 text-[18px]">search</span>
+                    <span className="material-symbols-outlined text-muted dark:text-teal-400 mr-2 text-[18px]">search</span>
                     <input
                       value={searchChatQuery}
                       onChange={e => setSearchChatQuery(e.target.value)}
@@ -1688,7 +1688,7 @@ function AdminDashboardPage() {
                   {/* Search Results list (if searching) */}
                   {searchChatQuery.trim().length > 0 ? (
                     <div className="space-y-2">
-                      <p className="text-[10px] text-primary/50 dark:text-slate-400 uppercase font-bold tracking-widest px-1">Resultados de Búsqueda</p>
+                      <p className="text-[10px] text-muted dark:text-slate-400 uppercase font-bold tracking-widest px-1">Resultados de Búsqueda</p>
                       {filteredChatProsList.length === 0 ? (
                         <p className="text-xs italic text-slate-450 p-1">No se encontraron profesionales.</p>
                       ) : (
@@ -1704,7 +1704,7 @@ function AdminDashboardPage() {
                             <img src={getAbsoluteImageUrl(pro.imageUrl)} onError={handleImageError} alt={pro.name} className="w-9 h-9 rounded-full object-cover" />
                             <div>
                               <p className="text-xs font-bold text-primary dark:text-slate-100">{pro.name}</p>
-                              <p className="text-[10px] text-primary/60 dark:text-slate-400">{pro.specialty}</p>
+                              <p className="text-[10px] text-muted dark:text-slate-400">{pro.specialty}</p>
                             </div>
                           </div>
                         ))
@@ -1713,7 +1713,7 @@ function AdminDashboardPage() {
                   ) : (
                     /* Open Conversations list */
                     <div className="space-y-2">
-                      <p className="text-[10px] text-primary/50 dark:text-slate-400 uppercase font-bold tracking-widest px-1">Chats Abiertos</p>
+                      <p className="text-[10px] text-muted dark:text-slate-400 uppercase font-bold tracking-widest px-1">Chats Abiertos</p>
                       {adminChats.length === 0 ? (
                         <p className="text-xs italic text-slate-450 p-1">No hay conversaciones activas.</p>
                       ) : (
@@ -1738,7 +1738,7 @@ function AdminDashboardPage() {
                               <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-baseline mb-0.5">
                                   <p className="text-xs font-bold text-primary dark:text-slate-100 truncate">{chatItem.other_user_name}</p>
-                                  <span className="text-[9px] text-primary/50 dark:text-slate-400 shrink-0">
+                                  <span className="text-[9px] text-muted dark:text-slate-400 shrink-0">
                                     {chatItem.last_message_time ? new Date(chatItem.last_message_time).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : ''}
                                   </span>
                                 </div>
@@ -1768,13 +1768,13 @@ function AdminDashboardPage() {
                         />
                         <div>
                           <p className="text-sm font-bold text-primary dark:text-slate-100">{activeConversationData.otherUser?.name}</p>
-                          <p className="text-[10px] text-primary/60 dark:text-slate-400">Canal de Soporte / Mediación</p>
+                          <p className="text-[10px] text-muted dark:text-slate-400">Canal de Soporte / Mediación</p>
                         </div>
                       </div>
                       
                       <button 
                         onClick={() => setActiveConversationId(null)} 
-                        className="text-primary/45 dark:text-slate-400 hover:text-primary dark:hover:text-slate-200 transition-colors"
+                        className="text-muted dark:text-slate-400 hover:text-primary dark:hover:text-slate-200 transition-colors"
                         title="Cerrar chat"
                       >
                         <span className="material-symbols-outlined">close</span>
@@ -1798,7 +1798,7 @@ function AdminDashboardPage() {
                                   : 'bg-white dark:bg-slate-900 border border-primary/5 dark:border-slate-800 text-primary dark:text-slate-100 rounded-bl-none'
                               }`}>
                                 <p>{msg.content}</p>
-                                <p className={`text-[8px] mt-1 text-right ${isMe ? 'text-white/60' : 'text-primary/40 dark:text-slate-450'}`}>
+                                <p className={`text-[8px] mt-1 text-right ${isMe ? 'text-white/60' : 'text-muted dark:text-slate-450'}`}>
                                   {new Date(msg.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                                 </p>
                               </div>
@@ -1843,7 +1843,7 @@ function AdminDashboardPage() {
                 <h2 className="text-2xl font-bold font-display text-primary dark:text-slate-100">Registro de Trabajos</h2>
                 
                 {jobs.length === 0 ? (
-                  <div className="text-center p-12 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-primary/5 dark:border-slate-800 text-primary/60 dark:text-slate-400">
+                  <div className="text-center p-12 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-primary/5 dark:border-slate-800 text-muted dark:text-slate-400">
                     <span className="material-symbols-outlined text-5xl mb-2 block">work_off</span>
                     Aún no se han registrado trabajos en la plataforma.
                   </div>
@@ -1871,20 +1871,20 @@ function AdminDashboardPage() {
                             <tr key={job.id} className="hover:bg-primary/5 dark:hover:bg-slate-800/30 transition-colors">
                               <td className="p-4">
                                 <p className="font-semibold">Trabajo #{job.id}</p>
-                                <p className="text-xs text-primary/60 dark:text-slate-400 line-clamp-1">{job.description}</p>
+                                <p className="text-xs text-muted dark:text-slate-400 line-clamp-1">{job.description}</p>
                               </td>
                               <td className="p-4">
                                 <p>{job.client_name || 'Desconocido'}</p>
-                                <p className="text-xs text-primary/60 dark:text-slate-400">{job.client_email}</p>
+                                <p className="text-xs text-muted dark:text-slate-400">{job.client_email}</p>
                               </td>
                               <td className="p-4">
                                 {job.professional_name ? (
                                   <>
                                     <p>{job.professional_name}</p>
-                                    <p className="text-xs text-primary/60 dark:text-slate-400">{job.professional_email}</p>
+                                    <p className="text-xs text-muted dark:text-slate-400">{job.professional_email}</p>
                                   </>
                                 ) : (
-                                  <p className="text-xs italic text-primary/50 dark:text-slate-500">Sin asignar</p>
+                                  <p className="text-xs italic text-muted dark:text-slate-500">Sin asignar</p>
                                 )}
                               </td>
                               <td className="p-4">
@@ -1892,7 +1892,7 @@ function AdminDashboardPage() {
                                   {job.status}
                                 </span>
                               </td>
-                              <td className="p-4 text-xs text-primary/60 dark:text-slate-400">
+                              <td className="p-4 text-xs text-muted dark:text-slate-400">
                                 {new Date(job.created_at).toLocaleDateString('es-ES')}
                               </td>
                             </tr>

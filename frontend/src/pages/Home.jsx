@@ -149,7 +149,7 @@ function Home() {
               />
               <div className="flex flex-col text-left">
                 <span className="text-sm font-bold text-primary dark:text-slate-100 leading-tight">{user.name}</span>
-                <div className="flex items-center gap-0.5 text-[10px] text-primary/60 dark:text-slate-400 font-semibold mt-0.5">
+                <div className="flex items-center gap-0.5 text-[10px] text-muted dark:text-slate-400 font-semibold mt-0.5">
                   <span className="material-symbols-outlined !text-[11px] shrink-0">location_on</span>
                   <span className="truncate max-w-[130px]">{locationName}</span>
                 </div>
@@ -164,7 +164,7 @@ function Home() {
               />
               <div className="flex flex-col text-left">
                 <span className="text-sm font-bold text-primary dark:text-teal-400 leading-tight group-hover:underline">Iniciar sesión</span>
-                <div className="flex items-center gap-0.5 text-[10px] text-primary/60 dark:text-slate-400 font-semibold mt-0.5">
+                <div className="flex items-center gap-0.5 text-[10px] text-muted dark:text-slate-400 font-semibold mt-0.5">
                   <span className="material-symbols-outlined !text-[11px] shrink-0">location_on</span>
                   <span className="truncate max-w-[130px]">{locationName}</span>
                 </div>

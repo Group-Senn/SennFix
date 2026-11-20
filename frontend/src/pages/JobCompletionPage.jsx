@@ -175,7 +175,7 @@ function JobCompletionPage() {
         return (
           <div className="space-y-6">
             <div className="text-center">
-              <span className="material-symbols-outlined text-5xl text-primary/50">rate_review</span>
+              <span className="material-symbols-outlined text-5xl text-muted">rate_review</span>
               <h1 className="text-2xl font-bold text-primary dark:text-slate-100 mt-2">Valora tu experiencia</h1>
               <p className="text-sm text-primary/70 dark:text-slate-350">Tu opinión nos ayuda a garantizar la calidad del servicio en SENN FIX.</p>
             </div>
@@ -228,8 +228,8 @@ function JobCompletionPage() {
                       <img src={photoPreview} alt="Evidencia de reseña" className="h-full w-full object-cover rounded-xl" />
                     ) : (
                       <div className="text-center space-y-1">
-                        <span className="material-symbols-outlined text-primary/50 text-3xl">add_a_photo</span>
-                        <p className="text-xs text-primary/60 dark:text-slate-350">Subir foto del resultado</p>
+                        <span className="material-symbols-outlined text-muted text-3xl">add_a_photo</span>
+                        <p className="text-xs text-muted dark:text-slate-350">Subir foto del resultado</p>
                       </div>
                     )}
                     <input type="file" accept="image/*" onChange={handlePhotoChange} className="hidden" />
@@ -309,7 +309,7 @@ function JobCompletionPage() {
             )}
             
             <div className="pt-4">
-              <Link to="/home" className="text-primary/60 dark:text-slate-400 hover:underline text-sm font-bold">
+              <Link to="/home" className="text-muted dark:text-slate-400 hover:underline text-sm font-bold">
                 Volver al Inicio
               </Link>
             </div>
@@ -318,7 +318,7 @@ function JobCompletionPage() {
       default: // 'question'
         return (
           <div className="text-center space-y-6 py-4">
-            <span className="material-symbols-outlined text-7xl text-primary/50 dark:text-slate-400">sentiment_calm</span>
+            <span className="material-symbols-outlined text-7xl text-muted dark:text-slate-400">sentiment_calm</span>
             <h1 className="text-3xl font-extrabold text-primary dark:text-slate-100 tracking-tight">¿Este servicio te trajo paz?</h1>
             <p className="text-primary/70 dark:text-slate-300 mt-2 max-w-md mx-auto leading-relaxed">
               Tu respuesta nos ayuda a mantener la calidad, seguridad y confianza en la comunidad de SENN FIX.

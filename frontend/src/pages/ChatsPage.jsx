@@ -72,7 +72,7 @@ function ChatsPage() {
                 <div className="flex-1 overflow-hidden">
                   <div className="flex justify-between items-start">
                     <h3 className="font-bold text-primary dark:text-slate-100">{chat.other_user_name}</h3>
-                    <p className="text-xs text-primary/50 flex-shrink-0">
+                    <p className="text-xs text-muted flex-shrink-0">
                       {chat.last_message_time ? new Date(chat.last_message_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                     </p>
                   </div>

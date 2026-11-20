@@ -86,9 +86,9 @@ function SearchBar() {
   return (
     <section className="mt-6 relative" ref={dropdownRef}>
       <form onSubmit={handleSearchSubmit} className="relative z-30">
-        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/60 dark:text-slate-400">search</span>
+        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400">search</span>
         <input
-          className="w-full pl-12 pr-12 py-4 rounded-2xl border border-primary/10 dark:border-slate-700 bg-white/70 dark:bg-slate-800/60 backdrop-blur-md shadow-sm focus:shadow-md focus:shadow-primary/5 dark:focus:shadow-teal-500/10 focus:ring-2 focus:ring-primary dark:focus:ring-teal-500 focus:outline-none text-base md:text-lg text-primary dark:text-slate-100 transition-all placeholder:text-primary/50 dark:placeholder:text-slate-400 font-medium"
+          className="w-full pl-12 pr-12 py-4 rounded-2xl border border-primary/10 dark:border-slate-700 bg-white/70 dark:bg-slate-800/60 backdrop-blur-md shadow-sm focus:shadow-md focus:shadow-primary/5 dark:focus:shadow-teal-500/10 focus:ring-2 focus:ring-primary dark:focus:ring-teal-500 focus:outline-none text-base md:text-lg text-primary dark:text-slate-100 transition-all placeholder:text-slate-500 dark:placeholder:text-slate-400 font-medium"
           placeholder="¿Qué servicio necesitas hoy?"
           type="text"
           value={query}
@@ -105,7 +105,7 @@ function SearchBar() {
               setQuery('');
               setSuggestions({ professionals: [], services: [], hashtags: [] });
             }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center p-1 rounded-full text-primary/40 dark:text-slate-400 hover:bg-primary/5 dark:hover:bg-slate-700 border-none bg-transparent cursor-pointer"
+            className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center p-1 rounded-full text-muted dark:text-slate-400 hover:bg-primary/5 dark:hover:bg-slate-700 border-none bg-transparent cursor-pointer"
           >
             <span className="material-symbols-outlined text-sm">close</span>
           </button>
@@ -116,14 +116,14 @@ function SearchBar() {
       {showDropdown && (query.trim().length >= 2) && (
         <div className="absolute left-0 right-0 mt-2 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md rounded-2xl shadow-xl border border-primary/10 dark:border-slate-700 overflow-hidden z-20 animate-feedback max-h-[400px] overflow-y-auto">
           {loading && (
-            <div className="p-4 text-center text-xs font-semibold text-primary/60 dark:text-slate-400 flex items-center justify-center gap-2">
+            <div className="p-4 text-center text-xs font-semibold text-muted dark:text-slate-400 flex items-center justify-center gap-2">
               <span className="animate-spin size-4 border-2 border-primary dark:border-teal-400 border-t-transparent rounded-full"></span>
               Buscando coincidencias...
             </div>
           )}
 
           {!loading && !hasSuggestions && (
-            <div className="p-4 text-center text-xs font-semibold text-primary/60 dark:text-slate-400">
+            <div className="p-4 text-center text-xs font-semibold text-muted dark:text-slate-400">
               No hay coincidencias sugeridas. Presiona Enter para buscar "{query}".
             </div>
           )}
@@ -133,7 +133,7 @@ function SearchBar() {
               {/* Sección de Hashtags */}
               {suggestions.hashtags.length > 0 && (
                 <div className="p-3">
-                  <p className="text-[10px] font-bold text-primary/50 dark:text-slate-500 uppercase tracking-wider mb-2">Servicios Especiales / Tags</p>
+                  <p className="text-[10px] font-bold text-muted dark:text-slate-500 uppercase tracking-wider mb-2">Servicios Especiales / Tags</p>
                   <div className="flex flex-wrap gap-2">
                     {suggestions.hashtags.map((tag, idx) => (
                       <button
@@ -152,7 +152,7 @@ function SearchBar() {
               {/* Sección de Servicios */}
               {suggestions.services.length > 0 && (
                 <div className="p-2">
-                  <p className="text-[10px] font-bold text-primary/50 dark:text-slate-500 uppercase tracking-wider px-2 mb-1">Categorías de Servicios</p>
+                  <p className="text-[10px] font-bold text-muted dark:text-slate-500 uppercase tracking-wider px-2 mb-1">Categorías de Servicios</p>
                   {suggestions.services.map(service => (
                     <Link
                       key={service.id}
@@ -176,7 +176,7 @@ function SearchBar() {
               {/* Sección de Profesionales */}
               {suggestions.professionals.length > 0 && (
                 <div className="p-2">
-                  <p className="text-[10px] font-bold text-primary/50 dark:text-slate-500 uppercase tracking-wider px-2 mb-1">Profesionales</p>
+                  <p className="text-[10px] font-bold text-muted dark:text-slate-500 uppercase tracking-wider px-2 mb-1">Profesionales</p>
                   {suggestions.professionals.map(prof => (
                     <Link
                       key={prof.id}

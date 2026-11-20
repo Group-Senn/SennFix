@@ -142,7 +142,7 @@ function DocumentUploadCard({
             <span className="text-xs font-bold text-primary dark:text-slate-200 group-hover:underline block">
               Subir foto del documento
             </span>
-            <span className="text-[10px] text-primary/50 dark:text-slate-400 block mt-0.5">
+            <span className="text-[10px] text-muted dark:text-slate-400 block mt-0.5">
               {helpText}
             </span>
           </div>

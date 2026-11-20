@@ -30,7 +30,7 @@ function BottomNav() {
     return location.pathname === baseTo;
   });
 
-  const activeBgColor = theme === 'dark' ? '#120F1A' : '#FCF9F0';
+  const activeBgColor = theme === 'dark' ? '#0F1614' : '#F4F6F3';
 
   return (
     <div className="fixed bottom-0 left-0 right-0 flex justify-center z-50 p-4 md:hidden">

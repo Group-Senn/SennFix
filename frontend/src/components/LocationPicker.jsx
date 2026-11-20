@@ -225,7 +225,7 @@ function LocationPicker({ onLocationChange, address, onAddressChange }) {
           placeholder="Escribe una dirección para buscar..."
           className="w-full px-4 py-3 rounded-lg bg-background-light dark:bg-slate-700 border-transparent focus:ring-2 focus:ring-primary"
         />
-        {isSearching && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-primary/60">Buscando...</span>}
+        {isSearching && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">Buscando...</span>}
         {searchResults.length > 0 && (
           <ul className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-primary/10 dark:border-slate-700 rounded-lg shadow-lg z-[9999] max-h-60 overflow-y-auto">
             {searchResults.map(result => (

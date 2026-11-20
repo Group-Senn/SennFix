@@ -106,7 +106,7 @@ function NotificationBell() {
           {/* List */}
           <div className="flex-1 overflow-y-auto divide-y divide-outline-variant/5 dark:divide-slate-700/50">
             {notifications.length === 0 ? (
-              <div className="p-8 text-center flex flex-col items-center justify-center text-primary/45 dark:text-slate-400">
+              <div className="p-8 text-center flex flex-col items-center justify-center text-muted dark:text-slate-400">
                 <span className="material-symbols-outlined text-4xl mb-2">notifications_off</span>
                 <p className="text-xs italic">No tienes notificaciones aún.</p>
               </div>
@@ -130,7 +130,7 @@ function NotificationBell() {
                     <div className="flex-1 space-y-0.5">
                       <div className="flex justify-between items-start gap-1">
                         <h4 className="text-xs text-primary dark:text-slate-100 font-bold leading-tight">{notif.title}</h4>
-                        <span className="text-[9px] text-primary/50 dark:text-slate-450 whitespace-nowrap shrink-0">{formatTime(notif.created_at)}</span>
+                        <span className="text-[9px] text-muted dark:text-slate-450 whitespace-nowrap shrink-0">{formatTime(notif.created_at)}</span>
                       </div>
                       <p className="text-xs text-primary/70 dark:text-slate-350 leading-tight pr-2">{notif.content}</p>
                     </div>

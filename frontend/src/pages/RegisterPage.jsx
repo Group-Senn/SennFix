@@ -125,7 +125,7 @@ function RegisterPage() {
             <img src={logoNav} alt="SENN Fix Logo" className="h-14 w-auto mx-auto mb-4 object-contain dark:hidden" />
             <img src={logoNavDark} alt="SENN Fix Logo" className="h-14 w-auto mx-auto mb-4 object-contain hidden dark:block" />
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-primary dark:text-slate-100">Crear Cuenta</h1>
-            <p className="text-sm text-primary/60 dark:text-slate-400 mt-2 font-medium">
+            <p className="text-sm text-muted dark:text-slate-400 mt-2 font-medium">
               {userType === 'professional' ? 'Regístrate para ofrecer tus servicios' : 'Únete a SENN Fix para encontrar ayuda'}
             </p>
           </div>
@@ -134,7 +134,7 @@ function RegisterPage() {
             <div>
               <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Nombre Completo <span className="text-red-500">*</span></label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">person</span>
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">person</span>
                 <input 
                   type="text" 
                   value={name} autoComplete="name" 
@@ -148,7 +148,7 @@ function RegisterPage() {
             <div>
               <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Correo Electrónico <span className="text-red-500">*</span></label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">alternate_email</span>
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">alternate_email</span>
                 <input 
                   type="email" 
                   value={email} autoComplete="email" onBlur={e => validateField('email', e.target.value)} aria-invalid={!!fieldErrors.email} 
@@ -198,7 +198,7 @@ function RegisterPage() {
                 <div>
                   <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">C.I. (Opcional)</label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">badge</span>
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">badge</span>
                     <input 
                       type="text" 
                       maxLength={8} 
@@ -214,7 +214,7 @@ function RegisterPage() {
             <div>
               <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Contraseña <span className="text-red-500">*</span></label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">lock</span>
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">lock</span>
                 <input 
                   type={showPassword ? 'text' : 'password'} 
                   value={password} autoComplete="new-password" 
@@ -223,7 +223,7 @@ function RegisterPage() {
                   className="w-full pl-11 pr-12 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
                   placeholder="••••••••"
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/40 dark:text-slate-455 hover:text-primary dark:hover:text-slate-200 transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center">
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-455 hover:text-primary dark:hover:text-slate-200 transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center">
                   <span className="material-symbols-outlined text-lg">{showPassword ? 'visibility_off' : 'visibility'}</span>
                 </button>
               </div>
@@ -298,8 +298,8 @@ function RegisterPage() {
           </form>
 
           <div className="text-sm text-center space-y-3">
-            <p className="text-primary/60 dark:text-slate-400">¿Ya tienes una cuenta? <Link to="/login" className="font-bold text-primary dark:text-teal-400 hover:underline">Inicia sesión</Link></p>
-            <p className="text-xs text-primary/50 dark:text-slate-455">¿Eres un profesional? <Link to="/register-professional" className="font-bold text-primary dark:text-teal-400 hover:underline">Regístrate como profesional aquí</Link></p>
+            <p className="text-muted dark:text-slate-400">¿Ya tienes una cuenta? <Link to="/login" className="font-bold text-primary dark:text-teal-400 hover:underline">Inicia sesión</Link></p>
+            <p className="text-xs text-muted dark:text-slate-455">¿Eres un profesional? <Link to="/register-professional" className="font-bold text-primary dark:text-teal-400 hover:underline">Regístrate como profesional aquí</Link></p>
           </div>
         </div>
       </div>
@@ -328,7 +328,7 @@ function RegisterPage() {
               <h4 className="font-display font-semibold text-base text-primary dark:text-slate-100">
                 Política de Privacidad y Protección de Datos Personales
               </h4>
-              <p className="text-xs text-primary/60 dark:text-slate-400">
+              <p className="text-xs text-muted dark:text-slate-400">
                 Última actualización: Julio 2026
               </p>
               
@@ -408,7 +408,7 @@ function RegisterPage() {
               <h4 className="font-display font-semibold text-base text-primary dark:text-slate-100">
                 Términos y Condiciones de Uso
               </h4>
-              <p className="text-xs text-primary/60 dark:text-slate-440">
+              <p className="text-xs text-muted dark:text-slate-440">
                 Última actualización: Julio 2026
               </p>
               
@@ -484,7 +484,7 @@ function RegisterPage() {
               <h4 className="font-display font-semibold text-base text-primary dark:text-slate-100">
                 Política de No Relación Laboral y Términos de Servicio Independiente
               </h4>
-              <p className="text-xs text-primary/60 dark:text-slate-400">
+              <p className="text-xs text-muted dark:text-slate-400">
                 Última actualización: Julio 2026
               </p>
               

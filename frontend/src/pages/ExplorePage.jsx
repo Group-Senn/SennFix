@@ -201,7 +201,7 @@ function ExplorePage() {
         )}
 
         {!loading && !error && posts.length === 0 && (
-          <div className="text-center p-12 text-primary/60 dark:text-slate-400">
+          <div className="text-center p-12 text-muted dark:text-slate-400">
             <span className="material-symbols-outlined text-6xl mb-2">grid_on</span>
             <p className="font-bold">No hay publicaciones disponibles</p>
             <p className="text-sm mt-1">Los profesionales aún no han subido fotos a su portafolio.</p>
@@ -305,14 +305,14 @@ function ExplorePage() {
                         <h4 className="font-bold text-xs sm:text-sm text-primary dark:text-slate-100 flex items-center gap-1.5">
                           {selectedPost.professional_name}
                         </h4>
-                        <p className="text-[11px] text-primary/60 dark:text-slate-400 font-semibold uppercase">{selectedPost.specialty}</p>
+                        <p className="text-[11px] text-muted dark:text-slate-400 font-semibold uppercase">{selectedPost.specialty}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
                       {getSponsorshipBadge(selectedPost.sponsorship_level)}
                       <button
                         onClick={() => setSelectedPost(null)}
-                        className="text-primary/65 dark:text-slate-400 hover:text-primary dark:hover:text-slate-200 flex items-center justify-center p-1.5 rounded-full hover:bg-primary/5 bg-transparent border-none cursor-pointer"
+                        className="text-muted dark:text-slate-400 hover:text-primary dark:hover:text-slate-200 flex items-center justify-center p-1.5 rounded-full hover:bg-primary/5 bg-transparent border-none cursor-pointer"
                       >
                         <span className="material-symbols-outlined text-[20px]">close</span>
                       </button>
@@ -332,7 +332,7 @@ function ExplorePage() {
                         <span className="material-symbols-outlined text-sm fill-current">favorite</span>
                         <span>Dar Like</span>
                       </button>
-                      <span className="text-[11px] text-primary/60 dark:text-slate-400 font-semibold">
+                      <span className="text-[11px] text-muted dark:text-slate-400 font-semibold">
                         A {selectedPost.likes_count} personas les gusta esto
                       </span>
                     </div>
@@ -409,7 +409,7 @@ function ExplorePage() {
                       </div>
                     ) : (
                       <label className="cursor-pointer flex flex-col items-center gap-2 py-4">
-                        <span className="material-symbols-outlined text-4xl text-primary/50 dark:text-teal-400/70">upload_file</span>
+                        <span className="material-symbols-outlined text-4xl text-muted dark:text-teal-400/70">upload_file</span>
                         <span className="text-xs font-bold text-primary/70 dark:text-slate-300">Haga clic para elegir una imagen</span>
                         <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
                       </label>

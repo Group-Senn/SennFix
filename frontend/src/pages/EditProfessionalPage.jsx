@@ -253,7 +253,7 @@ function EditProfessionalPage() {
 
           <div className="flex flex-col items-center pt-2">
             <label htmlFor="profileImage" className="cursor-pointer group">
-              <div className="w-24 h-24 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-primary/40 dark:text-slate-450 ring-4 ring-primary/10 dark:ring-slate-700 overflow-hidden relative">
+              <div className="w-24 h-24 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-muted dark:text-slate-450 ring-4 ring-primary/10 dark:ring-slate-700 overflow-hidden relative">
                 {imagePreview ? (
                   <img src={imagePreview} alt="Vista previa" className="w-full h-full object-cover" />
                 ) : (
@@ -265,7 +265,7 @@ function EditProfessionalPage() {
               </div>
             </label>
             <input id="profileImage" name="profileImage" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-            <p className="text-xs font-bold text-primary/50 dark:text-slate-455 mt-2 uppercase tracking-wider">Actualizar foto de perfil</p>
+            <p className="text-xs font-bold text-muted dark:text-slate-455 mt-2 uppercase tracking-wider">Actualizar foto de perfil</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -273,21 +273,21 @@ function EditProfessionalPage() {
               <div>
                 <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Nombre Completo o de Empresa</label>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">person</span>
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">person</span>
                   <input 
                     type="text" 
                     name="name" 
                     value={formData.name} 
                     onChange={handleChange} 
                     required 
-                    className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm" 
+                    className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm" 
                   />
                 </div>
               </div>
               <div>
                 <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Número de Celular</label>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">call</span>
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">call</span>
                   <input 
                     type="tel" 
                     inputMode="numeric" 
@@ -295,7 +295,7 @@ function EditProfessionalPage() {
                     value={formData.phone_number} 
                     onChange={handleChange} 
                     required 
-                    className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm" 
+                    className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm" 
                   />
                 </div>
               </div>
@@ -304,14 +304,14 @@ function EditProfessionalPage() {
             <div>
               <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Especialidad Principal</label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">work</span>
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">work</span>
                 <input 
                   type="text" 
                   name="specialty" 
                   value={formData.specialty} 
                   onChange={handleChange} 
                   required 
-                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm" 
+                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm" 
                 />
               </div>
             </div>
@@ -323,7 +323,7 @@ function EditProfessionalPage() {
                 onChange={handleChange} 
                 required 
                 rows="4" 
-                className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm"
+                className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm"
               ></textarea>
             </div>
             <div>
@@ -333,29 +333,29 @@ function EditProfessionalPage() {
                 value={formData.services_offered} 
                 onChange={handleChange} 
                 rows="3" 
-                className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm"
+                className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm"
               ></textarea>
             </div>
             <div>
               <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Hashtags / Trabajos Especiales (Opcional)</label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">tag</span>
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">tag</span>
                 <input 
                   type="text" 
                   name="hashtags" 
                   value={formData.hashtags} 
                   onChange={handleChange} 
                   placeholder="ej: #carpinteriaFina #reparacionNeveras" 
-                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm" 
+                  className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm" 
                 />
               </div>
-              <p className="text-[10px] text-primary/50 dark:text-slate-450 mt-1 leading-tight">Añade palabras clave precedidas de # para destacar en servicios específicos.</p>
+              <p className="text-[10px] text-muted dark:text-slate-450 mt-1 leading-tight">Añade palabras clave precedidas de # para destacar en servicios específicos.</p>
             </div>
             <div>
               <label className="text-xs font-bold text-primary/85 dark:text-slate-350 block mb-1">Certificado FELCC/REJAP (Opcional)</label>
               <input type="file" name="felcc_rejap" onChange={handleFelccRejapChange} accept=".pdf,.jpg,.jpeg,.png" className="w-full text-xs text-primary/80 dark:text-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 dark:file:bg-white/10 file:text-primary dark:file:text-white hover:file:bg-primary/20 dark:hover:file:bg-white/20 transition-all cursor-pointer" />
               {formData.felcc_rejap_url && (
-                <p className="text-xs text-primary/60 dark:text-slate-400 mt-2 flex items-center gap-2">
+                <p className="text-xs text-muted dark:text-slate-400 mt-2 flex items-center gap-2">
                   <span>Archivo actual:</span>
                   <a href={formData.felcc_rejap_url} target="_blank" rel="noopener noreferrer" className="font-bold text-primary dark:text-teal-405 hover:underline">Ver certificado</a>
                   <button type="button" className="text-red-500 dark:text-red-400 hover:underline border-none bg-transparent cursor-pointer font-bold" onClick={() => setFormData(prev => ({ ...prev, felcc_rejap_url: null }))}>[Eliminar]</button>
@@ -379,7 +379,7 @@ function EditProfessionalPage() {
             <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-primary/5 dark:border-slate-750">
               <input type="checkbox" name="is_online" id="is_online" checked={formData.is_online} onChange={handleOnlineStatusChange} className="size-5 rounded text-primary focus:ring-primary" />
               <label htmlFor="is_online" className="text-sm font-bold text-primary/80 dark:text-slate-250">Estoy disponible y online</label>
-              {formData.is_online && <span className="text-xs text-primary/60 dark:text-slate-400 leading-tight">(Tu ubicación se actualizará cada 30s)</span>}
+              {formData.is_online && <span className="text-xs text-muted dark:text-slate-400 leading-tight">(Tu ubicación se actualizará cada 30s)</span>}
             </div>
             <div>
               <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">
@@ -392,7 +392,7 @@ function EditProfessionalPage() {
                 onChange={handleChange}
                 min="1"
                 max="100"
-                className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm"
+                className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm"
               />
             </div>
 

@@ -311,13 +311,13 @@ function RegisterProfessionalPage() {
         <div className="w-full max-w-md lg:max-w-3xl p-6 sm:p-8 space-y-5 bg-white dark:bg-slate-800 rounded-3xl shadow-xl shadow-primary/5 dark:shadow-black/20">
           <div className="text-center">
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-primary dark:text-slate-100">Únete como Profesional</h1>
-            <p className="text-sm text-primary/60 dark:text-slate-400 mt-2 font-medium">Crea tu perfil para que miles de clientes te encuentren.</p>
+            <p className="text-sm text-muted dark:text-slate-400 mt-2 font-medium">Crea tu perfil para que miles de clientes te encuentren.</p>
           </div>
 
           {/* Selector de imagen de perfil */}
           <div className="flex flex-col items-center pt-2">
             <label htmlFor="profileImage" className="cursor-pointer group">
-              <div className="w-24 h-24 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-primary/40 dark:text-slate-400 ring-4 ring-primary/10 dark:ring-slate-700 overflow-hidden relative">
+              <div className="w-24 h-24 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-muted dark:text-slate-400 ring-4 ring-primary/10 dark:ring-slate-700 overflow-hidden relative">
                 {imagePreview ? (
                   <img src={imagePreview} alt="Vista previa" className="w-full h-full object-cover" />
                 ) : (
@@ -329,23 +329,23 @@ function RegisterProfessionalPage() {
               </div>
             </label>
             <input id="profileImage" name="profileImage" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
-            <p className="text-xs font-bold text-primary/50 dark:text-slate-455 mt-2 uppercase tracking-wider">Añadir foto de perfil</p>
+            <p className="text-xs font-bold text-muted dark:text-slate-455 mt-2 uppercase tracking-wider">Añadir foto de perfil</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <p className="text-xs font-bold text-primary/50 dark:text-slate-455 uppercase tracking-wider pt-2 border-b border-primary/5 pb-1">Información de la Cuenta</p>
+            <p className="text-xs font-bold text-muted dark:text-slate-455 uppercase tracking-wider pt-2 border-b border-primary/5 pb-1">Información de la Cuenta</p>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Nombre Completo o de Empresa <span className="text-red-500">*</span></label>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">person</span>
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">person</span>
                   <input 
                     type="text" 
                     name="name" 
                     value={formData.name} 
                     onChange={handleChange} 
                     required 
-                    className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
+                    className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
                     placeholder="Tu nombre completo"
                   />
                 </div>
@@ -353,14 +353,14 @@ function RegisterProfessionalPage() {
               <div>
                 <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Correo Electrónico <span className="text-red-500">*</span></label>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">alternate_email</span>
+                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">alternate_email</span>
                   <input 
                     type="email" 
                     name="email" 
                     value={formData.email} 
                     onChange={handleChange} 
                     required 
-                    className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
+                    className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
                     placeholder="ejemplo@correo.com"
                   />
                 </div>
@@ -369,17 +369,17 @@ function RegisterProfessionalPage() {
             <div>
               <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Contraseña <span className="text-red-500">*</span></label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">lock</span>
+                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">lock</span>
                 <input 
                   type={showPassword ? 'text' : 'password'} 
                   name="password" 
                   value={formData.password} 
                   onChange={handleChange} 
                   required 
-                  className="w-full pl-11 pr-12 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
+                  className="w-full pl-11 pr-12 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
                   placeholder="••••••••"
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-primary/40 dark:text-slate-455 hover:text-primary dark:hover:text-slate-200 transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center">
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-455 hover:text-primary dark:hover:text-slate-200 transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center">
                   <span className="material-symbols-outlined text-lg">{showPassword ? 'visibility_off' : 'visibility'}</span>
                 </button>
               </div>
@@ -458,7 +458,7 @@ function RegisterProfessionalPage() {
 
             <fieldset disabled={!isProfileSectionEnabled}>
               <div className={`space-y-4 transition-opacity duration-500 ${!isProfileSectionEnabled ? 'opacity-50 cursor-not-allowed' : 'opacity-100'}`}>
-                <p className="text-xs font-bold text-primary/50 dark:text-slate-455 uppercase tracking-wider border-b border-primary/5 pb-1">Información del Perfil Profesional</p>
+                <p className="text-xs font-bold text-muted dark:text-slate-455 uppercase tracking-wider border-b border-primary/5 pb-1">Información del Perfil Profesional</p>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <div>
@@ -466,7 +466,7 @@ function RegisterProfessionalPage() {
                       {isCompany ? "NIT de la Empresa" : "C.I. o NIT de la Empresa"} <span className="text-red-500">*</span>
                     </label>
                     <div className="relative mb-3">
-                      <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">
+                      <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">
                         {isCompany ? "domain" : "badge"}
                       </span>
                       <input
@@ -478,7 +478,7 @@ function RegisterProfessionalPage() {
                         onChange={handleChange}
                         placeholder={isCompany ? "Ej: 1028465029" : "Ej: 12345678 o 1028465029"}
                         required
-                        className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
+                        className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
                       />
                     </div>
                     
@@ -522,7 +522,7 @@ function RegisterProfessionalPage() {
                         className="w-full px-4 py-3 bg-transparent text-primary dark:text-slate-100 border-none outline-none focus:ring-0 text-sm"
                       />
                     </div>
-                    <span className="text-[10px] text-primary/50 dark:text-slate-450 block mt-1 leading-tight">
+                    <span className="text-[10px] text-muted dark:text-slate-450 block mt-1 leading-tight">
                       Ingrese los 8 dígitos de su celular. Se enviará un SMS para verificar.
                     </span>
                   </div>
@@ -542,7 +542,7 @@ function RegisterProfessionalPage() {
                       value={formData.customSpecialty} 
                       onChange={handleChange} 
                       required 
-                      className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
+                      className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
                       placeholder="Ej: Instalador de paneles solares"
                     />
                   </div>
@@ -555,7 +555,7 @@ function RegisterProfessionalPage() {
                     onChange={handleChange} 
                     required 
                     rows="4" 
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
                     placeholder="Describe tu experiencia, qué te hace diferente, etc."
                   ></textarea>
                 </div>
@@ -566,24 +566,24 @@ function RegisterProfessionalPage() {
                     value={formData.services_offered} 
                     onChange={handleChange} 
                     rows="3" 
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
                     placeholder="Ej: Instalaciones eléctricas, mantenimiento de jardines, etc."
                   ></textarea>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Hashtags / Trabajos Especiales (Opcional)</label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/50 dark:text-slate-400 text-lg">tag</span>
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">tag</span>
                     <input
                       type="text"
                       name="hashtags"
                       value={formData.hashtags}
                       onChange={handleChange}
-                      className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
+                      className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
                       placeholder="ej: #carpinteriaFina #reparacionNeveras"
                     />
                   </div>
-                  <p className="text-[10px] text-primary/50 dark:text-slate-450 mt-1 leading-tight">Añade palabras clave precedidas de # para destacar en servicios específicos.</p>
+                  <p className="text-[10px] text-muted dark:text-slate-450 mt-1 leading-tight">Añade palabras clave precedidas de # para destacar en servicios específicos.</p>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-primary/85 dark:text-slate-350 block mb-1">Certificado FELCC/REJAP (Opcional)</label>
@@ -596,7 +596,7 @@ function RegisterProfessionalPage() {
                 {formData.has_store && (
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase block">Ubicación de la Tienda o Local</label>
-                    <p className="text-[11px] text-primary/55 dark:text-slate-400 mb-2 leading-tight">Busca una dirección o arrastra el marcador en el mapa para mayor precisión.</p>
+                    <p className="text-[11px] text-muted dark:text-slate-400 mb-2 leading-tight">Busca una dirección o arrastra el marcador en el mapa para mayor precisión.</p>
                     <LocationPicker
                       onLocationChange={handleLocationChange}
                       address={formData.store_address}
@@ -615,9 +615,9 @@ function RegisterProfessionalPage() {
                     onChange={handleChange}
                     min="1"
                     max="100"
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
                   />
-                  <span className="text-[10px] text-primary/50 dark:text-slate-450 block mt-1">Ej: 10 (km)</span>
+                  <span className="text-[10px] text-muted dark:text-slate-450 block mt-1">Ej: 10 (km)</span>
                 </div>
               </div>
             </fieldset>
@@ -633,7 +633,7 @@ function RegisterProfessionalPage() {
                     value={formData.tutor_name} 
                     onChange={handleChange} 
                     required={isMinor} 
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
                     placeholder="Nombre completo del tutor"
                   />
                 </div>
@@ -645,7 +645,7 @@ function RegisterProfessionalPage() {
                     value={formData.tutor_phone} 
                     onChange={handleChange} 
                     required={isMinor} 
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-primary/30 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
                     placeholder="7XXXXXXX"
                   />
                 </div>
@@ -695,8 +695,8 @@ function RegisterProfessionalPage() {
             </button>
           </form>
           <div className="text-sm text-center space-y-3">
-            <p className="text-primary/60 dark:text-slate-400">¿Ya tienes una cuenta? <Link to="/login" className="font-bold text-primary dark:text-teal-400 hover:underline">Inicia Sesión</Link></p>
-            <p className="text-xs text-primary/50 dark:text-slate-455">¿Buscas ayuda o contratar un servicio? <Link to="/register" className="font-bold text-primary dark:text-teal-400 hover:underline">Regístrate como Cliente aquí</Link></p>
+            <p className="text-muted dark:text-slate-400">¿Ya tienes una cuenta? <Link to="/login" className="font-bold text-primary dark:text-teal-400 hover:underline">Inicia Sesión</Link></p>
+            <p className="text-xs text-muted dark:text-slate-455">¿Buscas ayuda o contratar un servicio? <Link to="/register" className="font-bold text-primary dark:text-teal-400 hover:underline">Regístrate como Cliente aquí</Link></p>
           </div>
         </div>
       </div>
@@ -725,7 +725,7 @@ function RegisterProfessionalPage() {
               <h4 className="font-display font-semibold text-base text-primary dark:text-slate-100">
                 Política de No Relación Laboral y Términos de Servicio Independiente
               </h4>
-              <p className="text-xs text-primary/60 dark:text-slate-400">
+              <p className="text-xs text-muted dark:text-slate-400">
                 Última actualización: Julio 2026
               </p>
 
@@ -806,7 +806,7 @@ function RegisterProfessionalPage() {
               <h4 className="font-display font-semibold text-base text-primary dark:text-slate-100">
                 Política de Privacidad y Protección de Datos Personales
               </h4>
-              <p className="text-xs text-primary/60 dark:text-slate-400">
+              <p className="text-xs text-muted dark:text-slate-400">
                 Última actualización: Julio 2026
               </p>
 
@@ -886,7 +886,7 @@ function RegisterProfessionalPage() {
               <h4 className="font-display font-semibold text-base text-primary dark:text-slate-100">
                 Términos y Condiciones de Uso
               </h4>
-              <p className="text-xs text-primary/60 dark:text-slate-440">
+              <p className="text-xs text-muted dark:text-slate-440">
                 Última actualización: Julio 2026
               </p>
 

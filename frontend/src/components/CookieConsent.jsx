@@ -53,7 +53,7 @@ function CookieConsent() {
         <div className="flex items-center gap-3 mt-1 justify-end">
           <button
             onClick={handleDecline}
-            className="px-4 py-2 text-xs font-bold text-primary/60 dark:text-slate-400 hover:text-primary dark:hover:text-slate-200 transition-colors bg-transparent border-none cursor-pointer"
+            className="px-4 py-2 text-xs font-bold text-muted dark:text-slate-400 hover:text-primary dark:hover:text-slate-200 transition-colors bg-transparent border-none cursor-pointer"
           >
             Rechazar
           </button>

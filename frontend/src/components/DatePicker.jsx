@@ -96,7 +96,7 @@ function DatePicker({ value, onChange, label = 'Fecha de nacimiento' }) {
         className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-background-light dark:bg-slate-700 text-primary dark:text-slate-100 border border-transparent focus:ring-2 focus:ring-primary text-left transition-all active:scale-98"
       >
         <span>{selectedDateStr}</span>
-        <span className="material-symbols-outlined text-primary/40 dark:text-slate-400">calendar_month</span>
+        <span className="material-symbols-outlined text-muted dark:text-slate-400">calendar_month</span>
       </button>
 
       {isOpen && (
@@ -140,7 +140,7 @@ function DatePicker({ value, onChange, label = 'Fecha de nacimiento' }) {
             </button>
           </div>
 
-          <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-primary/40 dark:text-slate-400 mb-2">
+          <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-muted dark:text-slate-400 mb-2">
             {DAYS_OF_WEEK.map(d => (
               <div key={d}>{d}</div>
             ))}

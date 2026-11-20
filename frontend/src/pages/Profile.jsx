@@ -221,7 +221,7 @@ function Profile() {
               )}
               <div className="flex flex-col items-center md:items-start gap-2 mt-4">
                 <StarRating rating={professional.rating} />
-                <p className="text-primary/60 dark:text-slate-400 text-sm font-medium">{professional.reviews} reseñas completadas</p>
+                <p className="text-muted dark:text-slate-400 text-sm font-medium">{professional.reviews} reseñas completadas</p>
               </div>
             </div>
           </div>
@@ -236,7 +236,7 @@ function Profile() {
         {portfolio.length > 0 && (
           <section className="px-6 lg:px-8 pt-8">
             <h3 className="text-primary dark:text-slate-100 tracking-tight text-xl font-bold leading-tight mb-4 flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-primary/60 dark:text-teal-400">photo_library</span>
+              <span className="material-symbols-outlined text-muted dark:text-teal-400">photo_library</span>
               Galería de Trabajos
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
@@ -285,7 +285,7 @@ function Profile() {
                   <p className="text-primary/80 dark:text-slate-300 text-sm">{review.comment}</p>
                 </div>
               ))
-            ) : <p className="text-primary/60 dark:text-slate-400 text-sm">Este profesional aún no tiene reseñas. ¡Sé el primero!</p>}
+            ) : <p className="text-muted dark:text-slate-400 text-sm">Este profesional aún no tiene reseñas. ¡Sé el primero!</p>}
           </div>
         </section>
 

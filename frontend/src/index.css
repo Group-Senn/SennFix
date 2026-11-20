@@ -16,29 +16,46 @@
 }
 body {
     min-height: 100dvh;
-    background-color: #FCF9F0;
-    color: #2C2B27;
+    background-color: #F4F6F3;
+    color: #17201D;
     transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 body, header, footer, nav, aside, button, input, textarea, select, .bg-white, .dark\:bg-slate-800, .bg-slate-50, .dark\:bg-slate-900, .text-primary, .dark\:text-slate-100 {
     transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out, color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
 }
 :root {
-    --color-background-light: #FCF9F0;
-    --color-background-dark: #120F1A;
+    --color-background-light: #F4F6F3;
+    --color-background-dark: #0F1614;
+    /* Texto secundario (clase text-muted): 6.0:1 en claro, 6.7:1 en oscuro */
+    --color-muted: 82 97 92;
+}
+.dark {
+    --color-muted: 154 168 163;
 }
 
 .dark body, body.dark, html.dark body {
-    background-color: #120F1A !important;
-    color: #C0C9C4 !important;
+    background-color: #0F1614 !important;
+    color: #E8EEEB !important;
 }
 
-/* Sobrescribir textos de color verde oscuro/medio en modo oscuro a blanco/crema para legibilidad */
+/* En modo oscuro el verde Monte no se lee: tres niveles de texto para conservar la jerarquía */
 .dark .text-primary,
+.dark .text-primary\/95,
 .dark .text-primary\/90,
 .dark .text-primary\/85,
 .dark .text-primary\/80,
+.dark .text-secondary,
+.dark .text-secondary\/90,
+.dark .text-secondary\/85,
+.dark .text-secondary\/80 {
+    color: #E8EEEB !important;
+}
+.dark .text-primary\/75,
 .dark .text-primary\/70,
+.dark .text-secondary\/70 {
+    color: #C3CFCA !important;
+}
+.dark .text-primary\/65,
 .dark .text-primary\/60,
 .dark .text-primary\/55,
 .dark .text-primary\/50,
@@ -46,13 +63,8 @@ body, header, footer, nav, aside, button, input, textarea, select, .bg-white, .d
 .dark .text-primary\/40,
 .dark .text-primary\/35,
 .dark .text-primary\/30,
-.dark .text-primary\/20,
-.dark .text-secondary,
-.dark .text-secondary\/90,
-.dark .text-secondary\/85,
-.dark .text-secondary\/80,
-.dark .text-secondary\/70 {
-    color: #C0C9C4 !important;
+.dark .text-primary\/20 {
+    color: #9AA8A3 !important;
 }
 
 .material-symbols-outlined {
@@ -196,12 +208,12 @@ body, header, footer, nav, aside, button, input, textarea, select, .bg-white, .d
 /* Custom Bottom Nav Floating Circle (Simple & Elegant overlapping design) */
 .bottom-nav-circle {
     background-color: #043f3b !important;
-    border: 3px solid #FCF9F0 !important;
+    border: 3px solid #F4F6F3 !important;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1), 0 4px 12px rgba(0, 0, 0, 0.15) !important;
 }
 
 .dark .bottom-nav-circle, body.dark .bottom-nav-circle, html.dark .bottom-nav-circle {
     background-color: #0f172a !important; /* matches dark mode nav bar bg */
-    border: 3px solid #120F1A !important; /* matches dark mode background bg */
+    border: 3px solid #0F1614 !important; /* matches dark mode background bg */
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.2), 0 4px 16px rgba(0, 0, 0, 0.4) !important;
 }

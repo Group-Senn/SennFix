@@ -24,7 +24,7 @@ function TermsAndConditionsPage() {
         <h1 className="font-display text-3xl font-bold text-primary dark:text-slate-100">
           Términos y Condiciones de Uso
         </h1>
-        <p className="text-sm text-primary/60 dark:text-slate-450">
+        <p className="text-sm text-muted dark:text-slate-450">
           Última actualización: Julio 2026
         </p>
 
@@ -74,7 +74,7 @@ function TermsAndConditionsPage() {
         </section>
 
         <div className="pt-6 border-t border-primary/10 dark:border-slate-700 text-center">
-          <p className="text-sm text-primary/60 dark:text-slate-400">
+          <p className="text-sm text-muted dark:text-slate-400">
             Para aclaraciones y dudas legales, puedes contactar al equipo de soporte de SENN FIX.
           </p>
         </div>

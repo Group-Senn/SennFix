@@ -24,7 +24,7 @@ function PrivacyPolicyPage() {
         <h1 className="font-display text-3xl font-bold text-primary dark:text-slate-100">
           Política de Privacidad y Protección de Datos Personales
         </h1>
-        <p className="text-sm text-primary/60 dark:text-slate-450">
+        <p className="text-sm text-muted dark:text-slate-450">
           Última actualización: Julio 2026
         </p>
 
@@ -76,7 +76,7 @@ function PrivacyPolicyPage() {
         </section>
 
         <div className="pt-6 border-t border-primary/10 dark:border-slate-700 text-center">
-          <p className="text-sm text-primary/60 dark:text-slate-400">
+          <p className="text-sm text-muted dark:text-slate-400">
             En caso de querer ejercer su derecho de rectificación, actualización o eliminación definitiva de sus datos personales, puede eliminar su cuenta en la sección "Mi Perfil" o escribir a soporte técnico.
           </p>
         </div>

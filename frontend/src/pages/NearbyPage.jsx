@@ -144,7 +144,7 @@ function NearbyPage() {
       case 'loading':
         return (
           <div className="flex flex-col items-center justify-center h-full bg-background-light dark:bg-background-dark">
-            <span className="material-symbols-outlined text-5xl text-primary/50 dark:text-slate-400 animate-spin">progress_activity</span>
+            <span className="material-symbols-outlined text-5xl text-muted dark:text-slate-400 animate-spin">progress_activity</span>
             <p className="mt-4 text-primary/70 dark:text-slate-300">Buscando tu ubicación...</p>
           </div>
         );

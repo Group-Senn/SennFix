@@ -97,7 +97,7 @@ function DesktopHeader() {
   ];
 
   return (
-    <header className="sticky top-0 left-0 right-0 z-[2000] h-16 w-full bg-[#FCF9F0]/80 dark:bg-[#120F1A]/80 backdrop-blur-md border-b border-primary/10 dark:border-slate-800 hidden md:flex items-center justify-between px-8">
+    <header className="sticky top-0 left-0 right-0 z-[2000] h-16 w-full bg-[#F4F6F3]/80 dark:bg-[#0F1614]/80 backdrop-blur-md border-b border-primary/10 dark:border-slate-800 hidden md:flex items-center justify-between px-8">
       {/* Brand Identity / Logo */}
       <Link to="/" className="flex items-center gap-2.5 group">
         {/* Logo image responsive to dark mode */}
@@ -135,7 +135,7 @@ function DesktopHeader() {
               `text-sm font-semibold transition-all relative py-1.5 px-1 hover:text-primary dark:hover:text-teal-400 ${
                 isActive
                   ? 'text-primary dark:text-teal-400'
-                  : 'text-primary/65 dark:text-slate-400'
+                  : 'text-muted dark:text-slate-400'
               }`
             }
           >
@@ -156,7 +156,7 @@ function DesktopHeader() {
         {isAuthenticated ? (
           <>
             {/* Location Display */}
-            <div className="hidden lg:flex items-center gap-1 text-[11px] text-primary/60 dark:text-slate-400 font-semibold max-w-[150px] mr-1">
+            <div className="hidden lg:flex items-center gap-1 text-[11px] text-muted dark:text-slate-400 font-semibold max-w-[150px] mr-1">
               <span className="material-symbols-outlined !text-[14px] shrink-0 text-primary dark:text-teal-400">location_on</span>
               <span className="truncate" title={locationName}>{locationName}</span>
             </div>
@@ -265,7 +265,7 @@ function DesktopHeader() {
                 className="w-9 h-9 rounded-full border border-primary/10 object-cover shrink-0 transition-transform group-hover:scale-105"
               />
             ) : (
-              <span className="material-symbols-outlined text-[36px] text-primary/60 dark:text-slate-400 shrink-0">
+              <span className="material-symbols-outlined text-[36px] text-muted dark:text-slate-400 shrink-0">
                 account_circle
               </span>
             )}
@@ -273,7 +273,7 @@ function DesktopHeader() {
               <span className="text-xs font-bold text-primary dark:text-slate-100 leading-tight">
                 {user?.name}
               </span>
-              <span className="text-[9px] text-primary/50 dark:text-slate-400 font-medium">
+              <span className="text-[9px] text-muted dark:text-slate-400 font-medium">
                 {user?.user_type === 'professional' ? 'Profesional' : user?.user_type === 'admin' ? 'Administrador' : 'Cliente'}
               </span>
             </div>

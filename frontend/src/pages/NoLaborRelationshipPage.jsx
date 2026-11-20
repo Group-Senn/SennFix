@@ -24,7 +24,7 @@ function NoLaborRelationshipPage() {
         <h1 className="font-display text-3xl font-bold text-primary dark:text-slate-100">
           Política de No Relación Laboral y Términos de Servicio Independiente
         </h1>
-        <p className="text-sm text-primary/60 dark:text-slate-450">
+        <p className="text-sm text-muted dark:text-slate-450">
           Última actualización: Julio 2026
         </p>
 
@@ -70,7 +70,7 @@ function NoLaborRelationshipPage() {
         </section>
 
         <div className="pt-6 border-t border-primary/10 dark:border-slate-700 text-center">
-          <p className="text-sm text-primary/60 dark:text-slate-400">
+          <p className="text-sm text-muted dark:text-slate-400">
             Al registrarse o iniciar sesión, usted ratifica su entendimiento y aceptación incondicional de estos términos.
           </p>
         </div>

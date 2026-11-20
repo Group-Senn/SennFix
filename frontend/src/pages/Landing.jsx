@@ -11,7 +11,7 @@ import ThemeSwitcher from '../components/ThemeSwitcher';
 
 function Landing() {
   return (
-    <div className="min-h-screen w-full bg-[#F5F8F6] dark:bg-[#120F1A] text-[#2C2B27] dark:text-[#C0C9C4] flex flex-col justify-between relative overflow-x-hidden transition-colors duration-300 font-sans selection:bg-[#043F3B] selection:text-white">
+    <div className="min-h-screen w-full bg-[#F5F8F6] dark:bg-[#0F1614] text-[#2C2B27] dark:text-[#C0C9C4] flex flex-col justify-between relative overflow-x-hidden transition-colors duration-300 font-sans selection:bg-[#043F3B] selection:text-white">
       
       {/* Glows y fondos orgánicos sutiles */}
       <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-[#043F3B]/5 dark:bg-teal-500/5 rounded-full blur-3xl pointer-events-none -translate-x-1/3 -translate-y-1/3" />
@@ -136,7 +136,7 @@ function Landing() {
 
           {/* Header Right Actions */}
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EAF3EF] dark:bg-[#1E293B] border border-[#043F3B]/10 dark:border-slate-700 text-xs font-semibold text-[#043F3B] dark:text-[#A1D9CD] shadow-sm">
+            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EAF3EF] dark:bg-[#1F2C26] border border-[#043F3B]/10 dark:border-slate-700 text-xs font-semibold text-[#043F3B] dark:text-[#A1D9CD] shadow-sm">
               <span className="material-symbols-outlined text-[16px] text-[#043F3B] dark:text-teal-400">location_on</span>
               <span>Plataforma líder en Santa Cruz</span>
             </div>
@@ -145,7 +145,7 @@ function Landing() {
 
             <Link 
               to="/login" 
-              className="px-5 py-2.5 rounded-2xl bg-white dark:bg-[#1E293B] text-[#043F3B] dark:text-[#A1D9CD] font-bold text-sm border border-[#043F3B]/15 dark:border-slate-700 shadow-sm hover:shadow-md hover:bg-slate-50 dark:hover:bg-slate-750 transition-all flex items-center gap-1.5 cursor-pointer no-underline"
+              className="px-5 py-2.5 rounded-2xl bg-white dark:bg-[#1F2C26] text-[#043F3B] dark:text-[#A1D9CD] font-bold text-sm border border-[#043F3B]/15 dark:border-slate-700 shadow-sm hover:shadow-md hover:bg-slate-50 dark:hover:bg-slate-750 transition-all flex items-center gap-1.5 cursor-pointer no-underline"
             >
               <span className="material-symbols-outlined text-[18px]">login</span>
               <span>Iniciar Sesión</span>
@@ -228,7 +228,7 @@ function Landing() {
               </div>
 
               {/* Floating Badge */}
-              <div className="absolute top-1 -right-4 z-30 bg-white/95 dark:bg-[#1E293B]/95 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-xl border border-[#043F3B]/10 dark:border-slate-700 flex items-center gap-2.5">
+              <div className="absolute top-1 -right-4 z-30 bg-white/95 dark:bg-[#1F2C26]/95 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-xl border border-[#043F3B]/10 dark:border-slate-700 flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-[#EAF3EF] dark:bg-teal-500/20 flex items-center justify-center text-[#043F3B] dark:text-teal-400">
                   <span className="material-symbols-outlined text-[18px]">verified_user</span>
                 </div>
@@ -281,7 +281,7 @@ function Landing() {
           <div className="grid grid-cols-2 gap-8 w-full">
             
             {/* TARJETA 1: BUSCAR AYUDA */}
-            <div className="group bg-white/95 dark:bg-[#1E293B]/95 backdrop-blur-md rounded-[2.5rem] p-8 lg:p-9 border border-[#E2EBE5] dark:border-slate-700 shadow-[0_8px_30px_rgba(4,63,59,0.04)] hover:shadow-xl hover:border-[#043F3B]/30 dark:hover:border-teal-500/40 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+            <div className="group bg-white/95 dark:bg-[#1F2C26]/95 backdrop-blur-md rounded-[2.5rem] p-8 lg:p-9 border border-[#E2EBE5] dark:border-slate-700 shadow-[0_8px_30px_rgba(4,63,59,0.04)] hover:shadow-xl hover:border-[#043F3B]/30 dark:hover:border-teal-500/40 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
               <div className="absolute -top-16 -right-16 w-32 h-32 bg-[#EAF3EF] dark:bg-teal-500/5 rounded-full pointer-events-none"></div>
 
               <div>
@@ -381,7 +381,7 @@ function Landing() {
 
 
             {/* TARJETA 2: CONSEGUIR TRABAJO */}
-            <div className="group bg-white/95 dark:bg-[#1E293B]/95 backdrop-blur-md rounded-[2.5rem] p-8 lg:p-9 border border-[#E2EBE5] dark:border-slate-700 shadow-[0_8px_30px_rgba(4,63,59,0.04)] hover:shadow-xl hover:border-[#10594F]/40 dark:hover:border-teal-400/40 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
+            <div className="group bg-white/95 dark:bg-[#1F2C26]/95 backdrop-blur-md rounded-[2.5rem] p-8 lg:p-9 border border-[#E2EBE5] dark:border-slate-700 shadow-[0_8px_30px_rgba(4,63,59,0.04)] hover:shadow-xl hover:border-[#10594F]/40 dark:hover:border-teal-400/40 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
               <div className="absolute -top-16 -right-16 w-32 h-32 bg-[#EAF3EF] dark:bg-teal-500/5 rounded-full pointer-events-none"></div>
 
               <div>
