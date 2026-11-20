@@ -163,7 +163,7 @@ function DesktopHeader() {
         {isAuthenticated ? (
           <>
             {/* Location Display */}
-            <div className="hidden lg:flex items-center gap-1 text-xs text-muted dark:text-slate-400 font-semibold max-w-[150px] mr-1">
+            <div className="hidden 2xl:flex items-center gap-1 text-xs text-muted dark:text-slate-400 font-semibold max-w-[150px] mr-1">
               <span className="material-symbols-outlined !text-[14px] shrink-0 text-primary dark:text-teal-400">location_on</span>
               <span className="truncate" title={locationName}>{locationName}</span>
             </div>
@@ -276,7 +276,7 @@ function DesktopHeader() {
                 account_circle
               </span>
             )}
-            <div className="hidden lg:flex flex-col">
+            <div className="hidden 2xl:flex flex-col max-w-[170px] [&>*]:truncate">
               <span className="text-xs font-bold text-primary dark:text-slate-100 leading-tight">
                 {user?.name}
               </span>

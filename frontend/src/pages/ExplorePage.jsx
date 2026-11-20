@@ -1,9 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
+import { getAbsoluteImageUrl } from '../utils/imageHelper';
+import SearchBar from '../components/SearchBar';
 import AdBanner from '../components/AdBanner';
+import ExplorePostDialog from '../components/ExplorePostDialog';
+import ExploreUploadDialog from '../components/ExploreUploadDialog';
 
+// Explorar: un mosaico de trabajos reales para descubrir profesionales (como la lupa de Instagram)
 function ExplorePage() {
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
@@ -11,436 +15,185 @@ function ExplorePage() {
 
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedPost, setSelectedPost] = useState(null);
+  const [error, setError] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
+  const [chatError, setChatError] = useState('');
+  const [showUpload, setShowUpload] = useState(false);
+  const [published, setPublished] = useState(false);
+  const triggerRef = useRef(null);
 
-  // Estados para subir publicación
-  const [showUploadModal, setShowUploadModal] = useState(false);
-  const [uploadFile, setUploadFile] = useState(null);
-  const [uploadPreview, setUploadPreview] = useState(null);
-  const [uploadDescription, setUploadDescription] = useState('');
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState(null);
-  const [successFeedback, setSuccessFeedback] = useState(null);
-
-  const fetchExplorePosts = async () => {
+  const fetchPosts = useCallback(async () => {
     setLoading(true);
-    setError(null);
+    setError(false);
     try {
-      const response = await fetch(window.API_URL + '/api/explore/posts');
-      if (!response.ok) {
-        throw new Error('No se pudieron cargar las publicaciones del Explorar.');
-      }
+      const token = localStorage.getItem('token');
+      const response = await fetch(window.API_URL + '/api/explore/posts', { headers: token ? { Authorization: `Bearer ${token}` } : {} });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
-      setPosts(data);
+      setPosts(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error(err);
-      setError(err.message);
+      console.error('Error al cargar Explorar:', err);
+      setError(true);
     } finally {
       setLoading(false);
     }
-  };
-
-  useEffect(() => {
-    fetchExplorePosts();
   }, []);
 
-  const handleStartChat = async (proId) => {
+  useEffect(() => {
+    fetchPosts();
+  }, [fetchPosts]);
+
+  useEffect(() => {
+    if (!published) return;
+    const timer = setTimeout(() => setPublished(false), 8000);
+    return () => clearTimeout(timer);
+  }, [published]);
+
+  const selectedPost = posts.find(p => p.id === selectedId) || null;
+
+  const openPost = (post, element) => {
+    triggerRef.current = element;
+    setChatError('');
+    setSelectedId(post.id);
+  };
+
+  const closePost = useCallback(() => {
+    setSelectedId(null);
+    triggerRef.current?.focus();
+  }, []);
+
+  const handleLike = async (post) => {
     if (!isAuthenticated) {
       navigate('/login', { state: { from: location } });
       return;
     }
-    const token = localStorage.getItem('token');
     try {
-      const response = await fetch(window.API_URL + '/api/chats/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-        body: JSON.stringify({ recipientId: proId })
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || 'No se pudo iniciar el chat.');
-      }
-      navigate(`/chats/${data.conversationId}`);
-    } catch (err) {
-      alert(err.message);
-    }
-  };
-
-  const handleLikePost = async (postId) => {
-    // Los likes requieren sesión (uno por usuario)
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-    try {
-      const response = await fetch(`${window.API_URL}/api/explore/posts/${postId}/like`, {
+      const response = await fetch(`${window.API_URL}/api/explore/posts/${post.id}/like`, {
         method: 'POST',
         headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
       });
-      if (response.ok) {
-        const data = await response.json();
-        // Actualizar lista
-        setPosts(prev => prev.map(p => p.id === postId ? { ...p, likes_count: data.likes_count } : p));
-        // Actualizar publicación seleccionada
-        setSelectedPost(prev => prev && prev.id === postId ? { ...prev, likes_count: data.likes_count } : prev);
-      }
+      if (!response.ok) return;
+      const data = await response.json();
+      setPosts(prev => prev.map(p => (p.id === post.id ? { ...p, likes_count: data.likes_count, liked_by_me: data.liked } : p)));
     } catch (err) {
-      console.error('Error al dar like:', err);
+      console.error('Error al dar me gusta:', err);
     }
   };
 
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setUploadFile(file);
-      setUploadPreview(URL.createObjectURL(file));
-    }
-  };
-
-  const handleUploadSubmit = async (e) => {
-    e.preventDefault();
-    if (!uploadFile) {
-      setUploadError('Por favor selecciona una imagen.');
+  const handleChat = async (professionalId) => {
+    if (!isAuthenticated) {
+      navigate('/login', { state: { from: location } });
       return;
     }
-    setUploading(true);
-    setUploadError(null);
-
-    const token = localStorage.getItem('token');
-    const formData = new FormData();
-    formData.append('image', uploadFile);
-    formData.append('description', uploadDescription);
-
+    setChatError('');
     try {
-      const response = await fetch(window.API_URL + '/api/explore/posts', {
+      const response = await fetch(window.API_URL + '/api/chats/start', {
         method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` },
-        body: formData
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
+        body: JSON.stringify({ recipientId: professionalId })
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Error al subir la publicación.');
-
-      // Limpiar formulario y cerrar modal
-      setUploadFile(null);
-      setUploadPreview(null);
-      setUploadDescription('');
-      setShowUploadModal(false);
-      
-      setSuccessFeedback('¡Publicación de promoción enviada con éxito! Estará visible en Explorar una vez sea verificada y aprobada por el administrador.');
-      setTimeout(() => setSuccessFeedback(null), 7000);
-      
-      // Recargar publicaciones
-      fetchExplorePosts();
+      if (!response.ok) throw new Error(data.message || 'No se pudo abrir el chat.');
+      navigate(`/chats/${data.conversationId}`);
     } catch (err) {
-      setUploadError(err.message);
-    } finally {
-      setUploading(false);
+      setChatError(err.message);
     }
-  };
-
-  const getSponsorshipBadge = (level) => {
-    if (level >= 100) {
-      return (
-        <span className="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
-          <span className="material-symbols-outlined text-xs">workspace_premium</span>
-          Patrocinado Oro
-        </span>
-      );
-    } else if (level >= 50) {
-      return (
-        <span className="bg-teal-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
-          <span className="material-symbols-outlined text-xs">star</span>
-          Patrocinado
-        </span>
-      );
-    }
-    return null;
   };
 
   return (
-    <>
-      <header className="sticky top-0 z-40 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-4 justify-between border-b border-primary/10 dark:border-slate-700">
-        <div className="w-10"></div>
-        <h2 className="text-primary dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center">Explorar</h2>
-        {user?.user_type === 'professional' ? (
-          <button 
-            onClick={() => setShowUploadModal(true)}
-            className="text-primary hover:text-primary/80 dark:text-teal-400 dark:hover:text-teal-300 flex items-center gap-1 text-xs font-bold bg-transparent border-none cursor-pointer p-1"
-          >
-            <span className="material-symbols-outlined text-xl">add_a_photo</span>
-            <span className="hidden sm:inline">Subir</span>
+    <main className="flex-1 w-full max-w-6xl mx-auto px-4 md:px-8 pt-4 md:pt-8 pb-10">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-primary dark:text-white">Explorar</h1>
+          <p className="mt-1 text-muted dark:text-slate-400">Trabajos reales de profesionales de Santa Cruz.</p>
+        </div>
+        {user?.user_type === 'professional' && (
+          <button onClick={() => setShowUpload(true)} className="inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-xl border-none bg-primary px-4 py-2.5 font-bold text-white cursor-pointer">
+            <span className="material-symbols-outlined text-xl" aria-hidden="true">add_a_photo</span>
+            <span className="hidden sm:inline">Publicar un trabajo</span>
+            <span className="sm:hidden">Publicar</span>
           </button>
+        )}
+      </div>
+
+      {/* En pantallas grandes la búsqueda ya está en el encabezado */}
+      <div className="max-w-xl lg:hidden"><SearchBar /></div>
+
+      {published && (
+        <p role="status" className="mt-4 rounded-xl bg-teal-50 p-4 text-sm font-semibold text-teal-900 dark:bg-teal-950/40 dark:text-teal-200">
+          Listo. Un administrador revisará tu foto y se verá aquí cuando la apruebe.
+        </p>
+      )}
+
+      <AdBanner />
+
+      <div className="mt-6">
+        {loading ? (
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4" aria-busy="true" aria-label="Cargando trabajos">
+            {Array.from({ length: 8 }, (_, i) => <div key={i} className="aspect-square animate-pulse rounded-xl bg-slate-200/70 dark:bg-slate-800" />)}
+          </div>
+        ) : error ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center dark:border-slate-700">
+            <p className="font-semibold text-ink dark:text-slate-100">No pudimos cargar los trabajos.</p>
+            <p className="mt-1 text-sm text-muted dark:text-slate-400">Revisa tu conexión e inténtalo de nuevo.</p>
+            <button onClick={fetchPosts} className="mt-4 rounded-xl border-none bg-primary px-4 py-2.5 text-sm font-bold text-white cursor-pointer">Reintentar</button>
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center dark:border-slate-700">
+            <span className="material-symbols-outlined text-5xl text-muted dark:text-slate-500" aria-hidden="true">photo_library</span>
+            <p className="mt-2 font-semibold text-ink dark:text-slate-100">Aún no hay trabajos publicados.</p>
+            <p className="mt-1 text-sm text-muted dark:text-slate-400">
+              {user?.user_type === 'professional' ? 'Sé el primero: sube una foto de un trabajo que hayas hecho.' : 'Los profesionales irán subiendo fotos de sus trabajos.'}
+            </p>
+          </div>
         ) : (
-          <div className="w-10"></div>
-        )}
-      </header>
-
-      <main className="flex-1 p-4 md:p-6 pb-32 bg-background-light dark:bg-background-dark animate-page-entry max-w-4xl mx-auto w-full">
-        {successFeedback && (
-          <div className="animate-feedback flex items-center gap-3 p-4 bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400 rounded-2xl text-xs sm:text-sm font-semibold mb-4 shadow-sm">
-            <span className="material-symbols-outlined shrink-0 text-xl text-teal-500">check_circle</span>
-            <span>{successFeedback}</span>
-          </div>
-        )}
-        {!error && <AdBanner />}
-        {loading && (
-          <div className="grid grid-cols-3 gap-1 md:gap-3">
-            {[...Array(9)].map((_, i) => (
-              <div key={i} className="aspect-square bg-slate-200 dark:bg-slate-700 rounded-lg animate-pulse"></div>
-            ))}
-          </div>
-        )}
-
-        {error && (
-          <div className="text-center p-12 text-red-500">
-            <span className="material-symbols-outlined text-5xl mb-2">error</span>
-            <p className="font-bold">Error al cargar publicaciones</p>
-            <p className="text-xs mt-1">{error}</p>
-          </div>
-        )}
-
-        {!loading && !error && posts.length === 0 && (
-          <div className="text-center p-12 text-muted dark:text-slate-400">
-            <span className="material-symbols-outlined text-6xl mb-2">grid_on</span>
-            <p className="font-bold">No hay publicaciones disponibles</p>
-            <p className="text-sm mt-1">Los profesionales aún no han subido fotos a su portafolio.</p>
-          </div>
-        )}
-
-        {/* Instagram-style explore grid */}
-        {!loading && !error && posts.length > 0 && (
-          <div className="grid grid-cols-3 gap-1 md:gap-3">
+          <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
             {posts.map(post => (
-              <div
-                key={post.id}
-                onClick={() => setSelectedPost(post)}
-                className="relative aspect-square overflow-hidden rounded-lg md:rounded-xl cursor-pointer group shadow-sm bg-slate-100 dark:bg-slate-800"
-              >
-                {/* Image */}
-                <img
-                  src={getAbsoluteImageUrl(post.image_url)}
-                  onError={handleImageError}
-                  alt={post.description}
-                  className="w-full h-full object-cover transition-transform duration-300"
-                />
-
-                {/* Badges in Corners */}
-                {post.sponsorship_level > 0 && (
-                  <div className="absolute top-2 left-2 z-10">
-                    <span className="bg-amber-500/90 text-white text-xs font-bold p-1 rounded-full flex items-center justify-center shadow-md" title="Publicación Patrocinada">
-                      <span className="material-symbols-outlined text-xs">campaign</span>
-                    </span>
-                  </div>
-                )}
-                {post.has_gold_seal && (
-                  <div className="absolute top-2 right-2 z-10">
-                    <span className="bg-amber-400/95 text-white text-xs font-bold p-1 rounded-full flex items-center justify-center shadow-md" title="Profesional Sello de Oro">
-                      <span className="material-symbols-outlined text-xs">workspace_premium</span>
-                    </span>
-                  </div>
-                )}
-
-                {/* Hover Overlay */}
-                <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-center items-center gap-1.5 p-2 text-white text-center">
-                  <span className="font-bold text-xs truncate w-full">{post.professional_name}</span>
-                  <span className="text-xs opacity-90 truncate w-full">{post.specialty}</span>
-                  <div className="flex items-center gap-1 mt-1 text-xs font-bold">
-                    <span className="material-symbols-outlined text-xs text-red-500 fill-current">favorite</span>
-                    <span>{post.likes_count}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Detailed Post Modal overlay */}
-        {selectedPost && (
-          <div 
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[2000] flex items-center justify-center p-4 cursor-pointer"
-            onClick={() => setSelectedPost(null)}
-          >
-            <button
-              onClick={() => setSelectedPost(null)}
-              className="absolute top-4 right-4 text-white bg-black/40 hover:bg-black/60 size-10 rounded-full flex items-center justify-center border-none cursor-pointer z-[2001]"
-              title="Cerrar"
-            >
-              <span className="material-symbols-outlined text-2xl">close</span>
-            </button>
-
-            <div 
-              className="bg-white dark:bg-slate-800 w-full max-w-3xl rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[85vh] md:max-h-[500px] border border-outline-variant/10 dark:border-slate-700 animate-feedback cursor-default"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Image Side */}
-              <div className="w-full md:w-1/2 bg-slate-900 flex items-center justify-center overflow-hidden relative min-h-[220px] md:min-h-0">
-                <img
-                  src={getAbsoluteImageUrl(selectedPost.image_url)}
-                  onError={handleImageError}
-                  alt="Post Detail"
-                  className="w-full h-full object-cover"
-                />
+              <li key={post.id}>
                 <button
-                  onClick={() => setSelectedPost(null)}
-                  className="absolute top-3 right-3 text-white bg-black/40 hover:bg-black/60 size-8 rounded-full flex items-center justify-center border-none cursor-pointer md:hidden z-10"
+                  onClick={(e) => openPost(post, e.currentTarget)}
+                  aria-label={`${post.professional_name}, ${post.specialty}${post.description ? `: ${post.description}` : ''}`}
+                  className="group relative block aspect-square w-full overflow-hidden rounded-xl border-none bg-slate-200 p-0 cursor-pointer dark:bg-slate-800"
                 >
-                  <span className="material-symbols-outlined text-lg">close</span>
-                </button>
-              </div>
-
-              {/* Info Side */}
-              <div className="w-full md:w-1/2 p-5 md:p-6 flex flex-col justify-between overflow-y-auto">
-                {/* Header */}
-                <div>
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex items-center gap-3">
-                      <img
-                        src={getAbsoluteImageUrl(selectedPost.professional_image)}
-                        onError={handleImageError}
-                        alt={selectedPost.professional_name}
-                        className="w-10 h-10 rounded-full object-cover border-2 border-primary/25"
-                      />
-                      <div>
-                        <h4 className="font-bold text-xs sm:text-sm text-primary dark:text-slate-100 flex items-center gap-1.5">
-                          {selectedPost.professional_name}
-                        </h4>
-                        <p className="text-xs text-muted dark:text-slate-400 font-semibold uppercase">{selectedPost.specialty}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {getSponsorshipBadge(selectedPost.sponsorship_level)}
-                      <button
-                        onClick={() => setSelectedPost(null)}
-                        className="text-muted dark:text-slate-400 hover:text-primary dark:hover:text-slate-200 flex items-center justify-center p-1.5 rounded-full hover:bg-primary/5 bg-transparent border-none cursor-pointer"
-                      >
-                        <span className="material-symbols-outlined text-[20px]">close</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Body description */}
-                  <div className="space-y-3">
-                    <p className="text-xs sm:text-sm text-primary/85 dark:text-slate-300 leading-relaxed whitespace-pre-line">
-                      {selectedPost.description}
-                    </p>
-                    <div className="flex items-center gap-3 mt-4">
-                      <button
-                        onClick={() => handleLikePost(selectedPost.id)}
-                        className="flex items-center justify-center gap-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-600 dark:text-red-400 px-3.5 py-1.5 rounded-full border-none cursor-pointer font-bold text-xs transition-colors"
-                      >
-                        <span className="material-symbols-outlined text-sm fill-current">favorite</span>
-                        <span>Dar Like</span>
-                      </button>
-                      <span className="text-xs text-muted dark:text-slate-400 font-semibold">
-                        A {selectedPost.likes_count} personas les gusta esto
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Actions bottom footer */}
-                <div className="border-t border-outline-variant/10 dark:border-slate-700 pt-4 mt-6 flex gap-2">
-                  <Link
-                    to={`/profile/${selectedPost.professional_id}`}
-                    onClick={() => setSelectedPost(null)}
-                    className="flex-1 bg-primary/10 hover:bg-primary/15 text-primary dark:bg-teal-500/10 dark:text-teal-400 dark:hover:bg-teal-500/20 py-2.5 rounded-xl text-center text-xs font-bold transition-all active:scale-[0.97]"
-                  >
-                    Ver Perfil
-                  </Link>
-                  {user?.id != selectedPost.professional_id && (
-                    <button
-                      onClick={() => handleStartChat(selectedPost.professional_id)}
-                      className="flex-1 bg-primary hover:bg-primary/95 text-white py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all active:scale-[0.97]"
-                    >
-                      <span className="material-symbols-outlined text-[16px]">forum</span>
-                      Chatear ahora
-                    </button>
+                  {/* Si la foto no carga queda el recuadro neutro: una imagen de relleno haría pasar un trabajo falso por real */}
+                  <img src={getAbsoluteImageUrl(post.image_url)} onError={(e) => { e.target.style.visibility = 'hidden'; }} alt="" loading="lazy" className="h-full w-full object-cover" />
+                  {post.sponsorship_level > 0 && (
+                    <span className="absolute left-2 top-2 rounded-full bg-casco px-2 py-0.5 text-xs font-bold text-primary">Patrocinado</span>
                   )}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Upload Modal Overlay */}
-        {showUploadModal && (
-          <div 
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[2000] flex items-center justify-center p-4 cursor-pointer"
-            onClick={() => setShowUploadModal(false)}
-          >
-            <div 
-              className="bg-white dark:bg-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl border border-outline-variant/10 dark:border-slate-700 animate-feedback cursor-default space-y-4"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex justify-between items-center pb-2 border-b border-outline-variant/15 dark:border-slate-750">
-                <h3 className="font-bold text-lg text-primary dark:text-slate-100 flex items-center gap-2">
-                  <span className="material-symbols-outlined text-primary dark:text-teal-400">add_photo_alternate</span>
-                  Nueva Publicación
-                </h3>
-                <button 
-                  onClick={() => setShowUploadModal(false)}
-                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 bg-transparent border-none cursor-pointer flex items-center"
-                >
-                  <span className="material-symbols-outlined">close</span>
+                  {/* Siempre visible: en celular no existe el "pasar el mouse" */}
+                  <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 pb-2.5 pt-8 text-left">
+                    <span className="block truncate text-sm font-bold text-white">{post.professional_name}</span>
+                    <span className="block truncate text-xs text-white/85">{post.specialty}</span>
+                  </span>
                 </button>
-              </div>
-
-              <form onSubmit={handleUploadSubmit} className="space-y-4">
-                {uploadError && (
-                  <div className="p-3 bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 rounded-lg text-xs font-semibold">
-                    {uploadError}
-                  </div>
-                )}
-
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold text-primary/75 dark:text-slate-350">Imagen de Portafolio <span className="text-red-500">*</span></label>
-                  <div className="flex flex-col items-center justify-center border-2 border-dashed border-outline-variant/30 dark:border-slate-650 rounded-xl p-4 bg-slate-50 dark:bg-slate-900/40 relative">
-                    {uploadPreview ? (
-                      <div className="relative w-full aspect-video rounded-lg overflow-hidden border border-outline-variant/20">
-                        <img src={uploadPreview} alt="Preview" className="w-full h-full object-cover" />
-                        <button 
-                          type="button" 
-                          onClick={() => { setUploadFile(null); setUploadPreview(null); }}
-                          className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white rounded-full size-7 flex items-center justify-center border-none cursor-pointer"
-                        >
-                          <span className="material-symbols-outlined text-sm">delete</span>
-                        </button>
-                      </div>
-                    ) : (
-                      <label className="cursor-pointer flex flex-col items-center gap-2 py-4">
-                        <span className="material-symbols-outlined text-4xl text-muted dark:text-teal-400/70">upload_file</span>
-                        <span className="text-xs font-bold text-primary/70 dark:text-slate-300">Haga clic para elegir una imagen</span>
-                        <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-                      </label>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="block text-xs font-bold text-primary/75 dark:text-slate-350">Descripción / Biografía del Trabajo</label>
-                  <textarea 
-                    value={uploadDescription}
-                    onChange={(e) => setUploadDescription(e.target.value)}
-                    rows="3"
-                    className="w-full px-3 py-2.5 text-sm rounded-lg bg-slate-50 dark:bg-slate-900/60 border border-transparent focus:ring-2 focus:ring-primary dark:focus:ring-teal-500 text-primary dark:text-slate-100"
-                    placeholder="Escribe algo sobre este trabajo..."
-                  />
-                </div>
-
-                <button 
-                  type="submit" 
-                  disabled={uploading}
-                  className="w-full bg-primary hover:bg-primary/95 text-white py-3 rounded-xl text-sm font-bold flex items-center justify-center gap-1.5 transition-all active:scale-[0.98] cursor-pointer shadow-md disabled:opacity-50"
-                >
-                  {uploading ? 'Subiendo...' : 'Publicar Foto'}
-                </button>
-              </form>
-            </div>
-          </div>
+              </li>
+            ))}
+          </ul>
         )}
-      </main>
-    </>
+      </div>
+
+      {selectedPost && (
+        <ExplorePostDialog
+          post={selectedPost}
+          isOwn={String(user?.id) === String(selectedPost.professional_id)}
+          chatError={chatError}
+          onClose={closePost}
+          onLike={handleLike}
+          onChat={handleChat}
+        />
+      )}
+
+      {showUpload && (
+        <ExploreUploadDialog
+          onClose={() => setShowUpload(false)}
+          onPublished={() => {
+            setShowUpload(false);
+            setPublished(true);
+            fetchPosts();
+          }}
+        />
+      )}
+    </main>
   );
 }
 

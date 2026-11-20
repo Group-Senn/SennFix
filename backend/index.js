@@ -2950,6 +2950,16 @@ app.put('/api/notifications/:id/read', authMiddleware, async (req, res) => {
 // Obtener publicaciones de profesionales para la pestaña Explorar (ordenados por patrocinio)
 app.get('/api/explore/posts', async (req, res) => {
   try {
+    // Sesión opcional: si viene, cada publicación indica si esa persona ya le dio me gusta
+    let viewerId = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        viewerId = String(jwt.verify(authHeader.split(' ')[1], JWT_SECRET).id);
+      } catch (e) {
+        // Token inválido: se trata como visitante
+      }
+    }
     const query = `
       SELECT 
         pt.id,
@@ -2962,15 +2972,16 @@ app.get('/api/explore/posts', async (req, res) => {
         p.has_gold_seal,
         p.sponsorship_level,
         u.name AS professional_name,
-        u."imageUrl" AS professional_image
+        u."imageUrl" AS professional_image,
+        EXISTS (SELECT 1 FROM post_likes l WHERE l.post_id = pt.id::text AND l.user_id = $1::text) AS liked_by_me
       FROM professional_posts pt
       JOIN professionals p ON pt.professional_id = p.id
       JOIN users u ON p.id = u.id
-      WHERE pt.status = 'approved'
+      WHERE pt.status = 'approved' AND u.account_status = 'active'
       ORDER BY p.sponsorship_level DESC, p.has_gold_seal DESC, pt.created_at DESC
       LIMIT 100
     `;
-    const { rows } = await db.query(query);
+    const { rows } = await db.query(query, [viewerId]);
     res.json(rows);
   } catch (error) {
     console.error('Error al obtener publicaciones de explorar:', error);
