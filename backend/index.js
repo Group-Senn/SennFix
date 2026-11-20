@@ -732,7 +732,16 @@ app.get('/api/services', async (req, res) => {
       const { rows } = await db.query(queryText);
       res.json(rows);
     } else {
-      const queryText = 'SELECT id, name, category, is_high_risk, is_main, icon_name as icon FROM services ORDER BY category, name';
+      // prof_count: solo profesionales activos (los que realmente aparecen al abrir el oficio)
+      const queryText = `
+        SELECT s.id, s.name, s.category, s.is_high_risk, s.is_main, s.icon_name as icon,
+          COUNT(p.id) FILTER (WHERE u.account_status = 'active')::int AS prof_count
+        FROM services s
+        LEFT JOIN professionals p ON p.specialty = s.name
+        LEFT JOIN users u ON u.id = p.id
+        GROUP BY s.id, s.name, s.category, s.is_high_risk, s.is_main, s.icon_name
+        ORDER BY s.category, s.name
+      `;
       const { rows } = await db.query(queryText);
       res.json(rows);
     }

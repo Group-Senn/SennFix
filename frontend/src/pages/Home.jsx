@@ -276,7 +276,17 @@ function Home() {
          </div>
 
         <main className="flex-1 pb-12 px-4 md:px-6 lg:px-8 space-y-10">
-          <SearchBar />
+          <div>
+            <SearchBar />
+            {/* Siempre visible: antes vivía dentro de "Cerca de ti" y desaparecía si todos estaban en línea */}
+            <Link
+              to="/map"
+              className="mt-3 inline-flex items-center gap-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm font-bold text-primary dark:text-teal-400 hover:border-primary dark:hover:border-teal-400 transition-colors"
+            >
+              <span className="material-symbols-outlined text-xl" aria-hidden="true">map</span>
+              {hasLocation ? 'Ver mapa cerca de ti' : 'Ver mapa de Santa Cruz'}
+            </Link>
+          </div>
 
           <section aria-labelledby="oficios-titulo">
             <div className="flex justify-between items-center mb-4">
@@ -314,12 +324,9 @@ function Home() {
 
           {(loading || others.length > 0 || onlineNow.length === 0) && (
           <section aria-labelledby="cerca-titulo">
-            <div className="flex justify-between items-center mb-4">
-              <h2 id="cerca-titulo" className="text-xl md:text-2xl font-extrabold text-primary dark:text-white">
-                {hasLocation ? 'Cerca de ti' : 'Profesionales en Santa Cruz'}
-              </h2>
-              <Link to="/map" className="text-sm font-bold text-primary dark:text-teal-400 hover:underline">Ver mapa</Link>
-            </div>
+            <h2 id="cerca-titulo" className="mb-4 text-xl md:text-2xl font-extrabold text-primary dark:text-white">
+              {hasLocation ? 'Cerca de ti' : 'Profesionales en Santa Cruz'}
+            </h2>
             {loading || others.length > 0 ? (
               <CredentialRow professionals={others} loading={loading} label={hasLocation ? 'Profesionales cerca de ti' : 'Profesionales en Santa Cruz'} />
             ) : (
