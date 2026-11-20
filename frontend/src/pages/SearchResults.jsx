@@ -1,144 +1,121 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import ProfessionalCard from '../components/ProfessionalCard';
+import SearchBar from '../components/SearchBar';
+import CredentialResults from '../components/CredentialResults';
+import AdBanner from '../components/AdBanner';
+import { POPULAR_TRADES } from '../utils/trades';
+
+// Enlace a un oficio. Va al oficio (service.name), no al rubro: antes llevaba a "/services/Hogar", siempre vacío
+function TradeLink({ name, icon, label }) {
+  return (
+    <Link
+      to={`/services/${name}`}
+      className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3.5 py-2 text-sm font-semibold text-ink dark:text-slate-200 hover:border-primary dark:hover:border-teal-400 transition-colors"
+    >
+      <span className="material-symbols-outlined text-lg text-primary dark:text-teal-400" aria-hidden="true">{icon || 'handyman'}</span>
+      {label || name}
+    </Link>
+  );
+}
 
 function SearchResults() {
   const [searchParams] = useSearchParams();
-  const query = searchParams.get('q');
-  const [results, setResults] = useState({ professionals: [], services: [] });
+  const query = searchParams.get('q') || '';
+  const [results, setResults] = useState({ professionals: [], services: [], recommendations: [] });
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
+  const fetchResults = useCallback(async () => {
     if (!query) {
       setLoading(false);
       return;
     }
-
-    const fetchResults = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(`${window.API_URL}/api/search?q=${encodeURIComponent(query)}`);
-        if (!response.ok) {
-          throw new Error('Error en la búsqueda');
-        }
-        const data = await response.json();
-        setResults(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchResults();
+    setLoading(true);
+    setError(false);
+    try {
+      const response = await fetch(`${window.API_URL}/api/search?q=${encodeURIComponent(query)}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      setResults({ professionals: [], services: [], recommendations: [], ...data });
+    } catch (err) {
+      console.error('Error en la búsqueda:', err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, [query]);
 
-  // Ejecutar inserción de Google Ads cuando finalice la carga sin errores
   useEffect(() => {
-    if (!loading && !error) {
-      try {
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      } catch (e) {
-        // Ignorar
-      }
-    }
-  }, [loading, error]);
+    fetchResults();
+  }, [fetchResults]);
 
-  const hasResults = results.professionals.length > 0 || results.services.length > 0;
+  const nothingFound = !loading && !error && results.professionals.length === 0 && results.services.length === 0;
 
   return (
-    <>
-      <header className="sticky top-0 z-50 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-4 justify-between border-b border-primary/10 dark:border-slate-700">
-        <Link to="/home" className="text-primary dark:text-slate-200 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-primary/10 dark:hover:bg-slate-700 transition-colors">
-          <span className="material-symbols-outlined">arrow_back</span>
-        </Link>
-        <h2 className="text-primary dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center pr-10 truncate">
-          Resultados para "{query}"
-        </h2>
-      </header>
+    <main className="flex-1 w-full max-w-6xl mx-auto px-4 md:px-8 pt-4 md:pt-8 pb-10">
+      <h1 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-primary dark:text-white">
+        {query ? `Resultados para «${query}»` : 'Buscar'}
+      </h1>
+      <div className="max-w-2xl">
+        <SearchBar />
+      </div>
 
-      <main className="flex-1 pb-32 px-4 lg:px-8">
-        {loading && <div className="text-center p-10 text-primary/70">Buscando...</div>}
-        {error && <div className="text-center p-10 text-red-500">Error: {error}</div>}
-
-        {/* Banner de Publicidad Externa / Google Ads */}
-        {!loading && !error && (
-          <div className="my-6 flex justify-center">
-            <div className="w-full bg-slate-50 dark:bg-slate-900 border border-primary/10 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm p-4 relative min-h-[90px] flex flex-col items-center justify-center">
-              <span className="absolute top-1 right-2 text-xs font-bold uppercase tracking-wider text-muted dark:text-slate-500 z-10">Publicidad</span>
-              
-              <ins className="adsbygoogle"
-                   style={{ display: 'block', width: '100%', minHeight: '90px' }}
-                   data-ad-client="ca-pub-9528606011603373"
-                   data-ad-slot="6537050434"
-                   data-ad-format="auto"
-                   data-full-width-responsive="true"></ins>
-              
-              <div className="absolute inset-0 flex items-center justify-center bg-slate-100/50 dark:bg-slate-800/50 pointer-events-none border border-dashed border-primary/20 dark:border-slate-700 rounded-xl">
-                <div className="flex items-center gap-2 text-muted dark:text-slate-500 text-xs">
-                  <span className="material-symbols-outlined text-sm">ads_click</span>
-                  <span>Espacio para Google Ads</span>
-                </div>
+      {!query ? (
+        <p className="mt-4 text-muted dark:text-slate-400">Escribe qué necesitas: un oficio, un nombre o un trabajo.</p>
+      ) : error ? (
+        <div className="mt-6 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-6 text-center">
+          <p className="font-semibold text-ink dark:text-slate-100">No pudimos completar la búsqueda.</p>
+          <p className="mt-1 text-sm text-muted dark:text-slate-400">Revisa tu conexión e inténtalo de nuevo.</p>
+          <button onClick={fetchResults} className="mt-4 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white cursor-pointer border-none">
+            Reintentar
+          </button>
+        </div>
+      ) : nothingFound ? (
+        <div className="mt-6 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-6">
+          <p className="font-semibold text-ink dark:text-slate-100">No encontramos nada para «{query}».</p>
+          <p className="mt-1 text-sm text-muted dark:text-slate-400">Prueba con otra palabra o elige uno de los oficios más pedidos:</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {POPULAR_TRADES.map(trade => <TradeLink key={trade.name} {...trade} />)}
+          </div>
+          <Link to="/services" className="mt-4 inline-block text-sm font-bold text-primary dark:text-teal-400 underline">Ver todos los oficios</Link>
+        </div>
+      ) : (
+        <>
+          {results.services.length > 0 && (
+            <section className="mt-6" aria-labelledby="oficios-encontrados">
+              <h2 id="oficios-encontrados" className="mb-3 text-xl font-extrabold text-primary dark:text-white">Oficios</h2>
+              <div className="flex flex-wrap gap-2">
+                {results.services.map(service => <TradeLink key={service.id} name={service.name} icon={service.icon} />)}
               </div>
-            </div>
-          </div>
-        )}
-        
-        {!loading && !error && !hasResults && (
-          <div className="text-center p-10 text-primary/70">
-            <p className="text-lg font-semibold">No se encontraron resultados</p>
-            <p className="text-sm">Intenta con otra palabra clave.</p>
-          </div>
-        )}
+            </section>
+          )}
 
-        {!loading && !error && hasResults && (
-          <>
-            {results.professionals.length > 0 && (
-              <section className="pt-6">
-                <h3 className="text-lg font-bold text-primary/90 dark:text-slate-200 mb-3">Profesionales</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {results.professionals.map(prof => (
-                    <ProfessionalCard key={prof.id} professional={prof} />
-                  ))}
-                </div>
-              </section>
-            )}
+          <section className="mt-8" aria-labelledby="profesionales-encontrados">
+            <h2 id="profesionales-encontrados" className="mb-3 text-xl font-extrabold text-primary dark:text-white">Profesionales</h2>
+            <CredentialResults
+              professionals={results.professionals}
+              loading={loading}
+              empty={
+                <p className="text-muted dark:text-slate-400">
+                  Ningún profesional coincide con «{query}» por ahora. Revisa los oficios de arriba.
+                </p>
+              }
+            />
+          </section>
 
-            {results.services.length > 0 && (
-              <section className="pt-6">
-                <h3 className="text-lg font-bold text-primary/90 dark:text-slate-200 mb-3">Servicios</h3>
-                <div className="flex flex-col gap-2">
-                  {results.services.map(service => (
-                    <Link to={`/services/${encodeURIComponent(service.category)}`} key={service.id} className="flex items-center gap-4 bg-white/60 dark:bg-slate-800/60 p-4 rounded-xl border border-primary/5 backdrop-blur-sm active:scale-95 transition-transform hover:border-primary/20">
-                      <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg"><span className="material-symbols-outlined text-primary text-2xl">{service.icon}</span></div>
-                      <div className="flex-1"><h4 className="font-bold text-slate-900 dark:text-slate-100">{service.name}</h4><p className="text-sm text-slate-500 dark:text-slate-400">{service.category}</p></div>
-                      <div className="text-muted dark:text-slate-500"><span className="material-symbols-outlined">chevron_right</span></div>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            )}
+          <AdBanner />
 
-            {results.recommendations && results.recommendations.length > 0 && (
-              <section className="pt-6">
-                <h3 className="text-lg font-bold text-primary/90 dark:text-slate-200 mb-3">Servicios Recomendados</h3>
-                <div className="flex flex-col gap-2">
-                  {results.recommendations.map(service => (
-                    <Link to={`/services/${encodeURIComponent(service.category)}`} key={service.id} className="flex items-center gap-4 bg-white/60 dark:bg-slate-800/60 p-4 rounded-xl border border-primary/5 backdrop-blur-sm active:scale-95 transition-transform hover:border-primary/20">
-                      <div className="flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg"><span className="material-symbols-outlined text-primary text-2xl">{service.icon || 'settings'}</span></div>
-                      <div className="flex-1"><h4 className="font-bold text-slate-900 dark:text-slate-100">{service.name}</h4><p className="text-sm text-slate-500 dark:text-slate-400">{service.category}</p></div>
-                      <div className="text-muted dark:text-slate-500"><span className="material-symbols-outlined">chevron_right</span></div>
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            )}
-          </>
-        )}
-      </main>
-    </>
+          {results.recommendations?.length > 0 && (
+            <section className="mt-8" aria-labelledby="tambien-sirve">
+              <h2 id="tambien-sirve" className="mb-3 text-xl font-extrabold text-primary dark:text-white">También te puede servir</h2>
+              <div className="flex flex-wrap gap-2">
+                {results.recommendations.map(service => <TradeLink key={service.id} name={service.name} icon={service.icon} />)}
+              </div>
+            </section>
+          )}
+        </>
+      )}
+    </main>
   );
 }
 

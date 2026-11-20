@@ -1,69 +1,71 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import ProfessionalCard from '../components/ProfessionalCard';
-import ProfessionalCardSkeleton from '../components/ProfessionalCardSkeleton';
+import CredentialResults from '../components/CredentialResults';
 
 function ProfessionalsByCategoryPage() {
   const params = useParams();
   const categoryName = params['*'] || '';
   const [professionals, setProfessionals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(false);
 
-  useEffect(() => {
-    const fetchProfessionals = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const response = await fetch(`${window.API_URL}/api/professionals?specialty=${encodeURIComponent(categoryName)}`);
-        if (!response.ok) {
-          throw new Error('No se pudieron cargar los profesionales para esta categoría.');
-        }
-        const data = await response.json();
-        setProfessionals(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProfessionals();
+  const fetchProfessionals = useCallback(async () => {
+    setLoading(true);
+    setError(false);
+    try {
+      const response = await fetch(`${window.API_URL}/api/professionals?specialty=${encodeURIComponent(categoryName)}`);
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const data = await response.json();
+      setProfessionals(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error('Error al cargar profesionales del oficio:', err);
+      setError(true);
+    } finally {
+      setLoading(false);
+    }
   }, [categoryName]);
 
+  useEffect(() => {
+    fetchProfessionals();
+  }, [fetchProfessionals]);
+
   return (
-    <>
-      <header className="sticky top-0 z-50 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-4 justify-between border-b border-primary/10 dark:border-slate-700">
-        <Link to="/services" className="text-primary dark:text-slate-200 flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-primary/10 dark:hover:bg-slate-700 transition-colors">
-          <span className="material-symbols-outlined">arrow_back</span>
-        </Link>
-        <h2 className="text-primary dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center pr-10 truncate">
-          {categoryName}
-        </h2>
-      </header>
+    <main className="flex-1 w-full max-w-6xl mx-auto px-4 md:px-8 pt-4 md:pt-8 pb-10">
+      <Link to="/services" className="-ml-2 mb-2 inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm font-bold text-primary dark:text-teal-400">
+        <span className="material-symbols-outlined text-xl" aria-hidden="true">arrow_back</span>
+        Todos los oficios
+      </Link>
+      <h1 className="font-display text-3xl md:text-4xl font-extrabold tracking-tight text-primary dark:text-white">{categoryName}</h1>
 
-      <main className="flex-1 pb-32 px-6 lg:px-8">
-        {loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-6">
-            {[...Array(6)].map((_, i) => <ProfessionalCardSkeleton key={i} />)}
+      <div className="mt-6">
+        {error ? (
+          <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-6 text-center">
+            <p className="font-semibold text-ink dark:text-slate-100">No pudimos cargar a los profesionales.</p>
+            <p className="mt-1 text-sm text-muted dark:text-slate-400">Revisa tu conexión e inténtalo de nuevo.</p>
+            <button onClick={fetchProfessionals} className="mt-4 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white cursor-pointer border-none">
+              Reintentar
+            </button>
           </div>
+        ) : (
+          <CredentialResults
+            professionals={professionals}
+            loading={loading}
+            empty={
+              <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-6 text-center">
+                <p className="font-semibold text-ink dark:text-slate-100">Aún no hay profesionales en este oficio.</p>
+                <p className="mt-1 text-sm text-muted dark:text-slate-400">Prueba con un oficio parecido o vuelve pronto.</p>
+                <div className="mt-4 flex flex-wrap justify-center gap-2">
+                  <Link to="/services" className="rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white">Ver todos los oficios</Link>
+                  <Link to="/register-professional" className="rounded-xl border border-slate-300 dark:border-slate-700 px-4 py-2.5 text-sm font-bold text-primary dark:text-teal-400">
+                    ¿Trabajas en esto? Regístrate
+                  </Link>
+                </div>
+              </div>
+            }
+          />
         )}
-        {error && <div className="text-center p-10 text-red-500">Error: {error}</div>}
-
-        {!loading && !error && professionals.length === 0 && (
-          <div className="text-center p-10 text-primary/70">
-            <p className="text-lg font-semibold">No hay profesionales disponibles</p>
-            <p className="text-sm">No se encontraron profesionales para la categoría "{categoryName}".</p>
-          </div>
-        )}
-
-        {!loading && !error && professionals.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-6">
-            {professionals.map(prof => <ProfessionalCard key={prof.id} professional={prof} />)}
-          </div>
-        )}
-      </main>
-    </>
+      </div>
+    </main>
   );
 }
 
