@@ -10,7 +10,7 @@ function StarInput({ rating, setRating }) {
             type="button"
             key={starValue}
             onClick={() => setRating(starValue)}
-            className="transition-transform duration-150 ease-in-out hover:scale-125"
+            className="transition-transform duration-150 ease-in-out"
           >
             <span
               className={`material-symbols-outlined !text-4xl ${

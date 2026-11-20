@@ -1416,7 +1416,7 @@ function AdminDashboardPage() {
                             src={getAbsoluteImageUrl(photo.image_url)} 
                             onError={handleGalleryError}
                             alt="Trabajo" 
-                            className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform" 
+                            className="w-full h-full object-cover cursor-pointer transition-transform" 
                             onClick={() => window.open(getAbsoluteImageUrl(photo.image_url), '_blank')}
                           />
                         </div>
@@ -1478,7 +1478,7 @@ function AdminDashboardPage() {
                              src={getAbsoluteImageUrl(post.image_url)} 
                              onError={handleGalleryError}
                              alt="Publicación" 
-                             className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform" 
+                             className="w-full h-full object-cover cursor-pointer transition-transform" 
                              onClick={() => window.open(getAbsoluteImageUrl(post.image_url), '_blank')}
                            />
                          </div>

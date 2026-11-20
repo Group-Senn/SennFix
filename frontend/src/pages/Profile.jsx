@@ -186,8 +186,8 @@ function Profile() {
                       </div>
                     )}
                     {isVerified && (
-                      <div className="bg-gradient-to-tr from-emerald-600 via-green-400 to-emerald-300 text-white p-1.5 rounded-full border-2 border-white/60 shadow-[0_2px_10px_rgba(16,185,129,0.5),inset_0_1px_0_rgba(255,255,255,0.4)]" title="Perfil Verificado">
-                        <span className="material-symbols-outlined text-sm block font-bold">verified</span>
+                      <div className="bg-primary text-white p-1.5 rounded-full border-2 border-white dark:border-background-dark" title="Verificado por SENN">
+                        <span className="material-symbols-outlined text-sm block" aria-hidden="true">verified</span>
                       </div>
                     )}
                   </div>
@@ -206,7 +206,7 @@ function Profile() {
               {professional.hashtags && (
                 <div className="flex flex-wrap gap-1.5 mt-2 justify-center md:justify-start">
                   {professional.hashtags.split(' ').map((tag, idx) => (
-                    <span key={idx} className="bg-primary/5 dark:bg-teal-500/10 text-primary/80 dark:text-teal-400 text-xs font-bold px-2.5 py-0.5 rounded-full border border-primary/10 dark:border-teal-500/20 shadow-sm transition-transform hover:scale-105">
+                    <span key={idx} className="bg-primary/5 dark:bg-teal-500/10 text-primary/80 dark:text-teal-400 text-xs font-bold px-2.5 py-0.5 rounded-full border border-primary/10 dark:border-teal-500/20 shadow-sm transition-transform">
                       {tag}
                     </span>
                   ))}
@@ -214,9 +214,9 @@ function Profile() {
               )}
 
               {isVerified && (
-                <div className="flex items-center gap-1.5 mt-3 bg-gradient-to-r from-emerald-500/20 via-green-400/10 to-teal-500/20 border border-green-500/30 px-3.5 py-1.5 rounded-full shadow-[0_2px_6px_rgba(16,185,129,0.15)]">
-                  <span className="material-symbols-outlined text-emerald-600 dark:text-emerald-400 text-sm font-bold">verified</span>
-                  <p className="text-emerald-700 dark:text-emerald-400 text-xs font-extrabold uppercase tracking-wider">Profesional Verificado</p>
+                <div className="verified-seal animate-stamp inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-md border-2 border-double border-primary dark:border-teal-400 text-primary dark:text-teal-400">
+                  <span className="material-symbols-outlined text-base" aria-hidden="true">verified</span>
+                  <p className="font-display text-xs font-extrabold uppercase tracking-wider">Verificado por SENN</p>
                 </div>
               )}
               <div className="flex flex-col items-center md:items-start gap-2 mt-4">

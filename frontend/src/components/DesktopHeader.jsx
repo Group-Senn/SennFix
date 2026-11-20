@@ -104,12 +104,12 @@ function DesktopHeader() {
         <img 
           src={logoNav} 
           alt="SENN Fix Logo" 
-          className="h-8 w-auto object-contain transition-transform group-hover:scale-105 dark:hidden" 
+          className="h-8 w-auto object-contain transition-transform dark:hidden" 
         />
         <img 
           src={logoNavDark} 
           alt="SENN Fix Logo" 
-          className="h-8 w-auto object-contain transition-transform group-hover:scale-105 hidden dark:block" 
+          className="h-8 w-auto object-contain transition-transform hidden dark:block" 
         />
         
         {/* Brand Text image responsive to dark mode */}
@@ -262,7 +262,7 @@ function DesktopHeader() {
                 src={getAbsoluteImageUrl(user.imageUrl)}
                 onError={handleImageError}
                 alt={user.name}
-                className="w-9 h-9 rounded-full border border-primary/10 object-cover shrink-0 transition-transform group-hover:scale-105"
+                className="w-9 h-9 rounded-full border border-primary/10 object-cover shrink-0 transition-transform"
               />
             ) : (
               <span className="material-symbols-outlined text-[36px] text-muted dark:text-slate-400 shrink-0">

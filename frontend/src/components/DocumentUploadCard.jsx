@@ -135,7 +135,7 @@ function DocumentUploadCard({
           onClick={handleTriggerUpload}
           className="w-full py-4 px-4 rounded-2xl border-2 border-dashed border-primary/20 dark:border-slate-700 hover:border-primary/50 dark:hover:border-teal-400/60 bg-slate-50/50 dark:bg-slate-900/30 hover:bg-primary/5 dark:hover:bg-slate-800/40 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer group text-left"
         >
-          <div className="size-9 rounded-full bg-primary/10 dark:bg-teal-400/10 text-primary dark:text-teal-400 flex items-center justify-center group-hover:scale-110 transition-transform">
+          <div className="size-9 rounded-full bg-primary/10 dark:bg-teal-400/10 text-primary dark:text-teal-400 flex items-center justify-center transition-transform">
             <span className="material-symbols-outlined text-xl">{icon}</span>
           </div>
           <div className="text-center">

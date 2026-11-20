@@ -15,12 +15,12 @@ function DesktopFooter() {
             <img
               src={javaLogo}
               alt="SENN Fix Logo"
-              className="h-40 w-auto object-contain transition-transform group-hover:scale-105 dark:hidden"
+              className="h-40 w-auto object-contain transition-transform dark:hidden"
             />
             <img
               src={javaLogoV2}
               alt="SENN Fix Logo"
-              className="h-40 w-auto object-contain transition-transform group-hover:scale-105 hidden dark:block"
+              className="h-40 w-auto object-contain transition-transform hidden dark:block"
             />
           </Link>
           <p className="text-xs leading-relaxed max-w-[200px] text-[#E8EDE9]/60 dark:text-slate-450 mt-1">

@@ -115,12 +115,12 @@ function Landing() {
             <img 
               src={logoNav} 
               alt="SENN Fix Logo" 
-              className="h-9 w-auto object-contain transition-transform group-hover:scale-105 dark:hidden" 
+              className="h-9 w-auto object-contain transition-transform dark:hidden" 
             />
             <img 
               src={logoNavDark} 
               alt="SENN Fix Logo" 
-              className="h-9 w-auto object-contain transition-transform group-hover:scale-105 hidden dark:block" 
+              className="h-9 w-auto object-contain transition-transform hidden dark:block" 
             />
             <img 
               src={letra} 
@@ -222,7 +222,7 @@ function Landing() {
                 <img 
                   src={heroHouse} 
                   alt="Tu hogar en buenas manos" 
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#043F3B]/25 via-transparent to-transparent"></div>
               </div>
@@ -251,7 +251,7 @@ function Landing() {
                     </div>
                   </div>
                   
-                  <div className="absolute -top-11 flex flex-col items-center drop-shadow-xl transform hover:scale-110 transition-transform">
+                  <div className="absolute -top-11 flex flex-col items-center drop-shadow-xl transform transition-transform">
                     <svg width="48" height="60" viewBox="0 0 46 58" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M23 0C10.2975 0 0 10.2975 0 23C0 37.5 23 58 23 58C23 58 46 37.5 46 23C46 10.2975 35.7025 0 23 0Z" fill="#043F3B" />
                       <circle cx="23" cy="22" r="8.5" fill="white" />
@@ -331,7 +331,7 @@ function Landing() {
 
                   <div className="col-span-5 flex items-center justify-center">
                     <div className="relative w-40 h-40 flex items-center justify-center">
-                      <div className="absolute inset-0 bg-[#E8F3EE] dark:bg-teal-900/20 rounded-full scale-95 transform group-hover:scale-105 transition-transform duration-500"></div>
+                      <div className="absolute inset-0 bg-[#E8F3EE] dark:bg-teal-900/20 rounded-full scale-95 transform transition-transform duration-500"></div>
 
                       <svg viewBox="0 0 160 160" className="w-full h-full relative z-10" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g className="transform -translate-y-1 transition-transform group-hover:translate-y-0">
@@ -431,7 +431,7 @@ function Landing() {
 
                   <div className="col-span-5 flex items-center justify-center">
                     <div className="relative w-40 h-40 flex items-center justify-center">
-                      <div className="absolute inset-0 bg-[#E8F3EE] dark:bg-teal-900/20 rounded-full scale-95 transform group-hover:scale-105 transition-transform duration-500"></div>
+                      <div className="absolute inset-0 bg-[#E8F3EE] dark:bg-teal-900/20 rounded-full scale-95 transform transition-transform duration-500"></div>
 
                       <svg viewBox="0 0 160 160" className="w-full h-full relative z-10" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M42 145 C42 118 55 106 72 104 L88 104 C105 106 118 118 118 145 Z" fill="#043F3B" />

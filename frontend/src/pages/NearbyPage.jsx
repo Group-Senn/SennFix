@@ -23,7 +23,7 @@ const createProIcon = (imageUrl, name) => {
     html: `
       <div class="relative flex flex-col items-center" style="width: 40px !important; height: 48px !important; display: flex !important; flex-direction: column !important; align-items: center !important;">
         <!-- Contenedor circular de foto con borde verde de la marca -->
-        <div class="rounded-full border-2 border-primary bg-white shadow-lg overflow-hidden flex items-center justify-center transition-all duration-200 transform hover:scale-110 active:scale-95"
+        <div class="rounded-full border-2 border-primary bg-white shadow-lg overflow-hidden flex items-center justify-center transition-all duration-200 transform active:scale-95"
              style="width: 40px !important; height: 40px !important; min-width: 40px !important; min-height: 40px !important; display: flex !important; align-items: center !important; justify-content: center !important; border-radius: 9999px !important; overflow: hidden !important;">
           <img src="${absoluteUrl}" onerror="this.onerror=null;this.src='${fallbackUrl}'" 
                style="width: 100% !important; height: 100% !important; max-width: 100% !important; max-height: 100% !important; object-fit: cover !important; display: block !important; border-radius: 9999px !important;" />
