@@ -31,7 +31,7 @@ function Landing() {
         <div className="flex flex-col items-center justify-center my-auto w-full py-4">
           
           {/* Tag Pill */}
-          <span className="inline-flex items-center px-3.5 py-1 rounded-full bg-[#E5EFEA] dark:bg-teal-500/10 text-[#043F3B] dark:text-[#A1D9CD] text-[10px] font-bold uppercase tracking-[0.2em] border border-[#043F3B]/10 dark:border-teal-500/20 mb-3 shadow-sm">
+          <span className="inline-flex items-center px-3.5 py-1 rounded-full bg-[#E5EFEA] dark:bg-teal-500/10 text-[#043F3B] dark:text-[#A1D9CD] text-xs font-bold uppercase tracking-[0.2em] border border-[#043F3B]/10 dark:border-teal-500/20 mb-3 shadow-sm">
             Soluciones a un toque
           </span>
 
@@ -67,7 +67,7 @@ function Landing() {
             <div className="flex items-center gap-3 text-left">
               <span className="material-symbols-outlined text-2xl">search</span>
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-emerald-200 font-semibold leading-none mb-1">Para Clientes</p>
+                <p className="text-xs uppercase tracking-wider text-emerald-200 font-semibold leading-none mb-1">Para Clientes</p>
                 <p className="text-base font-bold leading-none">Explorar Profesionales</p>
               </div>
             </div>
@@ -82,7 +82,7 @@ function Landing() {
             <div className="flex items-center gap-3 text-left">
               <span className="material-symbols-outlined text-2xl">construction</span>
               <div>
-                <p className="text-[10px] uppercase tracking-wider text-teal-200 font-semibold leading-none mb-1">Para Especialistas</p>
+                <p className="text-xs uppercase tracking-wider text-teal-200 font-semibold leading-none mb-1">Para Especialistas</p>
                 <p className="text-base font-bold leading-none">Registrarme como Profesional</p>
               </div>
             </div>
@@ -93,10 +93,10 @@ function Landing() {
           <div className="flex flex-col items-center gap-1 pt-6 text-[#043F3B]/60 dark:text-slate-400">
             <div className="flex justify-center items-center gap-2 w-full">
               <span className="h-px w-8 bg-[#043F3B]/20 dark:bg-slate-700"></span>
-              <span className="text-[11px] font-semibold uppercase tracking-widest text-[#043F3B]/70 dark:text-slate-300">By Group Senn</span>
+              <span className="text-xs font-semibold uppercase tracking-widest text-[#043F3B]/70 dark:text-slate-300">By Group Senn</span>
               <span className="h-px w-8 bg-[#043F3B]/20 dark:bg-slate-700"></span>
             </div>
-            <span className="text-[10px] italic font-medium tracking-wider dark:text-slate-400">The limit is yourself</span>
+            <span className="text-xs italic font-medium tracking-wider dark:text-slate-400">The limit is yourself</span>
           </div>
         </div>
 
@@ -234,9 +234,9 @@ function Landing() {
                 </div>
                 <div className="text-left">
                   <p className="text-xs font-extrabold text-[#043F3B] dark:text-white leading-tight">Profesionales</p>
-                  <p className="text-[11px] font-medium text-[#043F3B]/70 dark:text-slate-400 leading-tight">confiables</p>
+                  <p className="text-xs font-medium text-[#043F3B]/70 dark:text-slate-400 leading-tight">confiables</p>
                 </div>
-                <div className="w-5 h-5 rounded-full bg-[#043F3B] text-white flex items-center justify-center text-[10px] font-bold shadow-sm">
+                <div className="w-5 h-5 rounded-full bg-[#043F3B] text-white flex items-center justify-center text-xs font-bold shadow-sm">
                   ✓
                 </div>
               </div>
@@ -286,7 +286,7 @@ function Landing() {
 
               <div>
                 <div className="flex items-center justify-between mb-5">
-                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EAF3EF] dark:bg-slate-700 text-[#043F3B] dark:text-[#A1D9CD] text-[11px] font-bold uppercase tracking-wider border border-[#043F3B]/10 dark:border-slate-600">
+                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EAF3EF] dark:bg-slate-700 text-[#043F3B] dark:text-[#A1D9CD] text-xs font-bold uppercase tracking-wider border border-[#043F3B]/10 dark:border-slate-600">
                     <span className="material-symbols-outlined text-[15px]">person</span>
                     <span>Para Clientes</span>
                   </span>
@@ -386,7 +386,7 @@ function Landing() {
 
               <div>
                 <div className="flex items-center justify-between mb-5">
-                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EAF3EF] dark:bg-slate-700 text-[#043F3B] dark:text-[#A1D9CD] text-[11px] font-bold uppercase tracking-wider border border-[#043F3B]/10 dark:border-slate-600">
+                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EAF3EF] dark:bg-slate-700 text-[#043F3B] dark:text-[#A1D9CD] text-xs font-bold uppercase tracking-wider border border-[#043F3B]/10 dark:border-slate-600">
                     <span className="material-symbols-outlined text-[15px]">construction</span>
                     <span>Para Especialistas</span>
                   </span>
@@ -507,7 +507,7 @@ function Landing() {
             <span className="text-xs font-semibold uppercase tracking-widest text-[#043F3B]/70 dark:text-slate-300">By Group Senn</span>
             <span className="h-px w-12 bg-[#043F3B]/20 dark:bg-slate-700"></span>
           </div>
-          <span className="text-[11px] italic font-medium tracking-wider dark:text-slate-400 mt-1 block">
+          <span className="text-xs italic font-medium tracking-wider dark:text-slate-400 mt-1 block">
             The limit is yourself
           </span>
         </footer>

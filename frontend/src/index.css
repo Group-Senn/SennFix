@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    /* Titulares en Archivo; el resto hereda Inter */
+    h1, h2 {
+        font-family: theme('fontFamily.display');
+        letter-spacing: -0.01em;
+    }
+    /* Cifras de igual ancho: calificaciones, precios, fechas y códigos quedan alineados */
+    body {
+        font-variant-numeric: tabular-nums;
+    }
+}
+
 .senn-text-watermark {
     position: fixed;
     top: 50%;

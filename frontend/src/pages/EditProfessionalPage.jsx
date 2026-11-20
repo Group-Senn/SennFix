@@ -349,7 +349,7 @@ function EditProfessionalPage() {
                   className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200 text-sm" 
                 />
               </div>
-              <p className="text-[10px] text-muted dark:text-slate-450 mt-1 leading-tight">Añade palabras clave precedidas de # para destacar en servicios específicos.</p>
+              <p className="text-xs text-muted dark:text-slate-450 mt-1 leading-tight">Añade palabras clave precedidas de # para destacar en servicios específicos.</p>
             </div>
             <div>
               <label className="text-xs font-bold text-primary/85 dark:text-slate-350 block mb-1">Certificado FELCC/REJAP (Opcional)</label>

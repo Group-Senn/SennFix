@@ -522,7 +522,7 @@ function RegisterProfessionalPage() {
                         className="w-full px-4 py-3 bg-transparent text-primary dark:text-slate-100 border-none outline-none focus:ring-0 text-sm"
                       />
                     </div>
-                    <span className="text-[10px] text-muted dark:text-slate-450 block mt-1 leading-tight">
+                    <span className="text-xs text-muted dark:text-slate-450 block mt-1 leading-tight">
                       Ingrese los 8 dígitos de su celular. Se enviará un SMS para verificar.
                     </span>
                   </div>
@@ -583,7 +583,7 @@ function RegisterProfessionalPage() {
                       placeholder="ej: #carpinteriaFina #reparacionNeveras"
                     />
                   </div>
-                  <p className="text-[10px] text-muted dark:text-slate-450 mt-1 leading-tight">Añade palabras clave precedidas de # para destacar en servicios específicos.</p>
+                  <p className="text-xs text-muted dark:text-slate-450 mt-1 leading-tight">Añade palabras clave precedidas de # para destacar en servicios específicos.</p>
                 </div>
                 <div>
                   <label className="text-xs font-bold text-primary/85 dark:text-slate-350 block mb-1">Certificado FELCC/REJAP (Opcional)</label>
@@ -596,7 +596,7 @@ function RegisterProfessionalPage() {
                 {formData.has_store && (
                   <div className="space-y-2">
                     <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase block">Ubicación de la Tienda o Local</label>
-                    <p className="text-[11px] text-muted dark:text-slate-400 mb-2 leading-tight">Busca una dirección o arrastra el marcador en el mapa para mayor precisión.</p>
+                    <p className="text-xs text-muted dark:text-slate-400 mb-2 leading-tight">Busca una dirección o arrastra el marcador en el mapa para mayor precisión.</p>
                     <LocationPicker
                       onLocationChange={handleLocationChange}
                       address={formData.store_address}
@@ -617,7 +617,7 @@ function RegisterProfessionalPage() {
                     max="100"
                     className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
                   />
-                  <span className="text-[10px] text-muted dark:text-slate-450 block mt-1">Ej: 10 (km)</span>
+                  <span className="text-xs text-muted dark:text-slate-450 block mt-1">Ej: 10 (km)</span>
                 </div>
               </div>
             </fieldset>

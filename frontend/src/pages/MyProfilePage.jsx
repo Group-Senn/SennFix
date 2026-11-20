@@ -242,7 +242,7 @@ function UserDashboard({ user, login, logout }) {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-muted dark:text-slate-450 uppercase tracking-wider block mb-1.5">Nombre Completo <span className="text-red-500">*</span></label>
+                <label className="text-xs font-bold text-muted dark:text-slate-450 uppercase tracking-wider block mb-1.5">Nombre Completo <span className="text-red-500">*</span></label>
                 <input 
                   type="text" 
                   value={editName} 
@@ -253,7 +253,7 @@ function UserDashboard({ user, login, logout }) {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-muted dark:text-slate-450 uppercase tracking-wider block mb-1.5">Correo Electrónico <span className="text-red-500">*</span></label>
+                <label className="text-xs font-bold text-muted dark:text-slate-450 uppercase tracking-wider block mb-1.5">Correo Electrónico <span className="text-red-500">*</span></label>
                 <input 
                   type="email" 
                   value={editEmail} 
@@ -264,7 +264,7 @@ function UserDashboard({ user, login, logout }) {
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-muted dark:text-slate-455 uppercase tracking-wider block mb-1.5">Número de Celular</label>
+                <label className="text-xs font-bold text-muted dark:text-slate-455 uppercase tracking-wider block mb-1.5">Número de Celular</label>
                 <input 
                   type="tel" 
                   value={editPhone} 
@@ -361,7 +361,7 @@ function UserDashboard({ user, login, logout }) {
                         <span className="material-symbols-outlined text-muted dark:text-teal-450">photo_library</span>
                         Mi Galería de Trabajos
                       </h3>
-                      <p className="text-[11px] text-primary/70 dark:text-slate-350 mt-1">Sube hasta 6 fotos de tus trabajos anteriores para que los clientes las vean.</p>
+                      <p className="text-xs text-primary/70 dark:text-slate-350 mt-1">Sube hasta 6 fotos de tus trabajos anteriores para que los clientes las vean.</p>
                     </div>
                     
                     {portfolio.length < 6 && (
@@ -399,7 +399,7 @@ function UserDashboard({ user, login, logout }) {
                             <img src={getAbsoluteImageUrl(photo.image_url)} onError={handleGalleryError} alt="Trabajo" className="w-full h-full object-cover" />
                             
                             {/* Badge de Estado */}
-                            <span className={`absolute top-2 left-2 px-1.5 py-0.5 text-[9px] font-bold rounded shadow-sm ${badgeClass}`}>
+                            <span className={`absolute top-2 left-2 px-1.5 py-0.5 text-xs font-bold rounded shadow-sm ${badgeClass}`}>
                               {statusText}
                             </span>
 

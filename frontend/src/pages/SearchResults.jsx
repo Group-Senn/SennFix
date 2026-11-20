@@ -67,7 +67,7 @@ function SearchResults() {
         {!loading && !error && (
           <div className="my-6 flex justify-center">
             <div className="w-full bg-slate-50 dark:bg-slate-900 border border-primary/10 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm p-4 relative min-h-[90px] flex flex-col items-center justify-center">
-              <span className="absolute top-1 right-2 text-[9px] font-bold uppercase tracking-wider text-muted dark:text-slate-500 z-10">Publicidad</span>
+              <span className="absolute top-1 right-2 text-xs font-bold uppercase tracking-wider text-muted dark:text-slate-500 z-10">Publicidad</span>
               
               <ins className="adsbygoogle"
                    style={{ display: 'block', width: '100%', minHeight: '90px' }}

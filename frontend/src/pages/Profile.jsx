@@ -206,7 +206,7 @@ function Profile() {
               {professional.hashtags && (
                 <div className="flex flex-wrap gap-1.5 mt-2 justify-center md:justify-start">
                   {professional.hashtags.split(' ').map((tag, idx) => (
-                    <span key={idx} className="bg-primary/5 dark:bg-teal-500/10 text-primary/80 dark:text-teal-400 text-[11px] font-bold px-2.5 py-0.5 rounded-full border border-primary/10 dark:border-teal-500/20 shadow-sm transition-transform hover:scale-105">
+                    <span key={idx} className="bg-primary/5 dark:bg-teal-500/10 text-primary/80 dark:text-teal-400 text-xs font-bold px-2.5 py-0.5 rounded-full border border-primary/10 dark:border-teal-500/20 shadow-sm transition-transform hover:scale-105">
                       {tag}
                     </span>
                   ))}

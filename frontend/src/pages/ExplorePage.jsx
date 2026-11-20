@@ -142,15 +142,15 @@ function ExplorePage() {
   const getSponsorshipBadge = (level) => {
     if (level >= 100) {
       return (
-        <span className="bg-amber-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
-          <span className="material-symbols-outlined text-[10px]">workspace_premium</span>
+        <span className="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
+          <span className="material-symbols-outlined text-xs">workspace_premium</span>
           Patrocinado Oro
         </span>
       );
     } else if (level >= 50) {
       return (
-        <span className="bg-teal-500 text-white text-[9px] font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
-          <span className="material-symbols-outlined text-[10px]">star</span>
+        <span className="bg-teal-500 text-white text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5 shadow-sm">
+          <span className="material-symbols-outlined text-xs">star</span>
           Patrocinado
         </span>
       );
@@ -228,15 +228,15 @@ function ExplorePage() {
                 {/* Badges in Corners */}
                 {post.sponsorship_level > 0 && (
                   <div className="absolute top-2 left-2 z-10">
-                    <span className="bg-amber-500/90 text-white text-[9px] font-bold p-1 rounded-full flex items-center justify-center shadow-md" title="Publicación Patrocinada">
-                      <span className="material-symbols-outlined text-[10px]">campaign</span>
+                    <span className="bg-amber-500/90 text-white text-xs font-bold p-1 rounded-full flex items-center justify-center shadow-md" title="Publicación Patrocinada">
+                      <span className="material-symbols-outlined text-xs">campaign</span>
                     </span>
                   </div>
                 )}
                 {post.has_gold_seal && (
                   <div className="absolute top-2 right-2 z-10">
-                    <span className="bg-amber-400/95 text-white text-[9px] font-bold p-1 rounded-full flex items-center justify-center shadow-md" title="Profesional Sello de Oro">
-                      <span className="material-symbols-outlined text-[10px]">workspace_premium</span>
+                    <span className="bg-amber-400/95 text-white text-xs font-bold p-1 rounded-full flex items-center justify-center shadow-md" title="Profesional Sello de Oro">
+                      <span className="material-symbols-outlined text-xs">workspace_premium</span>
                     </span>
                   </div>
                 )}
@@ -244,8 +244,8 @@ function ExplorePage() {
                 {/* Hover Overlay */}
                 <div className="absolute inset-0 bg-black/45 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex flex-col justify-center items-center gap-1.5 p-2 text-white text-center">
                   <span className="font-bold text-xs truncate w-full">{post.professional_name}</span>
-                  <span className="text-[10px] opacity-90 truncate w-full">{post.specialty}</span>
-                  <div className="flex items-center gap-1 mt-1 text-[11px] font-bold">
+                  <span className="text-xs opacity-90 truncate w-full">{post.specialty}</span>
+                  <div className="flex items-center gap-1 mt-1 text-xs font-bold">
                     <span className="material-symbols-outlined text-xs text-red-500 fill-current">favorite</span>
                     <span>{post.likes_count}</span>
                   </div>
@@ -305,7 +305,7 @@ function ExplorePage() {
                         <h4 className="font-bold text-xs sm:text-sm text-primary dark:text-slate-100 flex items-center gap-1.5">
                           {selectedPost.professional_name}
                         </h4>
-                        <p className="text-[11px] text-muted dark:text-slate-400 font-semibold uppercase">{selectedPost.specialty}</p>
+                        <p className="text-xs text-muted dark:text-slate-400 font-semibold uppercase">{selectedPost.specialty}</p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -332,7 +332,7 @@ function ExplorePage() {
                         <span className="material-symbols-outlined text-sm fill-current">favorite</span>
                         <span>Dar Like</span>
                       </button>
-                      <span className="text-[11px] text-muted dark:text-slate-400 font-semibold">
+                      <span className="text-xs text-muted dark:text-slate-400 font-semibold">
                         A {selectedPost.likes_count} personas les gusta esto
                       </span>
                     </div>

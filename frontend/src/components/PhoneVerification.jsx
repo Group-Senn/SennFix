@@ -281,7 +281,7 @@ function PhoneVerificationModal({ phoneNumber, onVerified, onClose }) {
                     ? `Reenviar código en ${cooldown}s`
                     : codeSent ? 'Reenviar código por WhatsApp' : 'Enviar código por WhatsApp'}
                 </button>
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 text-center">
+                <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
                   El número debe tener WhatsApp activo. El código vence en 10 minutos.
                 </p>
               </div>

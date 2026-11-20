@@ -133,7 +133,7 @@ function SearchBar() {
               {/* Sección de Hashtags */}
               {suggestions.hashtags.length > 0 && (
                 <div className="p-3">
-                  <p className="text-[10px] font-bold text-muted dark:text-slate-500 uppercase tracking-wider mb-2">Servicios Especiales / Tags</p>
+                  <p className="text-xs font-bold text-muted dark:text-slate-500 uppercase tracking-wider mb-2">Servicios Especiales / Tags</p>
                   <div className="flex flex-wrap gap-2">
                     {suggestions.hashtags.map((tag, idx) => (
                       <button
@@ -152,7 +152,7 @@ function SearchBar() {
               {/* Sección de Servicios */}
               {suggestions.services.length > 0 && (
                 <div className="p-2">
-                  <p className="text-[10px] font-bold text-muted dark:text-slate-500 uppercase tracking-wider px-2 mb-1">Categorías de Servicios</p>
+                  <p className="text-xs font-bold text-muted dark:text-slate-500 uppercase tracking-wider px-2 mb-1">Categorías de Servicios</p>
                   {suggestions.services.map(service => (
                     <Link
                       key={service.id}
@@ -165,7 +165,7 @@ function SearchBar() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate m-0">{service.name}</p>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate m-0">{service.category}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate m-0">{service.category}</p>
                       </div>
                       <span className="material-symbols-outlined text-sm text-primary/30 dark:text-slate-500">chevron_right</span>
                     </Link>
@@ -176,7 +176,7 @@ function SearchBar() {
               {/* Sección de Profesionales */}
               {suggestions.professionals.length > 0 && (
                 <div className="p-2">
-                  <p className="text-[10px] font-bold text-muted dark:text-slate-500 uppercase tracking-wider px-2 mb-1">Profesionales</p>
+                  <p className="text-xs font-bold text-muted dark:text-slate-500 uppercase tracking-wider px-2 mb-1">Profesionales</p>
                   {suggestions.professionals.map(prof => (
                     <Link
                       key={prof.id}
@@ -197,7 +197,7 @@ function SearchBar() {
                             <span className="material-symbols-outlined text-xs text-green-600 dark:text-green-400" title="Verificado">verified</span>
                           )}
                         </div>
-                        <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate m-0">{prof.specialty || 'Profesional'}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate m-0">{prof.specialty || 'Profesional'}</p>
                       </div>
                       <div className="flex items-center gap-0.5 text-xs text-amber-500 font-bold shrink-0">
                         <span className="material-symbols-outlined text-sm font-fill">star</span>

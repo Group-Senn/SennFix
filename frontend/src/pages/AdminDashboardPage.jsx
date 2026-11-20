@@ -897,7 +897,7 @@ function AdminDashboardPage() {
                             <span className="material-symbols-outlined text-primary dark:text-teal-400">pin_drop</span>
                             <p className="text-xs font-bold text-primary/80 dark:text-slate-300 line-clamp-1">{item.zone.split(' ')[0]}</p>
                             <p className="text-lg font-bold font-display text-primary dark:text-slate-100">{item.count}</p>
-                            <p className="text-[10px] text-muted dark:text-slate-400 uppercase tracking-widest font-semibold">Profesionales</p>
+                            <p className="text-xs text-muted dark:text-slate-400 uppercase tracking-widest font-semibold">Profesionales</p>
                           </div>
                         ))
                       ) : (
@@ -1040,7 +1040,7 @@ function AdminDashboardPage() {
                         >
                           {isActive && <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary dark:bg-teal-500"></div>}
                           <div className="flex justify-between items-start mb-2">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded ${
                               item.account_status === 'pending'
                                 ? 'bg-yellow-500/10 text-yellow-600 dark:text-yellow-400'
                                 : item.account_status === 'active'
@@ -1049,7 +1049,7 @@ function AdminDashboardPage() {
                             }`}>
                               {item.account_status.toUpperCase()}
                             </span>
-                            <span className="text-[10px] text-on-surface-variant dark:text-slate-400 font-semibold">ID: {item.id}</span>
+                            <span className="text-xs text-on-surface-variant dark:text-slate-400 font-semibold">ID: {item.id}</span>
                           </div>
                           <h3 className="font-bold text-primary dark:text-slate-100 text-sm">{item.name}</h3>
                           <p className="text-xs text-on-surface-variant dark:text-slate-400 mt-1">
@@ -1408,7 +1408,7 @@ function AdminDashboardPage() {
                         <div className="p-4 border-b border-primary/5 dark:border-slate-850">
                           <p className="font-bold text-sm text-primary dark:text-slate-100">{photo.professional_name}</p>
                           <p className="text-xs text-muted dark:text-slate-450">{photo.professional_email}</p>
-                          <p className="text-[10px] text-muted dark:text-slate-500 mt-1">Subido el: {new Date(photo.created_at).toLocaleDateString('es-ES')}</p>
+                          <p className="text-xs text-muted dark:text-slate-500 mt-1">Subido el: {new Date(photo.created_at).toLocaleDateString('es-ES')}</p>
                         </div>
                         
                         <div className="relative aspect-video bg-slate-50 dark:bg-slate-950 overflow-hidden flex items-center justify-center">
@@ -1470,7 +1470,7 @@ function AdminDashboardPage() {
                         <div className="p-4 border-b border-primary/5 dark:border-slate-850">
                           <p className="font-bold text-sm text-primary dark:text-slate-100">{post.professional_name}</p>
                           <p className="text-xs text-muted dark:text-slate-455">{post.professional_email}</p>
-                          <p className="text-[10px] text-muted dark:text-slate-500 font-bold uppercase tracking-wide mt-1">{post.specialty}</p>
+                          <p className="text-xs text-muted dark:text-slate-500 font-bold uppercase tracking-wide mt-1">{post.specialty}</p>
                         </div>
                          
                          <div className="relative aspect-square bg-slate-50 dark:bg-slate-950 overflow-hidden flex items-center justify-center">
@@ -1531,7 +1531,7 @@ function AdminDashboardPage() {
                       <div key={ticket.id} className="bg-white dark:bg-slate-900 border border-primary/10 dark:border-slate-800 p-6 rounded-2xl shadow-sm space-y-4">
                         <div className="flex justify-between items-start flex-wrap gap-2">
                           <div>
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${ticket.status === 'open' ? 'bg-red-500/10 text-red-600 dark:text-red-400' : 'bg-green-500/10 text-green-600 dark:text-green-400'}`}>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded ${ticket.status === 'open' ? 'bg-red-500/10 text-red-600 dark:text-red-400' : 'bg-green-500/10 text-green-600 dark:text-green-400'}`}>
                               {ticket.status.toUpperCase()}
                             </span>
                             <h4 className="text-lg font-bold text-primary dark:text-slate-100 mt-2">Motivo: {ticket.reason}</h4>
@@ -1616,7 +1616,7 @@ function AdminDashboardPage() {
                       <div key={alertItem.id} className="bg-white dark:bg-slate-900 border border-primary/10 dark:border-slate-800 p-6 rounded-2xl shadow-sm space-y-4">
                         <div className="flex justify-between items-start flex-wrap gap-2">
                           <div className="flex items-center gap-2">
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${alertItem.status === 'open' ? 'bg-red-500/10 text-red-650 dark:text-red-400' : 'bg-green-500/10 text-green-600 dark:text-green-400'}`}>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded ${alertItem.status === 'open' ? 'bg-red-500/10 text-red-650 dark:text-red-400' : 'bg-green-500/10 text-green-600 dark:text-green-400'}`}>
                               {alertItem.status.toUpperCase()}
                             </span>
                             <span className="text-xs bg-primary/10 text-primary dark:bg-teal-500/10 dark:text-teal-400 px-2 py-0.5 rounded font-semibold capitalize">
@@ -1688,7 +1688,7 @@ function AdminDashboardPage() {
                   {/* Search Results list (if searching) */}
                   {searchChatQuery.trim().length > 0 ? (
                     <div className="space-y-2">
-                      <p className="text-[10px] text-muted dark:text-slate-400 uppercase font-bold tracking-widest px-1">Resultados de Búsqueda</p>
+                      <p className="text-xs text-muted dark:text-slate-400 uppercase font-bold tracking-widest px-1">Resultados de Búsqueda</p>
                       {filteredChatProsList.length === 0 ? (
                         <p className="text-xs italic text-slate-450 p-1">No se encontraron profesionales.</p>
                       ) : (
@@ -1704,7 +1704,7 @@ function AdminDashboardPage() {
                             <img src={getAbsoluteImageUrl(pro.imageUrl)} onError={handleImageError} alt={pro.name} className="w-9 h-9 rounded-full object-cover" />
                             <div>
                               <p className="text-xs font-bold text-primary dark:text-slate-100">{pro.name}</p>
-                              <p className="text-[10px] text-muted dark:text-slate-400">{pro.specialty}</p>
+                              <p className="text-xs text-muted dark:text-slate-400">{pro.specialty}</p>
                             </div>
                           </div>
                         ))
@@ -1713,7 +1713,7 @@ function AdminDashboardPage() {
                   ) : (
                     /* Open Conversations list */
                     <div className="space-y-2">
-                      <p className="text-[10px] text-muted dark:text-slate-400 uppercase font-bold tracking-widest px-1">Chats Abiertos</p>
+                      <p className="text-xs text-muted dark:text-slate-400 uppercase font-bold tracking-widest px-1">Chats Abiertos</p>
                       {adminChats.length === 0 ? (
                         <p className="text-xs italic text-slate-450 p-1">No hay conversaciones activas.</p>
                       ) : (
@@ -1738,11 +1738,11 @@ function AdminDashboardPage() {
                               <div className="flex-1 min-w-0">
                                 <div className="flex justify-between items-baseline mb-0.5">
                                   <p className="text-xs font-bold text-primary dark:text-slate-100 truncate">{chatItem.other_user_name}</p>
-                                  <span className="text-[9px] text-muted dark:text-slate-400 shrink-0">
+                                  <span className="text-xs text-muted dark:text-slate-400 shrink-0">
                                     {chatItem.last_message_time ? new Date(chatItem.last_message_time).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }) : ''}
                                   </span>
                                 </div>
-                                <p className="text-[10px] text-primary/70 dark:text-slate-400 truncate">{chatItem.last_message || 'Inicia una conversación'}</p>
+                                <p className="text-xs text-primary/70 dark:text-slate-400 truncate">{chatItem.last_message || 'Inicia una conversación'}</p>
                               </div>
                             </div>
                           );
@@ -1768,7 +1768,7 @@ function AdminDashboardPage() {
                         />
                         <div>
                           <p className="text-sm font-bold text-primary dark:text-slate-100">{activeConversationData.otherUser?.name}</p>
-                          <p className="text-[10px] text-muted dark:text-slate-400">Canal de Soporte / Mediación</p>
+                          <p className="text-xs text-muted dark:text-slate-400">Canal de Soporte / Mediación</p>
                         </div>
                       </div>
                       
@@ -1798,7 +1798,7 @@ function AdminDashboardPage() {
                                   : 'bg-white dark:bg-slate-900 border border-primary/5 dark:border-slate-800 text-primary dark:text-slate-100 rounded-bl-none'
                               }`}>
                                 <p>{msg.content}</p>
-                                <p className={`text-[8px] mt-1 text-right ${isMe ? 'text-white/60' : 'text-muted dark:text-slate-450'}`}>
+                                <p className={`text-xs mt-1 text-right ${isMe ? 'text-white/60' : 'text-muted dark:text-slate-450'}`}>
                                   {new Date(msg.created_at).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
                                 </p>
                               </div>

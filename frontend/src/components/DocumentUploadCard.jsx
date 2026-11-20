@@ -62,7 +62,7 @@ function DocumentUploadCard({
           {label} {required && <span className="text-red-500">*</span>}
         </label>
         {file && (
-          <span className="text-[10px] text-teal-600 dark:text-teal-400 font-semibold flex items-center gap-1">
+          <span className="text-xs text-teal-600 dark:text-teal-400 font-semibold flex items-center gap-1">
             <span className="material-symbols-outlined text-[13px]">check_circle</span>
             Cargado ({(file.size / 1024).toFixed(0)} KB)
           </span>
@@ -142,7 +142,7 @@ function DocumentUploadCard({
             <span className="text-xs font-bold text-primary dark:text-slate-200 group-hover:underline block">
               Subir foto del documento
             </span>
-            <span className="text-[10px] text-muted dark:text-slate-400 block mt-0.5">
+            <span className="text-xs text-muted dark:text-slate-400 block mt-0.5">
               {helpText}
             </span>
           </div>

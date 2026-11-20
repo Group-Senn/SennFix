@@ -277,7 +277,7 @@ function ChatRoomPage() {
           <div key={msg.id} className={`flex ${msg.sender_id === user.id ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-xs lg:max-w-md p-3 rounded-2xl ${msg.sender_id === user.id ? 'bg-primary text-white rounded-br-lg' : 'bg-white dark:bg-slate-700 text-primary dark:text-slate-100 rounded-bl-lg'}`}>
               <p>{msg.content}</p>
-              <p className={`text-[10px] mt-1 ${msg.sender_id === user.id ? 'text-white/70' : 'text-muted dark:text-slate-400'} text-right`}>
+              <p className={`text-xs mt-1 ${msg.sender_id === user.id ? 'text-white/70' : 'text-muted dark:text-slate-400'} text-right`}>
                 {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
             </div>

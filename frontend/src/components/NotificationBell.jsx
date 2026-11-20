@@ -78,7 +78,7 @@ function NotificationBell() {
       >
         <span className="material-symbols-outlined text-[24px]">notifications</span>
         {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-sm animate-pulse">
+          <span className="absolute -top-0.5 -right-0.5 min-w-5 h-5 px-1 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm animate-pulse">
             {unreadCount}
           </span>
         )}
@@ -96,7 +96,7 @@ function NotificationBell() {
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="text-[11px] text-primary dark:text-teal-400 font-bold hover:underline bg-transparent border-none cursor-pointer"
+                className="text-xs text-primary dark:text-teal-400 font-bold hover:underline bg-transparent border-none cursor-pointer"
               >
                 Marcar todas como leídas
               </button>
@@ -130,7 +130,7 @@ function NotificationBell() {
                     <div className="flex-1 space-y-0.5">
                       <div className="flex justify-between items-start gap-1">
                         <h4 className="text-xs text-primary dark:text-slate-100 font-bold leading-tight">{notif.title}</h4>
-                        <span className="text-[9px] text-muted dark:text-slate-450 whitespace-nowrap shrink-0">{formatTime(notif.created_at)}</span>
+                        <span className="text-xs text-muted dark:text-slate-450 whitespace-nowrap shrink-0">{formatTime(notif.created_at)}</span>
                       </div>
                       <p className="text-xs text-primary/70 dark:text-slate-350 leading-tight pr-2">{notif.content}</p>
                     </div>

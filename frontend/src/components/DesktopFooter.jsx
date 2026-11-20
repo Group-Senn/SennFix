@@ -71,7 +71,7 @@ function DesktopFooter() {
       </div>
 
       {/* Bottom bar */}
-      <div className="max-w-6xl mx-auto border-t border-white/10 dark:border-slate-800 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] text-[#E8EDE9]/40 dark:text-slate-500 font-medium">
+      <div className="max-w-6xl mx-auto border-t border-white/10 dark:border-slate-800 mt-10 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-[#E8EDE9]/40 dark:text-slate-500 font-medium">
         <span>&copy; {new Date().getFullYear()} Group Senn. Todos los derechos reservados.</span>
         <span className="italic tracking-wider uppercase">The limit is yourself</span>
       </div>

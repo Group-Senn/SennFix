@@ -80,9 +80,9 @@ export default {
         "green": { 600: "#1A7F4B" },
       },
       fontFamily: {
-        "display": ["Outfit", "sans-serif"],
-        "sans": ["Inter", "sans-serif"],
-        "handwriting": ["Caveat", "cursive"]
+        // Archivo (sans de rótulo) solo para titulares; Inter para todo lo demás
+        "display": ["Archivo", "Inter", "system-ui", "sans-serif"],
+        "sans": ["Inter", "system-ui", "-apple-system", "Segoe UI", "Roboto", "sans-serif"]
       },
       borderRadius: {
         "sm": "0.25rem",
