@@ -1,543 +1,207 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import javaLogo from '../assets/JAVA LOGO.svg';
-import javaLogoV2 from '../assets/JAVA LOGO V2.svg';
 import logoNav from '../assets/logoNav.svg';
 import logoNavDark from '../assets/logoNavDark.svg';
 import letra from '../assets/letra.svg';
 import letraDark from '../assets/letraDark.svg';
-import heroHouse from '../assets/hero-house.jpg';
 import ThemeSwitcher from '../components/ThemeSwitcher';
+import SearchBar from '../components/SearchBar';
+import ProfessionalCredential from '../components/ProfessionalCredential';
+
+// Oficios más pedidos en el hogar; el nombre debe coincidir con el de la base de datos
+const POPULAR_TRADES = [
+  { name: 'Plomero / Fontanero', label: 'Plomero', icon: 'plumbing' },
+  { name: 'Electricista (Baja Tensión / Residencial)', label: 'Electricista', icon: 'electrical_services' },
+  { name: 'Albañil / Maestro de Obra', label: 'Albañil', icon: 'construction' },
+  { name: 'Limpieza de Casas / Hogar', label: 'Limpieza', icon: 'cleaning_services' },
+  { name: 'Pintor Domiciliario', label: 'Pintor', icon: 'format_paint' },
+  { name: 'Gasista Domiciliario', label: 'Gasista', icon: 'propane' },
+  { name: 'Instalador de Cerrajería / Cerrajero', label: 'Cerrajero', icon: 'lock_open' },
+  { name: 'Jardinero', label: 'Jardinero', icon: 'yard' },
+];
+
+const STEPS = [
+  { title: 'Busca el oficio', text: 'Escribe lo que necesitas o elige un oficio. Te mostramos a quienes trabajan en Santa Cruz.' },
+  { title: 'Revisa su credencial', text: 'Mira si está verificado, sus reseñas y sus trabajos antes de escribirle.' },
+  { title: 'Acuerda por chat', text: 'Explícale el trabajo, pídele un precio y acuerden el día. Sin intermediarios.' },
+];
 
 function Landing() {
+  const [professionals, setProfessionals] = useState(null);
+
+  useEffect(() => {
+    fetch(`${window.API_URL}/api/professionals`)
+      .then(res => (res.ok ? res.json() : []))
+      .then(list => {
+        // Primero verificados, luego disponibles ahora, luego mejor calificados
+        const sorted = [...list].sort((a, b) =>
+          (b.verified - a.verified) || (b.is_online - a.is_online) || ((b.rating || 0) - (a.rating || 0))
+        );
+        setProfessionals(sorted.slice(0, 4));
+      })
+      .catch(() => setProfessionals([]));
+  }, []);
+
   return (
-    <div className="min-h-screen w-full bg-[#F5F8F6] dark:bg-[#0F1614] text-[#2C2B27] dark:text-[#C0C9C4] flex flex-col justify-between relative overflow-x-hidden transition-colors duration-300 font-sans selection:bg-[#043F3B] selection:text-white">
-      
-      {/* Glows y fondos orgánicos sutiles */}
-      <div className="absolute top-0 left-0 w-[500px] h-[500px] bg-[#043F3B]/5 dark:bg-teal-500/5 rounded-full blur-3xl pointer-events-none -translate-x-1/3 -translate-y-1/3" />
-      <div className="absolute top-1/4 right-0 w-[600px] h-[600px] bg-[#2F6E63]/5 dark:bg-emerald-500/5 rounded-full blur-3xl pointer-events-none translate-x-1/4" />
-
-      {/* ============================================================ */}
-      {/* 📱 VISTA MÓVIL (Pantallas < md: Ultra limpia, directa y ágil)  */}
-      {/* ============================================================ */}
-      <div className="flex md:hidden flex-col justify-between min-h-screen px-6 py-6 text-center z-10 relative">
-        
-        {/* Top bar móvil: Solo el selector de modo oscuro/claro */}
-        <div className="w-full flex justify-end items-center">
+    <div className="min-h-screen w-full flex flex-col bg-background-light dark:bg-background-dark text-ink dark:text-slate-100">
+      <header className="w-full max-w-6xl mx-auto px-4 md:px-8 py-4 flex items-center justify-between">
+        <Link to="/" className="flex shrink-0 items-center gap-2" aria-label="SENN Fix, inicio">
+          <img src={logoNav} alt="" className="h-8 w-auto dark:hidden" />
+          <img src={logoNavDark} alt="" className="h-8 w-auto hidden dark:block" />
+          <img src={letra} alt="" className="h-5 w-auto dark:hidden" />
+          <img src={letraDark} alt="" className="h-5 w-auto hidden dark:block" />
+        </Link>
+        <div className="flex shrink-0 items-center gap-2 md:gap-3">
           <ThemeSwitcher />
+          <Link
+            to="/login"
+            className="whitespace-nowrap px-4 py-2 rounded-xl text-sm font-bold text-primary dark:text-teal-400 border border-slate-300 dark:border-slate-700 hover:bg-white dark:hover:bg-slate-800 transition-colors"
+          >
+            Iniciar sesión
+          </Link>
         </div>
+      </header>
 
-        {/* Contenido Central Móvil */}
-        <div className="flex flex-col items-center justify-center my-auto w-full py-4">
-          
-          {/* Tag Pill */}
-          <span className="inline-flex items-center px-3.5 py-1 rounded-full bg-[#E5EFEA] dark:bg-teal-500/10 text-[#043F3B] dark:text-[#A1D9CD] text-xs font-bold uppercase tracking-[0.2em] border border-[#043F3B]/10 dark:border-teal-500/20 mb-3 shadow-sm">
-            Soluciones a un toque
-          </span>
-
-          {/* Frase / Titular */}
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#043F3B] dark:text-white tracking-tight leading-snug font-display px-2 mb-4">
-            ¿Qué deseas hacer hoy en <span className="text-[#043F3B] dark:text-[#53A599]">SENN Fix</span>?
+      <main className="flex-1">
+        {/* Búsqueda: lo primero que alguien viene a hacer */}
+        <section className="max-w-6xl mx-auto px-4 md:px-8 pt-8 pb-12 md:pt-16 md:pb-20">
+          <h1 className="font-display text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.05] text-primary dark:text-white max-w-3xl">
+            ¿Qué necesitas arreglar hoy?
           </h1>
-
-          {/* JAVA LOGO */}
-          <div className="w-full flex items-center justify-center my-2">
-            <img 
-              src={javaLogo} 
-              alt="SENN Fix Logo" 
-              className="w-4/5 max-w-[230px] aspect-square object-contain mx-auto transition-all dark:hidden drop-shadow-sm" 
-            />
-            <img 
-              src={javaLogoV2} 
-              alt="SENN Fix Logo" 
-              className="w-4/5 max-w-[230px] aspect-square object-contain mx-auto transition-all hidden dark:block drop-shadow-sm" 
-            />
+          <p className="mt-4 text-lg text-muted dark:text-slate-300 max-w-xl">
+            Plomeros, electricistas, albañiles y más en Santa Cruz. Revisa la credencial de cada uno antes de escribirle.
+          </p>
+          <div className="max-w-2xl">
+            <SearchBar />
           </div>
-
-        </div>
-
-        {/* Botones de Acción Móvil */}
-        <div className="w-full max-w-sm mx-auto space-y-3.5 pt-2 pb-4">
-          
-          {/* Botón 1: Explorar Profesionales (Para Clientes) */}
-          <Link
-            to="/home"
-            className="w-full py-4 px-6 rounded-2xl bg-[#043F3B] hover:bg-[#07534E] text-white font-bold text-base flex items-center justify-between shadow-lg shadow-[#043F3B]/20 transition-all active:scale-[0.98] no-underline"
-          >
-            <div className="flex items-center gap-3 text-left">
-              <span className="material-symbols-outlined text-2xl">search</span>
-              <div>
-                <p className="text-xs uppercase tracking-wider text-emerald-200 font-semibold leading-none mb-1">Para Clientes</p>
-                <p className="text-base font-bold leading-none">Explorar Profesionales</p>
-              </div>
-            </div>
-            <span className="material-symbols-outlined text-xl">arrow_forward</span>
-          </Link>
-
-          {/* Botón 2: Registrarme como Profesional (Para Especialistas) */}
-          <Link
-            to="/register-professional"
-            className="w-full py-4 px-6 rounded-2xl bg-[#10594F] hover:bg-[#0D4A41] text-white font-bold text-base flex items-center justify-between shadow-lg shadow-[#10594F]/20 transition-all active:scale-[0.98] no-underline"
-          >
-            <div className="flex items-center gap-3 text-left">
-              <span className="material-symbols-outlined text-2xl">construction</span>
-              <div>
-                <p className="text-xs uppercase tracking-wider text-teal-200 font-semibold leading-none mb-1">Para Especialistas</p>
-                <p className="text-base font-bold leading-none">Registrarme como Profesional</p>
-              </div>
-            </div>
-            <span className="material-symbols-outlined text-xl">arrow_forward</span>
-          </Link>
-
-          {/* Footer Móvil */}
-          <div className="flex flex-col items-center gap-1 pt-6 text-[#043F3B]/60 dark:text-slate-400">
-            <div className="flex justify-center items-center gap-2 w-full">
-              <span className="h-px w-8 bg-[#043F3B]/20 dark:bg-slate-700"></span>
-              <span className="text-xs font-semibold uppercase tracking-widest text-[#043F3B]/70 dark:text-slate-300">By Group Senn</span>
-              <span className="h-px w-8 bg-[#043F3B]/20 dark:bg-slate-700"></span>
-            </div>
-            <span className="text-xs italic font-medium tracking-wider dark:text-slate-400">The limit is yourself</span>
-          </div>
-        </div>
-
-      </div>
-
-
-      {/* ============================================================ */}
-      {/* 💻 VISTA DESKTOP (Pantallas >= md: Experiencia completa)       */}
-      {/* ============================================================ */}
-      <div className="hidden md:flex flex-col justify-between min-h-screen w-full relative z-10">
-        
-        {/* 1. Header Desktop */}
-        <header className="w-full max-w-7xl mx-auto px-8 lg:px-12 py-6 flex items-center justify-between z-20 relative">
-          {/* Brand Logo */}
-          <Link to="/" className="flex items-center gap-3 group">
-            <img 
-              src={logoNav} 
-              alt="SENN Fix Logo" 
-              className="h-9 w-auto object-contain transition-transform dark:hidden" 
-            />
-            <img 
-              src={logoNavDark} 
-              alt="SENN Fix Logo" 
-              className="h-9 w-auto object-contain transition-transform hidden dark:block" 
-            />
-            <img 
-              src={letra} 
-              alt="SENN Fix" 
-              className="h-6 w-auto object-contain dark:hidden" 
-            />
-            <img 
-              src={letraDark} 
-              alt="SENN Fix" 
-              className="h-6 w-auto object-contain hidden dark:block" 
-            />
-          </Link>
-
-          {/* Header Right Actions */}
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#EAF3EF] dark:bg-[#1F2C26] border border-[#043F3B]/10 dark:border-slate-700 text-xs font-semibold text-[#043F3B] dark:text-[#A1D9CD] shadow-sm">
-              <span className="material-symbols-outlined text-[16px] text-[#043F3B] dark:text-teal-400">location_on</span>
-              <span>Plataforma líder en Santa Cruz</span>
-            </div>
-
-            <ThemeSwitcher />
-
-            <Link 
-              to="/login" 
-              className="px-5 py-2.5 rounded-2xl bg-white dark:bg-[#1F2C26] text-[#043F3B] dark:text-[#A1D9CD] font-bold text-sm border border-[#043F3B]/15 dark:border-slate-700 shadow-sm hover:shadow-md hover:bg-slate-50 dark:hover:bg-slate-750 transition-all flex items-center gap-1.5 cursor-pointer no-underline"
-            >
-              <span className="material-symbols-outlined text-[18px]">login</span>
-              <span>Iniciar Sesión</span>
-            </Link>
-          </div>
-        </header>
-
-        {/* 2. Main Desktop Content */}
-        <main className="flex-1 w-full max-w-7xl mx-auto px-8 lg:px-12 py-6 flex flex-col justify-center z-10 relative">
-          
-          {/* Hero Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center mb-10 lg:mb-14">
-            
-            {/* Left Text Block */}
-            <div className="lg:col-span-7 flex flex-col items-start text-left space-y-5">
-              
-              <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#E5EFEA] dark:bg-teal-500/10 text-[#043F3B] dark:text-[#A1D9CD] text-xs font-bold uppercase tracking-[0.2em] border border-[#043F3B]/10 dark:border-teal-500/20 shadow-sm">
-                Soluciones a un toque
-              </span>
-
-              <h1 className="text-4xl lg:text-5xl font-extrabold text-[#043F3B] dark:text-white tracking-tight leading-[1.15] font-display">
-                ¿Qué deseas hacer hoy en <span className="text-[#043F3B] dark:text-[#53A599]">SENN Fix</span>?
-              </h1>
-
-              <p className="text-base lg:text-lg text-[#043F3B]/75 dark:text-slate-300 leading-relaxed max-w-xl font-normal">
-                Conectamos las necesidades de tu hogar y oficina con los mejores profesionales y técnicos especializados.
-              </p>
-
-              <div className="pt-2 flex flex-wrap items-center gap-6 text-sm font-semibold text-[#043F3B]/80 dark:text-slate-300">
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[#043F3B] dark:text-teal-400 text-lg">shield</span>
-                  <span>Profesionales verificados</span>
-                </div>
-                <div className="w-1 h-1 rounded-full bg-[#043F3B]/30 dark:bg-slate-600"></div>
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[#043F3B] dark:text-teal-400 text-lg">bolt</span>
-                  <span>Respuestas rápidas</span>
-                </div>
-                <div className="w-1 h-1 rounded-full bg-[#043F3B]/30 dark:bg-slate-600"></div>
-                <div className="flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[#043F3B] dark:text-teal-400 text-lg">location_on</span>
-                  <span>Cobertura en toda Santa Cruz</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Visual Graphic (Casa + Badges + Pin Agrandado) */}
-            <div className="lg:col-span-5 relative flex items-center justify-end pt-12 pb-8 lg:py-6">
-              
-              <div className="absolute inset-0 bg-gradient-to-tr from-[#043F3B]/10 to-teal-500/10 dark:from-teal-900/20 dark:to-emerald-900/20 rounded-[3rem] filter blur-2xl -z-10"></div>
-
-              {/* Handwritten Label + Curved Arrow */}
-              <div className="absolute -top-8 -left-6 lg:-left-10 z-30 flex flex-col items-start select-none pointer-events-none">
-                <span className="font-handwriting text-2xl lg:text-3xl text-[#043F3B] dark:text-[#A1D9CD] font-bold -rotate-6 drop-shadow-sm leading-tight">
-                  Tu hogar <br />
-                  <span className="ml-3">en buenas manos</span>
-                </span>
-                <svg 
-                  className="w-14 h-9 text-[#043F3B] dark:text-[#A1D9CD] ml-16 -mt-1 opacity-85" 
-                  viewBox="0 0 60 40" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2.5" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
+          <ul className="mt-5 flex flex-wrap gap-2" aria-label="Oficios más pedidos">
+            {POPULAR_TRADES.map(trade => (
+              <li key={trade.name}>
+                <Link
+                  to={`/services/${trade.name}`}
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-semibold text-ink dark:text-slate-200 hover:border-primary dark:hover:border-teal-400 transition-colors"
                 >
-                  <path d="M 8 5 C 22 22, 38 28, 52 24" />
-                  <path d="M 42 16 L 53 24 L 44 32" />
-                </svg>
-              </div>
+                  <span className="material-symbols-outlined text-lg text-primary dark:text-teal-400" aria-hidden="true">{trade.icon}</span>
+                  {trade.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-              {/* House Container */}
-              <div className="relative w-full max-w-[410px] aspect-[4/3] rounded-[2.8rem] overflow-hidden shadow-2xl border-4 border-white/90 dark:border-slate-700/90 group">
-                <img 
-                  src={heroHouse} 
-                  alt="Tu hogar en buenas manos" 
-                  className="w-full h-full object-cover transition-transform duration-700"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#043F3B]/25 via-transparent to-transparent"></div>
-              </div>
-
-              {/* Floating Badge */}
-              <div className="absolute top-1 -right-4 z-30 bg-white/95 dark:bg-[#1F2C26]/95 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-xl border border-[#043F3B]/10 dark:border-slate-700 flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-[#EAF3EF] dark:bg-teal-500/20 flex items-center justify-center text-[#043F3B] dark:text-teal-400">
-                  <span className="material-symbols-outlined text-[18px]">verified_user</span>
-                </div>
-                <div className="text-left">
-                  <p className="text-xs font-extrabold text-[#043F3B] dark:text-white leading-tight">Profesionales</p>
-                  <p className="text-xs font-medium text-[#043F3B]/70 dark:text-slate-400 leading-tight">confiables</p>
-                </div>
-                <div className="w-5 h-5 rounded-full bg-[#043F3B] text-white flex items-center justify-center text-xs font-bold shadow-sm">
-                  ✓
-                </div>
-              </div>
-
-              {/* Icono de ubicación agrandado y con ondas de radar */}
-              <div className="absolute -bottom-10 right-2 z-30 flex flex-col items-center select-none pointer-events-none">
-                <div className="relative flex items-center justify-center">
-                  <div className="absolute w-36 h-14 rounded-[100%] border-2 border-[#043F3B]/25 dark:border-teal-400/35 animate-ping" />
-                  <div className="w-32 h-12 rounded-[100%] border border-[#043F3B]/30 dark:border-teal-400/40 bg-[#E8F3EE]/85 dark:bg-teal-900/40 flex items-center justify-center shadow-md">
-                    <div className="w-22 h-8 rounded-[100%] border border-[#043F3B]/40 dark:border-teal-400/50 bg-[#D7ECE2] dark:bg-teal-800/50 flex items-center justify-center">
-                      <div className="w-12 h-4 rounded-[100%] bg-[#043F3B]/25 dark:bg-teal-400/35"></div>
-                    </div>
-                  </div>
-                  
-                  <div className="absolute -top-11 flex flex-col items-center drop-shadow-xl transform transition-transform">
-                    <svg width="48" height="60" viewBox="0 0 46 58" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M23 0C10.2975 0 0 10.2975 0 23C0 37.5 23 58 23 58C23 58 46 37.5 46 23C46 10.2975 35.7025 0 23 0Z" fill="#043F3B" />
-                      <circle cx="23" cy="22" r="8.5" fill="white" />
-                    </svg>
-                  </div>
-                </div>
-              </div>
-
-              {/* Floating botanical & sparkle doodles */}
-              <div className="absolute -bottom-2 -left-3 text-[#043F3B]/35 dark:text-teal-400/35 pointer-events-none">
-                <svg width="45" height="45" viewBox="0 0 50 50" fill="currentColor">
-                  <path d="M10,40 Q25,35 30,15 Q15,20 10,40 Z" />
-                  <path d="M15,42 Q32,45 42,28 Q28,28 15,42 Z" opacity="0.6" />
-                </svg>
-              </div>
-              <div className="absolute top-2 right-1/2 text-[#043F3B]/30 dark:text-teal-400/30 pointer-events-none">
-                <svg width="30" height="30" viewBox="0 0 40 40" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M20 5 L20 15 M30 10 L25 15 M35 20 L25 20" strokeLinecap="round" />
-                </svg>
-              </div>
-            </div>
-
+        {/* Personas reales, con su credencial */}
+        <section className="max-w-6xl mx-auto px-4 md:px-8 pb-16">
+          <div className="flex items-end justify-between gap-4 mb-5">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-primary dark:text-white">Profesionales en Santa Cruz</h2>
+            <Link to="/home" className="shrink-0 text-sm font-bold text-primary dark:text-teal-400 hover:underline">Ver todos</Link>
           </div>
+          {professionals === null ? (
+            <div className="flex gap-3 overflow-hidden lg:grid lg:grid-cols-4 lg:gap-4" aria-busy="true" aria-label="Cargando profesionales">
+              {[0, 1, 2, 3].map(i => (
+                <div key={i} className="h-56 w-64 shrink-0 lg:w-auto rounded-2xl bg-slate-200/70 dark:bg-slate-800 animate-pulse" />
+              ))}
+            </div>
+          ) : professionals.length > 0 ? (
+            <ul className="flex gap-3 overflow-x-auto snap-x snap-mandatory -mx-4 px-4 pb-2 lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:mx-0 lg:px-0 lg:pb-0">
+              {professionals.map(pro => (
+                <li key={pro.id} className="w-64 shrink-0 snap-start lg:w-auto"><ProfessionalCredential professional={pro} /></li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-muted dark:text-slate-400">
+              Pronto verás aquí a los profesionales de tu zona. <Link to="/home" className="font-bold text-primary dark:text-teal-400 underline">Explorar oficios</Link>
+            </p>
+          )}
+        </section>
 
-
-          {/* 3. Las 2 Tarjetas Interactivas en Desktop */}
-          <div className="grid grid-cols-2 gap-8 w-full">
-            
-            {/* TARJETA 1: BUSCAR AYUDA */}
-            <div className="group bg-white/95 dark:bg-[#1F2C26]/95 backdrop-blur-md rounded-[2.5rem] p-8 lg:p-9 border border-[#E2EBE5] dark:border-slate-700 shadow-[0_8px_30px_rgba(4,63,59,0.04)] hover:shadow-xl hover:border-[#043F3B]/30 dark:hover:border-teal-500/40 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
-              <div className="absolute -top-16 -right-16 w-32 h-32 bg-[#EAF3EF] dark:bg-teal-500/5 rounded-full pointer-events-none"></div>
-
-              <div>
-                <div className="flex items-center justify-between mb-5">
-                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EAF3EF] dark:bg-slate-700 text-[#043F3B] dark:text-[#A1D9CD] text-xs font-bold uppercase tracking-wider border border-[#043F3B]/10 dark:border-slate-600">
-                    <span className="material-symbols-outlined text-[15px]">person</span>
-                    <span>Para Clientes</span>
-                  </span>
-                </div>
-
-                <h2 className="text-2xl lg:text-3xl font-extrabold text-[#043F3B] dark:text-white mb-3 font-display">
-                  Buscar Ayuda y Servicios
-                </h2>
-                <p className="text-sm text-[#043F3B]/75 dark:text-slate-300 mb-6 leading-relaxed">
-                  Encuentra plomeros, electricistas, pintores, arquitectos y expertos calificados cerca de ti con presupuestos transparentes y reseñas verificadas.
-                </p>
-
-                <div className="grid grid-cols-12 gap-6 items-center mb-8">
-                  <div className="col-span-7 space-y-3.5">
-                    <div className="flex items-start gap-2.5">
-                      <div className="w-5 h-5 rounded-full bg-[#043F3B] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                        <span className="material-symbols-outlined text-[13px] font-bold">check</span>
-                      </div>
-                      <span className="text-[13px] font-semibold text-[#043F3B]/85 dark:text-slate-200">
-                        Mapa y ubicación en tiempo real cerca de ti
-                      </span>
-                    </div>
-
-                    <div className="flex items-start gap-2.5">
-                      <div className="w-5 h-5 rounded-full bg-[#043F3B] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                        <span className="material-symbols-outlined text-[13px] font-bold">check</span>
-                      </div>
-                      <span className="text-[13px] font-semibold text-[#043F3B]/85 dark:text-slate-200">
-                        Profesionales con perfiles y reseñas reales
-                      </span>
-                    </div>
-
-                    <div className="flex items-start gap-2.5">
-                      <div className="w-5 h-5 rounded-full bg-[#043F3B] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                        <span className="material-symbols-outlined text-[13px] font-bold">check</span>
-                      </div>
-                      <span className="text-[13px] font-semibold text-[#043F3B]/85 dark:text-slate-200">
-                        Chat directo y cotización inmediata
-                      </span>
-                    </div>
+        {/* Cómo funciona: aquí la numeración sí es una secuencia */}
+        <section className="bg-white dark:bg-slate-800/60 border-y border-slate-200 dark:border-slate-800">
+          <div className="max-w-6xl mx-auto px-4 md:px-8 py-14">
+            <h2 className="text-2xl md:text-3xl font-extrabold text-primary dark:text-white mb-8">Cómo funciona</h2>
+            <ol className="grid md:grid-cols-3 gap-8">
+              {STEPS.map((step, i) => (
+                <li key={step.title} className="flex gap-4">
+                  <span className="font-display text-4xl font-extrabold leading-none text-primary/25 dark:text-teal-400/40" aria-hidden="true">{i + 1}</span>
+                  <div>
+                    <h3 className="font-display text-lg font-bold text-ink dark:text-slate-100">{step.title}</h3>
+                    <p className="mt-1 text-muted dark:text-slate-400">{step.text}</p>
                   </div>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
 
-                  <div className="col-span-5 flex items-center justify-center">
-                    <div className="relative w-40 h-40 flex items-center justify-center">
-                      <div className="absolute inset-0 bg-[#E8F3EE] dark:bg-teal-900/20 rounded-full scale-95 transform transition-transform duration-500"></div>
-
-                      <svg viewBox="0 0 160 160" className="w-full h-full relative z-10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <g className="transform -translate-y-1 transition-transform group-hover:translate-y-0">
-                          <circle cx="125" cy="35" r="16" fill="#D2E8DE" />
-                          <path d="M120 30 H130 V34 H120 Z M122 34 V38 H125 M127 42 C127 44 125 45 125 45 C125 45 123 44 123 42 C123 41 125 39 125 39 C125 39 127 41 127 42 Z" stroke="#043F3B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="#043F3B" />
-                        </g>
-
-                        <g className="transform translate-x-1 transition-transform group-hover:translate-x-0">
-                          <circle cx="140" cy="80" r="14" fill="#D2E8DE" />
-                          <path d="M141 72 L136 81 H141 L139 88 L145 79 H140 L141 72 Z" fill="#043F3B" />
-                        </g>
-
-                        <g className="transform translate-y-1 transition-transform group-hover:translate-y-0">
-                          <circle cx="130" cy="122" r="15" fill="#D2E8DE" />
-                          <rect x="123" y="115" width="14" height="6" rx="2" fill="#043F3B" />
-                          <path d="M130 121 V129 M127 129 H133" stroke="#043F3B" strokeWidth="2" strokeLinecap="round" />
-                        </g>
-
-                        <rect x="38" y="24" width="62" height="112" rx="12" fill="#043F3B" stroke="#043F3B" strokeWidth="3" />
-                        <rect x="42" y="32" width="54" height="96" rx="8" fill="#FFFFFF" />
-                        <rect x="62" y="27" width="14" height="3" rx="1.5" fill="#FFFFFF" opacity="0.6" />
-                        
-                        <path d="M46 60 Q65 75 75 55 T90 90" stroke="#E2EBE5" strokeWidth="4" strokeLinecap="round" fill="none" />
-                        <path d="M46 95 Q65 90 70 110" stroke="#E2EBE5" strokeWidth="3" strokeLinecap="round" fill="none" />
-                        
-                        <g transform="translate(62, 60)">
-                          <circle cx="7" cy="7" r="7" fill="#043F3B" />
-                          <path d="M7 14 L3.5 8.5 A4 4 0 0 1 10.5 8.5 Z" fill="#043F3B" />
-                          <circle cx="7" cy="6" r="2.5" fill="#FFFFFF" />
-                        </g>
-
-                        <path d="M24 100 L28 102 M22 108 L27 106 M25 116 L29 112" stroke="#043F3B" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
-                      </svg>
-                    </div>
-                  </div>
+        {/* Qué significa el sello: la promesa que nos diferencia */}
+        <section className="max-w-6xl mx-auto px-4 md:px-8 py-16 grid md:grid-cols-2 gap-10 items-center">
+          <div>
+            <span className="verified-seal inline-flex items-center gap-2 px-3 py-1.5 rounded-md border-2 border-double border-primary dark:border-teal-400 text-primary dark:text-teal-400">
+              <span className="material-symbols-outlined" aria-hidden="true">verified</span>
+              <span className="font-display text-sm font-extrabold uppercase tracking-wider">Verificado por SENN</span>
+            </span>
+            <h2 className="mt-5 text-2xl md:text-3xl font-extrabold text-primary dark:text-white">Qué significa este sello</h2>
+            <p className="mt-3 text-muted dark:text-slate-300 max-w-md">
+              No es una medalla de adorno. Es la constancia de que revisamos quién es la persona antes de que entre a tu casa.
+            </p>
+          </div>
+          <ul className="space-y-4">
+            {[
+              ['badge', 'Revisamos su carnet de identidad', 'Anverso y reverso. Lo guardamos con la marca de agua «Solo para uso en SENN Fix».'],
+              ['gavel', 'Revisamos sus antecedentes', 'Cuando presenta su certificado FELCC / REJAP, lo vemos antes de aprobarlo.'],
+              ['how_to_reg', 'Una persona aprueba cada perfil', 'Nadie aparece en la app hasta que un administrador lo revisa.'],
+            ].map(([icon, title, text]) => (
+              <li key={title} className="flex gap-3 p-4 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                <span className="material-symbols-outlined text-primary dark:text-teal-400" aria-hidden="true">{icon}</span>
+                <div>
+                  <p className="font-bold text-ink dark:text-slate-100">{title}</p>
+                  <p className="text-sm text-muted dark:text-slate-400">{text}</p>
                 </div>
-              </div>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-              <Link 
-                to="/home" 
-                className="w-full py-4 rounded-2xl bg-[#043F3B] hover:bg-[#07534E] text-white font-bold text-base flex items-center justify-center gap-2.5 shadow-md hover:shadow-xl hover:shadow-[#043F3B]/20 transition-all active:scale-[0.99] cursor-pointer no-underline group-hover:bg-[#054C46]"
+        {/* Para quienes trabajan en un oficio */}
+        <section className="max-w-6xl mx-auto px-4 md:px-8 pb-16">
+          <div className="rounded-3xl bg-primary text-white p-8 md:p-12 grid md:grid-cols-2 gap-8 items-center">
+            <div>
+              <h2 className="text-2xl md:text-3xl font-extrabold">¿Trabajas en un oficio?</h2>
+              <p className="mt-3 text-white/80 max-w-md">Crea tu credencial gratis y recibe clientes de tu zona.</p>
+              <Link
+                to="/register-professional"
+                className="mt-6 inline-flex items-center gap-2 px-6 py-3.5 rounded-xl bg-casco text-primary font-bold hover:brightness-95 transition"
               >
-                <span>Explorar Profesionales</span>
-                <span className="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</span>
+                Registrarme como profesional
+                <span className="material-symbols-outlined text-xl" aria-hidden="true">arrow_forward</span>
               </Link>
             </div>
-
-
-            {/* TARJETA 2: CONSEGUIR TRABAJO */}
-            <div className="group bg-white/95 dark:bg-[#1F2C26]/95 backdrop-blur-md rounded-[2.5rem] p-8 lg:p-9 border border-[#E2EBE5] dark:border-slate-700 shadow-[0_8px_30px_rgba(4,63,59,0.04)] hover:shadow-xl hover:border-[#10594F]/40 dark:hover:border-teal-400/40 transition-all duration-300 flex flex-col justify-between relative overflow-hidden">
-              <div className="absolute -top-16 -right-16 w-32 h-32 bg-[#EAF3EF] dark:bg-teal-500/5 rounded-full pointer-events-none"></div>
-
-              <div>
-                <div className="flex items-center justify-between mb-5">
-                  <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#EAF3EF] dark:bg-slate-700 text-[#043F3B] dark:text-[#A1D9CD] text-xs font-bold uppercase tracking-wider border border-[#043F3B]/10 dark:border-slate-600">
-                    <span className="material-symbols-outlined text-[15px]">construction</span>
-                    <span>Para Especialistas</span>
-                  </span>
-                </div>
-
-                <h2 className="text-2xl lg:text-3xl font-extrabold text-[#043F3B] dark:text-white mb-3 font-display">
-                  Conseguir Trabajo y Clientes
-                </h2>
-                <p className="text-sm text-[#043F3B]/75 dark:text-slate-300 mb-6 leading-relaxed">
-                  Únete a la mayor red de técnicos y profesionales. Recibe solicitudes de clientes de tu zona, aumenta tus ingresos y haz crecer tu negocio.
-                </p>
-
-                <div className="grid grid-cols-12 gap-6 items-center mb-8">
-                  <div className="col-span-7 space-y-3.5">
-                    <div className="flex items-start gap-2.5">
-                      <div className="w-5 h-5 rounded-full bg-[#043F3B] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                        <span className="material-symbols-outlined text-[13px] font-bold">check</span>
-                      </div>
-                      <span className="text-[13px] font-semibold text-[#043F3B]/85 dark:text-slate-200">
-                        100% de tus ingresos acordados sin intermediarios
-                      </span>
-                    </div>
-
-                    <div className="flex items-start gap-2.5">
-                      <div className="w-5 h-5 rounded-full bg-[#043F3B] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                        <span className="material-symbols-outlined text-[13px] font-bold">check</span>
-                      </div>
-                      <span className="text-[13px] font-semibold text-[#043F3B]/85 dark:text-slate-200">
-                        Insignia de verificación y portafolio de trabajos
-                      </span>
-                    </div>
-
-                    <div className="flex items-start gap-2.5">
-                      <div className="w-5 h-5 rounded-full bg-[#043F3B] text-white flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
-                        <span className="material-symbols-outlined text-[13px] font-bold">check</span>
-                      </div>
-                      <span className="text-[13px] font-semibold text-[#043F3B]/85 dark:text-slate-200">
-                        Notificaciones de clientes en tu radio de trabajo
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="col-span-5 flex items-center justify-center">
-                    <div className="relative w-40 h-40 flex items-center justify-center">
-                      <div className="absolute inset-0 bg-[#E8F3EE] dark:bg-teal-900/20 rounded-full scale-95 transform transition-transform duration-500"></div>
-
-                      <svg viewBox="0 0 160 160" className="w-full h-full relative z-10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M42 145 C42 118 55 106 72 104 L88 104 C105 106 118 118 118 145 Z" fill="#043F3B" />
-                        <path d="M58 106 V145" stroke="#FFFFFF" strokeWidth="2.5" opacity="0.5" />
-                        <path d="M102 106 V145" stroke="#FFFFFF" strokeWidth="2.5" opacity="0.5" />
-                        
-                        <rect x="73" y="88" width="14" height="18" fill="#F3D5B5" />
-                        <ellipse cx="80" cy="74" rx="18" ry="20" fill="#F3D5B5" />
-                        <circle cx="74" cy="74" r="2" fill="#043F3B" />
-                        <circle cx="86" cy="74" r="2" fill="#043F3B" />
-                        <path d="M76 82 Q80 86 84 82" stroke="#043F3B" strokeWidth="2" strokeLinecap="round" fill="none" />
-
-                        <path d="M60 65 C60 50 100 50 100 65 Z" fill="#043F3B" />
-                        <path d="M56 65 Q80 58 108 65 Q114 67 106 70 Q80 66 56 65 Z" fill="#043F3B" />
-                        <circle cx="80" cy="53" r="2.5" fill="#53A599" />
-
-                        <g className="transform translate-x-1 -translate-y-1 transition-transform group-hover:translate-x-0 group-hover:translate-y-0">
-                          <path d="M124 104 L121 122 L128 118 L135 122 L132 104 Z" fill="#043F3B" opacity="0.8" />
-                          <circle cx="128" cy="98" r="16" fill="#043F3B" stroke="#FFFFFF" strokeWidth="2" />
-                          <circle cx="128" cy="98" r="12" fill="#043F3B" />
-                          <path d="M123 98 L126.5 101.5 L133.5 94.5" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-                        </g>
-
-                        <path d="M38 68 L42 70 M35 76 L40 74" stroke="#043F3B" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
-                        <path d="M120 48 L123 44 M128 48 L132 50" stroke="#043F3B" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <Link 
-                to="/register-professional" 
-                className="w-full py-4 rounded-2xl bg-[#10594F] hover:bg-[#0D4A41] text-white font-bold text-base flex items-center justify-center gap-2.5 shadow-md hover:shadow-xl hover:shadow-[#10594F]/20 transition-all active:scale-[0.99] cursor-pointer no-underline"
-              >
-                <span>Registrarme como Profesional</span>
-                <span className="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-1">arrow_forward</span>
-              </Link>
-            </div>
-
+            <ul className="space-y-3 text-white/90">
+              {[
+                'Cobras el 100 % de lo que acuerdas: sin comisiones.',
+                'Los clientes de tu zona te ven en el mapa cuando estás disponible.',
+                'Tu sello de verificado y tu portafolio te dan confianza.',
+              ].map(text => (
+                <li key={text} className="flex gap-3">
+                  <span className="material-symbols-outlined text-casco" aria-hidden="true">check_circle</span>
+                  <span>{text}</span>
+                </li>
+              ))}
+            </ul>
           </div>
+        </section>
+      </main>
 
-
-          {/* 4. Value Proposition Strip Desktop */}
-          <div className="mt-14 py-4 flex flex-wrap items-center justify-center gap-12 text-sm font-semibold text-[#043F3B]/70 dark:text-slate-400">
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#043F3B] dark:text-teal-400 text-lg">verified_user</span>
-              <span>Perfiles verificados y seguros</span>
-            </div>
-
-            <div className="h-4 w-px bg-[#043F3B]/15 dark:bg-slate-700"></div>
-
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#043F3B] dark:text-teal-400 text-lg">bolt</span>
-              <span>Respuestas y cotizaciones rápidas</span>
-            </div>
-
-            <div className="h-4 w-px bg-[#043F3B]/15 dark:bg-slate-700"></div>
-
-            <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#043F3B] dark:text-teal-400 text-lg">location_on</span>
-              <span>Cobertura en toda Santa Cruz</span>
-            </div>
-          </div>
-
-        </main>
-
-
-        {/* 5. Footer Desktop */}
-        <footer className="w-full pt-6 pb-12 text-center text-[#043F3B]/60 dark:text-slate-500 z-10 relative">
-          <div className="flex justify-center items-center gap-3">
-            <span className="h-px w-12 bg-[#043F3B]/20 dark:bg-slate-700"></span>
-            <span className="text-xs font-semibold uppercase tracking-widest text-[#043F3B]/70 dark:text-slate-300">By Group Senn</span>
-            <span className="h-px w-12 bg-[#043F3B]/20 dark:bg-slate-700"></span>
-          </div>
-          <span className="text-xs italic font-medium tracking-wider dark:text-slate-400 mt-1 block">
-            The limit is yourself
-          </span>
-        </footer>
-
-      </div>
-
-      {/* Organic Bottom Wave Accents (Matching mockup bottom flourishes) */}
-      <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-20 sm:h-32 overflow-hidden z-0 opacity-90">
-        <svg 
-          viewBox="0 0 1440 180" 
-          fill="none" 
-          xmlns="http://www.w3.org/2000/svg" 
-          className="w-full h-full object-cover transform translate-y-6 sm:translate-y-8"
-          preserveAspectRatio="none"
-        >
-          {/* Back Wave Layer */}
-          <path 
-            d="M-50,140 C150,100 280,180 500,120 C750,50 950,180 1200,100 C1350,50 1450,130 1500,150 L1500,220 L-50,220 Z" 
-            fill="#2F6E63" 
-            opacity="0.35"
-          />
-          {/* Front Deep Wave Layer */}
-          <path 
-            d="M-50,170 C100,120 220,130 380,160 C600,200 780,110 1020,130 C1250,150 1380,80 1500,110 L1500,220 L-50,220 Z" 
-            fill="#043F3B" 
-            opacity="0.85"
-          />
-        </svg>
-      </div>
-
+      <footer className="border-t border-slate-200 dark:border-slate-800">
+        <div className="max-w-6xl mx-auto px-4 md:px-8 py-8 flex flex-col md:flex-row gap-6 md:items-center md:justify-between text-sm text-muted dark:text-slate-400">
+          <p>© 2026 Group Senn · Santa Cruz, Bolivia</p>
+          <nav aria-label="Legal y contacto" className="flex flex-wrap gap-x-5 gap-y-2">
+            <Link to="/legal/terms-and-conditions" className="hover:text-primary dark:hover:text-teal-400">Términos y condiciones</Link>
+            <Link to="/legal/privacy-policy" className="hover:text-primary dark:hover:text-teal-400">Privacidad</Link>
+            <Link to="/legal/no-labor-relationship" className="hover:text-primary dark:hover:text-teal-400">Deslinde laboral</Link>
+            <a href="mailto:soporte@sennfix.com" className="hover:text-primary dark:hover:text-teal-400">soporte@sennfix.com</a>
+          </nav>
+        </div>
+      </footer>
     </div>
   );
 }

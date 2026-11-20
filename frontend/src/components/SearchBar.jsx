@@ -86,7 +86,7 @@ function SearchBar({ compact = false }) {
   return (
     <section className={compact ? 'relative w-full' : 'mt-6 relative'} ref={dropdownRef}>
       <form onSubmit={handleSearchSubmit} className="relative z-30">
-        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400" aria-hidden="true">search</span>
+        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none text-muted dark:text-slate-400" aria-hidden="true">search</span>
         <input
           className={`w-full pl-12 pr-12 ${compact ? 'py-2 rounded-xl text-sm' : 'py-4 rounded-2xl text-base md:text-lg'} border border-primary/10 dark:border-slate-700 bg-white/70 dark:bg-slate-800/60 backdrop-blur-md shadow-sm focus:shadow-md focus:shadow-primary/5 dark:focus:shadow-teal-500/10 focus:ring-2 focus:ring-primary dark:focus:ring-teal-500 focus:outline-none text-primary dark:text-slate-100 transition-all placeholder:text-slate-500 dark:placeholder:text-slate-400 font-medium`}
           placeholder={compact ? 'Buscar plomero, electricista…' : '¿Qué servicio necesitas hoy?'}
