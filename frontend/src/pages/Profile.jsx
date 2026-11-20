@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
-import ProfileHeader from '../components/ProfileHeader';
 import { useAuth } from '../context/AuthContext';
 import StarRating from '../components/StarRating';
 import ReviewForm from '../components/ReviewForm';
@@ -11,20 +10,32 @@ import MinorAlert from '../components/MinorAlert';
 import { getAbsoluteImageUrl, handleImageError, handleGalleryError } from '../utils/imageHelper';
 import AdBanner from '../components/AdBanner';
 
-// Icono personalizado para evitar que se rompa la imagen del marcador en móvil
-const customIcon = new L.Icon({
+// Icono propio para que el marcador no se rompa en móvil
+const storeIcon = new L.Icon({
   iconUrl: 'data:image/svg+xml;utf8,' + encodeURIComponent(`
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36">
-      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#006b5f" stroke="#ffffff" stroke-width="1.5"/>
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#043F3B" stroke="#ffffff" stroke-width="1.5"/>
     </svg>
   `),
   iconSize: [36, 36],
   iconAnchor: [18, 36],
-  popupAnchor: [0, -36]
 });
 
+// Leaflet necesita recalcular su tamaño cuando el contenedor ya es visible
+function MapResizer() {
+  const map = useMap();
+  useEffect(() => {
+    const timer = setTimeout(() => map.invalidateSize(), 100);
+    return () => clearTimeout(timer);
+  }, [map]);
+  return null;
+}
+
+const REVIEWS_PREVIEW = 3;
+const formatRating = (value) => value.toLocaleString('es-BO', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
 function Profile() {
-  const { id: professionalId } = useParams(); // Obtiene el 'id' de la URL (ej: "1" o "2")
+  const { id: professionalId } = useParams();
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -32,45 +43,59 @@ function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [showAllReviews, setShowAllReviews] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [chatError, setChatError] = useState('');
-  const [isMinor, setIsMinor] = useState(false);
-
-  // Portafolio de fotos
   const [portfolio, setPortfolio] = useState([]);
   const [lightboxImage, setLightboxImage] = useState(null);
 
-  // Componente para forzar la actualización del tamaño del mapa y evitar que se vea gris
-  function MapResizer() {
-    const map = useMap();
-    useEffect(() => {
-      // Se ejecuta después de un breve instante para asegurar que el contenedor del mapa es visible
-      setTimeout(() => {
-        map.invalidateSize();
-      }, 100);
-    }, [map]);
-    return null;
-  }
+  const fetchProfessionalData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const profResponse = await fetch(`${window.API_URL}/api/professionals/${professionalId}`);
+      if (!profResponse.ok) throw new Error('No encontramos a este profesional.');
+      setProfessional(await profResponse.json());
+
+      const reviewsResponse = await fetch(`${window.API_URL}/api/professionals/${professionalId}/reviews`);
+      if (!reviewsResponse.ok) throw new Error('No pudimos cargar las reseñas.');
+      setReviews(await reviewsResponse.json());
+
+      const portResponse = await fetch(`${window.API_URL}/api/professionals/${professionalId}/portfolio`);
+      if (portResponse.ok) setPortfolio(await portResponse.json());
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [professionalId]);
+
+  useEffect(() => {
+    fetchProfessionalData();
+  }, [fetchProfessionalData]);
+
+  // Cerrar la foto ampliada con Escape
+  useEffect(() => {
+    if (!lightboxImage) return;
+    const onKey = (e) => e.key === 'Escape' && setLightboxImage(null);
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [lightboxImage]);
 
   const handleStartChat = async () => {
     if (!isAuthenticated) {
       navigate('/login', { state: { from: location } });
       return;
     }
-
     setChatError('');
-    const token = localStorage.getItem('token');
     try {
       const response = await fetch(window.API_URL + '/api/chats/start', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
         body: JSON.stringify({ recipientId: professionalId })
       });
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || 'No se pudo iniciar el chat.');
-      }
-
+      if (!response.ok) throw new Error(data.message || 'No se pudo abrir el chat.');
       navigate(`/chats/${data.conversationId}`);
     } catch (err) {
       console.error(err);
@@ -78,295 +103,263 @@ function Profile() {
     }
   };
 
-  const fetchProfessionalData = async () => {
-    try {
-      setLoading(true);
-      // Fetch professional details
-      const profResponse = await fetch(`${window.API_URL}/api/professionals/${professionalId}`);
-      if (!profResponse.ok) throw new Error('Profesional no encontrado');
-      const profData = await profResponse.json();
-
-      // El servidor calcula la edad; la fecha de nacimiento ya no se envía al público
-      setIsMinor(Boolean(profData.is_minor));
-      setProfessional(profData);
-
-      // Fetch reviews
-      const reviewsResponse = await fetch(`${window.API_URL}/api/professionals/${professionalId}/reviews`);
-      if (!reviewsResponse.ok) throw new Error('No se pudieron cargar las reseñas.');
-      const reviewsData = await reviewsResponse.json();
-      setReviews(reviewsData);
-
-      // Fetch portfolio photos
-      const portResponse = await fetch(`${window.API_URL}/api/professionals/${professionalId}/portfolio`);
-      if (portResponse.ok) {
-        const portData = await portResponse.json();
-        setPortfolio(portData);
-      }
-
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchProfessionalData();
-  }, [professionalId]);
-
-  const handleReviewSubmitted = () => {
-    // Refresca los datos del profesional y las reseñas después de enviar una nueva.
-    fetchProfessionalData();
-  };
-
-  const canWriteReview = isAuthenticated && user?.user_type === 'client' && user?.id != professionalId;
-
-  if (loading) {
-    return (
-      <>
-        <ProfileHeader /><ProfileSkeleton />
-      </>
-    );
-  }
+  if (loading) return <ProfileSkeleton />;
 
   if (error) {
     return (
-      <>
-        <ProfileHeader />
-        <div className="text-center p-10 text-red-500">Error: {error}</div>
-      </>
+      <main className="flex-1 w-full max-w-xl mx-auto px-4 py-16 text-center">
+        <p className="font-display text-2xl font-extrabold text-primary dark:text-white">{error}</p>
+        <p className="mt-2 text-muted dark:text-slate-400">Puede que el perfil ya no esté activo.</p>
+        <Link to="/home" className="mt-6 inline-block rounded-xl bg-primary px-5 py-3 font-bold text-white">Volver al inicio</Link>
+      </main>
     );
   }
 
-  if (!professional) {
-    return null; // No renderiza nada si no hay profesional
-  }
+  if (!professional) return null;
 
-  // La base de datos devuelve 0 o 1 para booleanos, lo convertimos
-  const isVerified = professional.verified;
-  const hasGoldSeal = professional.has_gold_seal;
-  
-  // Ocultar el botón de chat si el usuario está viendo su propio perfil
-  const isOwnProfile = isAuthenticated && user?.id == professionalId;
+  const isOwnProfile = isAuthenticated && String(user?.id) === String(professionalId);
+  const canWriteReview = isAuthenticated && user?.user_type === 'client' && !isOwnProfile;
+  // Calificación y cantidad salen de las reseñas que se muestran: así nunca se contradicen
+  const reviewCount = reviews.length;
+  const average = reviewCount ? reviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) / reviewCount : null;
+  const visibleReviews = showAllReviews ? reviews : reviews.slice(0, REVIEWS_PREVIEW);
+  const hashtags = professional.hashtags ? professional.hashtags.split(' ').filter(Boolean) : [];
+  const services = (professional.services_offered || '').split(/\n|,/).map(s => s.trim()).filter(Boolean);
+  // La ubicación exacta solo se muestra si es un local abierto al público; si no, suele ser su casa
+  const showStoreMap = professional.has_store && professional.latitude && professional.longitude;
+
+  const actions = isOwnProfile ? (
+    <Link to={`/profile/edit/${professionalId}`} className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 font-bold text-white">
+      <span className="material-symbols-outlined" aria-hidden="true">edit</span>
+      Editar mi perfil
+    </Link>
+  ) : (
+    <>
+      <button onClick={handleStartChat} className="flex flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-primary px-4 py-3 font-bold text-white cursor-pointer border-none">
+        <span className="material-symbols-outlined" aria-hidden="true">forum</span>
+        Escribir por chat
+      </button>
+      {professional.phone_number && (
+        <a href={`tel:${professional.phone_number}`} className="flex items-center justify-center gap-2 whitespace-nowrap rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-3 font-bold text-primary dark:text-teal-400">
+          <span className="material-symbols-outlined" aria-hidden="true">call</span>
+          Llamar
+        </a>
+      )}
+    </>
+  );
 
   return (
     <>
-      <ProfileHeader />
+      <main className="flex-1 w-full max-w-6xl mx-auto px-4 md:px-8 pt-4 md:pt-8 pb-28 md:pb-12">
+        <button onClick={() => navigate(-1)} className="-ml-2 mb-3 inline-flex items-center gap-1 rounded-lg px-2 py-2 text-sm font-bold text-primary dark:text-teal-400 bg-transparent border-none cursor-pointer">
+          <span className="material-symbols-outlined text-xl" aria-hidden="true">arrow_back</span>
+          Volver
+        </button>
 
-      {/* Alerta si el profesional es menor de edad */}
-      {isMinor && (
-        <div className="pt-4"><MinorAlert /></div>
-      )}
+        {professional.is_minor && <div className="mb-4 -mx-4 lg:-mx-8"><MinorAlert /></div>}
 
-      <main className="flex-1 pb-32 md:pb-12">
-        <section className="p-6 lg:p-8 relative">
-          {isOwnProfile && (
-            <Link
-              to={`/profile/edit/${user.id}`}
-              className="absolute top-6 right-6 bg-white/80 dark:bg-slate-700/80 backdrop-blur-sm text-primary py-2 px-4 rounded-full flex items-center gap-2 text-sm font-bold shadow-md hover:bg-white transition-colors z-10"
-            >
-              <span className="material-symbols-outlined text-base">edit</span>
-              <span>Editar Perfil</span>
-            </Link>
-          )}
-          <div className="flex w-full flex-col md:flex-row md:items-start gap-6 md:gap-10">
-            <div className="flex-shrink-0 mx-auto md:mx-0">
-              <div className="relative group">
-                <img
-                  src={getAbsoluteImageUrl(professional.imageUrl)}
-                  onError={handleImageError}
-                  alt={professional.name}
-                  className="rounded-full h-32 w-32 object-cover ring-4 ring-primary/20 shadow-xl"
-                />
-                {(isVerified || hasGoldSeal) && (
-                  <div className="absolute bottom-1 right-1 flex items-center gap-1">
-                    {hasGoldSeal && (
-                      <div className="bg-amber-400 text-white p-1 rounded-full border-2 border-background-light dark:border-background-dark" title="Sello de Oro: Máxima Calidad y Confianza">
-                        <span className="material-symbols-outlined text-sm block">workspace_premium</span>
-                      </div>
-                    )}
-                    {isVerified && (
-                      <div className="bg-primary text-white p-1.5 rounded-full border-2 border-white dark:border-background-dark" title="Verificado por SENN">
-                        <span className="material-symbols-outlined text-sm block" aria-hidden="true">verified</span>
-                      </div>
-                    )}
-                  </div>
+        <div className="grid gap-8 lg:grid-cols-[360px_1fr] lg:items-start">
+          {/* Credencial: fija en escritorio para que las acciones estén siempre a mano */}
+          <aside className="lg:sticky lg:top-24 rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 overflow-hidden">
+            <div className="h-14 bg-primary dark:bg-slate-700 flex justify-center pt-2.5" aria-hidden="true">
+              <span className="w-12 h-1.5 rounded-full bg-white/30" />
+            </div>
+            <div className="px-5 pb-5 -mt-10">
+              <img
+                src={getAbsoluteImageUrl(professional.imageUrl)}
+                onError={handleImageError}
+                alt={professional.name}
+                className="w-24 h-24 rounded-2xl object-cover ring-4 ring-white dark:ring-slate-800 bg-slate-100 dark:bg-slate-700"
+              />
+              <h1 className="mt-3 font-display text-2xl font-extrabold leading-tight text-ink dark:text-white">{professional.name}</h1>
+              {professional.specialty && <p className="text-muted dark:text-slate-400">{professional.specialty}</p>}
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                {professional.verified && (
+                  <span className="verified-seal animate-stamp inline-flex items-center gap-1.5 px-3 py-1 rounded-md border-2 border-double border-primary dark:border-teal-400 text-primary dark:text-teal-400">
+                    <span className="material-symbols-outlined text-base" aria-hidden="true">verified</span>
+                    <span className="font-display text-xs font-extrabold uppercase tracking-wider">Verificado por SENN</span>
+                  </span>
+                )}
+                {professional.has_gold_seal && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-casco px-2.5 py-1 text-xs font-bold text-primary">
+                    <span className="material-symbols-outlined text-sm" aria-hidden="true">workspace_premium</span>
+                    Sello de Oro
+                  </span>
                 )}
               </div>
-            </div>
-            <div className="flex flex-col items-center md:items-start text-center md:text-left flex-1">
-              <h1 className="text-primary dark:text-slate-100 text-2xl lg:text-3xl font-bold leading-tight tracking-tight">{professional.name}</h1>
-              
-              {professional.specialty && (
-                <p className="text-primary/95 dark:text-teal-400 font-bold text-base mt-1">
-                  {professional.specialty}
+
+              <p className="mt-3 text-sm font-semibold text-ink dark:text-slate-200">
+                {average !== null ? (
+                  <>
+                    <span className="text-casco" aria-hidden="true">★</span> {formatRating(average)}
+                    <span className="font-normal text-muted dark:text-slate-400"> · {reviewCount} {reviewCount === 1 ? 'reseña' : 'reseñas'}</span>
+                  </>
+                ) : <span className="font-normal text-muted dark:text-slate-400">Nuevo · aún sin reseñas</span>}
+              </p>
+
+              {professional.is_online && (
+                <p className="mt-3">
+                  <span className="inline-flex items-center gap-1.5 whitespace-nowrap rounded-full bg-casco text-primary text-xs font-bold px-2.5 py-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary" aria-hidden="true" />
+                    Disponible ahora
+                  </span>
                 </p>
               )}
 
-              {professional.hashtags && (
-                <div className="flex flex-wrap gap-1.5 mt-2 justify-center md:justify-start">
-                  {professional.hashtags.split(' ').map((tag, idx) => (
-                    <span key={idx} className="bg-primary/5 dark:bg-teal-500/10 text-primary/80 dark:text-teal-400 text-xs font-bold px-2.5 py-0.5 rounded-full border border-primary/10 dark:border-teal-500/20 shadow-sm transition-transform">
-                      {tag}
-                    </span>
+              {hashtags.length > 0 && (
+                <ul className="mt-4 flex flex-wrap gap-1.5" aria-label="Especialidades">
+                  {hashtags.map(tag => (
+                    <li key={tag} className="rounded-full border border-slate-200 dark:border-slate-600 px-2.5 py-0.5 text-xs font-semibold text-muted dark:text-slate-300">{tag}</li>
                   ))}
-                </div>
+                </ul>
               )}
 
-              {isVerified && (
-                <div className="verified-seal animate-stamp inline-flex items-center gap-1.5 mt-3 px-3 py-1 rounded-md border-2 border-double border-primary dark:border-teal-400 text-primary dark:text-teal-400">
-                  <span className="material-symbols-outlined text-base" aria-hidden="true">verified</span>
-                  <p className="font-display text-xs font-extrabold uppercase tracking-wider">Verificado por SENN</p>
-                </div>
-              )}
-              <div className="flex flex-col items-center md:items-start gap-2 mt-4">
-                <StarRating rating={professional.rating} />
-                <p className="text-muted dark:text-slate-400 text-sm font-medium">{professional.reviews} reseñas completadas</p>
+              <div className="mt-5 hidden md:flex md:flex-col gap-2">{actions}</div>
+              {chatError && <p className="mt-3 text-sm font-semibold text-red-700 dark:text-red-400" role="alert">{chatError}</p>}
+            </div>
+          </aside>
+
+          <div className="space-y-10 min-w-0">
+            {professional.bio && (
+              <section aria-labelledby="sobre-mi">
+                <h2 id="sobre-mi" className="mb-2 text-xl font-extrabold text-primary dark:text-white">Sobre mí</h2>
+                <p className="leading-relaxed text-ink dark:text-slate-300 whitespace-pre-line">{professional.bio}</p>
+              </section>
+            )}
+
+            {services.length > 0 && (
+              <section aria-labelledby="servicios">
+                <h2 id="servicios" className="mb-3 text-xl font-extrabold text-primary dark:text-white">Servicios que ofrece</h2>
+                <ul className="flex flex-wrap gap-2">
+                  {services.map(service => (
+                    <li key={service} className="rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3.5 py-1.5 text-sm font-semibold text-ink dark:text-slate-200">{service}</li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            {portfolio.length > 0 && (
+              <section aria-labelledby="trabajos">
+                <h2 id="trabajos" className="mb-3 text-xl font-extrabold text-primary dark:text-white">Trabajos realizados</h2>
+                <ul className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {portfolio.map((photo, i) => (
+                    <li key={photo.id}>
+                      <button
+                        onClick={() => setLightboxImage(getAbsoluteImageUrl(photo.image_url))}
+                        aria-label={`Ampliar trabajo ${i + 1}`}
+                        className="block w-full aspect-square rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 cursor-pointer p-0"
+                      >
+                        <img src={getAbsoluteImageUrl(photo.image_url)} onError={handleGalleryError} alt="" className="w-full h-full object-cover" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            )}
+
+            <AdBanner />
+
+            <section aria-labelledby="resenas">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <h2 id="resenas" className="text-xl font-extrabold text-primary dark:text-white">
+                  Reseñas <span className="text-base font-semibold text-muted dark:text-slate-400">({reviewCount})</span>
+                </h2>
+                {canWriteReview && (
+                  <button onClick={() => setShowReviewForm(true)} className="rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 px-4 py-2 text-sm font-bold text-primary dark:text-teal-400 cursor-pointer">
+                    Escribir reseña
+                  </button>
+                )}
               </div>
-            </div>
-          </div>
-        </section>
+              {reviewCount > 0 ? (
+                <>
+                  <ul className="space-y-3">
+                    {visibleReviews.map(review => (
+                      <li key={review.id} className="rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4">
+                        <div className="mb-2 flex items-center gap-3">
+                          <img src={getAbsoluteImageUrl(review.clientimageurl || review.clientImageUrl)} onError={handleImageError} alt={review.clientname || review.clientName} className="w-10 h-10 rounded-full object-cover" />
+                          <div>
+                            <p className="font-bold text-ink dark:text-slate-100">{review.clientname || review.clientName}</p>
+                            <StarRating rating={review.rating} />
+                          </div>
+                        </div>
+                        {review.comment && <p className="text-sm text-ink dark:text-slate-300">{review.comment}</p>}
+                      </li>
+                    ))}
+                  </ul>
+                  {reviewCount > REVIEWS_PREVIEW && (
+                    <button onClick={() => setShowAllReviews(v => !v)} className="mt-3 text-sm font-bold text-primary dark:text-teal-400 underline bg-transparent border-none cursor-pointer p-0">
+                      {showAllReviews ? 'Ver menos' : `Ver las ${reviewCount} reseñas`}
+                    </button>
+                  )}
+                </>
+              ) : (
+                <p className="text-muted dark:text-slate-400">
+                  {canWriteReview ? 'Aún no tiene reseñas. Si trabajó contigo, cuéntales a otros cómo te fue.' : 'Aún no tiene reseñas.'}
+                </p>
+              )}
+            </section>
 
-        <section className="px-6 lg:px-8 py-4 bg-white/40 dark:bg-slate-800/40 mx-4 lg:mx-8 rounded-2xl shadow-sm border border-primary/5 dark:border-slate-700">
-          <h3 className="text-primary dark:text-slate-100 tracking-tight text-xl font-bold leading-tight pb-3">Biografía</h3>
-          <p className="text-primary/80 dark:text-slate-300 text-base font-normal leading-relaxed">{professional.bio}</p>
-        </section>
-
-        {/* Galería de Trabajos Realizados */}
-        {portfolio.length > 0 && (
-          <section className="px-6 lg:px-8 pt-8">
-            <h3 className="text-primary dark:text-slate-100 tracking-tight text-xl font-bold leading-tight mb-4 flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-muted dark:text-teal-400">photo_library</span>
-              Galería de Trabajos
-            </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              {portfolio.map(photo => (
-                <div 
-                  key={photo.id} 
-                  onClick={() => setLightboxImage(getAbsoluteImageUrl(photo.image_url))}
-                  className="aspect-square rounded-2xl overflow-hidden border border-primary/10 cursor-pointer hover:opacity-95 hover:scale-[1.01] transition-all relative group bg-slate-50 dark:bg-slate-900 shadow-sm"
-                >
-                  <img src={getAbsoluteImageUrl(photo.image_url)} onError={handleGalleryError} alt="Trabajo" className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-black/10 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <span className="material-symbols-outlined text-white text-3xl">zoom_in</span>
-                  </div>
+            <section aria-labelledby="donde">
+              <h2 id="donde" className="mb-3 text-xl font-extrabold text-primary dark:text-white">Dónde trabaja</h2>
+              {professional.has_store && professional.store_address && (
+                <p className="mb-3 flex items-start gap-2 text-ink dark:text-slate-200">
+                  <span className="material-symbols-outlined text-primary dark:text-teal-400" aria-hidden="true">storefront</span>
+                  <span><span className="font-bold">Local:</span> {professional.store_address}</span>
+                </p>
+              )}
+              <p className="flex items-start gap-2 text-ink dark:text-slate-200">
+                <span className="material-symbols-outlined text-primary dark:text-teal-400" aria-hidden="true">radar</span>
+                Atiende en un radio de {professional.action_radius || 10} km.
+              </p>
+              {showStoreMap && (
+                <div className="mt-3 h-64 w-full rounded-2xl overflow-hidden relative z-0 border border-slate-200 dark:border-slate-700">
+                  <MapContainer center={[professional.latitude, professional.longitude]} zoom={15} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
+                    <TileLayer
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    />
+                    <Marker position={[professional.latitude, professional.longitude]} icon={storeIcon} />
+                    <MapResizer />
+                  </MapContainer>
                 </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* Banner de Anuncio - Estratégico y no intrusivo */}
-        <div className="px-4 lg:px-8">
-          <AdBanner />
+              )}
+            </section>
+          </div>
         </div>
-
-        {/* Sección de Reseñas */}
-        <section className="px-6 lg:px-8 pt-4">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-primary dark:text-slate-100 tracking-tight text-xl font-bold leading-tight">Reseñas ({reviews.length})</h3>
-            {canWriteReview && (
-              <button onClick={() => setShowReviewForm(true)} className="bg-primary/10 text-primary dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600 text-sm font-bold px-4 py-2 rounded-lg hover:bg-primary/20 transition-colors">
-                Escribir reseña
-              </button>
-            )}
-          </div>
-          <div className="space-y-4">
-            {reviews.length > 0 ? (
-              reviews.slice(0, 3).map(review => ( // Mostramos solo las 3 primeras por ahora
-                <div key={review.id} className="bg-white/40 dark:bg-slate-800/40 p-4 rounded-xl border border-primary/5 dark:border-slate-700">
-                  <div className="flex items-center gap-3 mb-2">
-                    <img src={getAbsoluteImageUrl(review.clientImageUrl)} onError={handleImageError} alt={review.clientName} className="w-10 h-10 rounded-full object-cover" />
-                    <div>
-                      <p className="font-bold text-primary/90 dark:text-slate-200">{review.clientName}</p>
-                      <StarRating rating={review.rating} />
-                    </div>
-                  </div>
-                  <p className="text-primary/80 dark:text-slate-300 text-sm">{review.comment}</p>
-                </div>
-              ))
-            ) : <p className="text-muted dark:text-slate-400 text-sm">Este profesional aún no tiene reseñas. ¡Sé el primero!</p>}
-          </div>
-        </section>
-
-        <section className="px-6 lg:px-8 pt-6">
-          <h3 className="text-primary dark:text-slate-100 tracking-tight text-xl font-bold leading-tight pb-3">Información de Contacto</h3>
-          <div className="space-y-4 text-primary/90 dark:text-slate-200">
-            <div className="flex items-center gap-4 p-3 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-primary/5 dark:border-slate-700">
-              <span className="material-symbols-outlined text-primary/70 dark:text-slate-400">call</span>
-              <span className="font-medium ">{professional.phone_number}</span>
-            </div>
-            {professional.has_store === 1 && professional.store_address && (
-              <div className="flex items-start gap-4 p-3 bg-white/40 dark:bg-slate-800/40 rounded-xl border border-primary/5 dark:border-slate-700">
-                <span className="material-symbols-outlined text-primary/70 dark:text-slate-400 mt-1">storefront</span>
-                <div>
-                  <p className="font-bold">Tienda o Local Físico</p>
-                  {professional.store_address && <p className="text-sm text-primary/80 dark:text-slate-300">{professional.store_address}</p>}
-                </div>
-              </div>
-            )}
-            {professional.latitude && professional.longitude && (
-              <div className="h-64 w-full rounded-lg overflow-hidden relative z-0 mt-2 border border-primary/10 dark:border-slate-700">
-                <MapContainer center={[professional.latitude, professional.longitude]} zoom={15} scrollWheelZoom={false} style={{ height: '100%', width: '100%' }}>
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  <Marker position={[professional.latitude, professional.longitude]} icon={customIcon}>
-                    <Popup>{professional.name}</Popup>
-                  </Marker>
-                  <MapResizer />
-                </MapContainer>
-              </div>
-            )}
-            {professional.services_offered && (
-              <div className="p-3">
-                <p className="font-bold mb-1">Servicios Adicionales:</p>
-                <p className="text-sm text-primary/80 dark:text-slate-300 whitespace-pre-line">{professional.services_offered}</p>
-              </div>
-            )}
-          </div>
-        </section>
-
-        {!isOwnProfile && (
-          <div className="flex justify-center px-6 lg:px-8 pt-8">
-            <button onClick={handleStartChat} className="w-full md:w-auto inline-flex items-center justify-center gap-3 bg-primary hover:bg-primary/95 text-white px-10 py-4 rounded-2xl shadow-xl transition-all active:scale-95">
-              <span className="material-symbols-outlined">forum</span>
-              <span className="text-base font-bold tracking-tight">Chatear ahora</span>
-            </button>
-          </div>
-        )}
-        {chatError && <p className="text-red-500 text-sm text-center mt-4">{chatError}</p>}
-
-        {/* Modal para escribir reseña */}
-        {showReviewForm && (
-          <ReviewForm
-            professionalId={professionalId}
-            onClose={() => setShowReviewForm(false)}
-            onReviewSubmit={handleReviewSubmitted}
-          />
-        )}
-
-        {/* Lightbox Modal de Imagen del Portafolio */}
-        {lightboxImage && (
-          <div 
-            onClick={() => setLightboxImage(null)}
-            className="fixed inset-0 bg-black/95 flex items-center justify-center z-[99999] cursor-pointer animate-fade-in p-4 animate-feedback"
-          >
-            <button 
-              onClick={() => setLightboxImage(null)} 
-              className="absolute top-6 right-6 text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors flex items-center justify-center size-10"
-            >
-              <span className="material-symbols-outlined text-2xl">close</span>
-            </button>
-            <img 
-              src={lightboxImage} 
-              onError={handleGalleryError}
-              alt="Trabajo Ampliado" 
-              className="max-w-full max-h-[85vh] object-contain rounded-xl shadow-2xl" 
-            />
-          </div>
-        )}
       </main>
+
+      {/* Celular: acciones fijas sobre la barra de pestañas, siempre visibles */}
+      <div className="md:hidden fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 flex gap-2 border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-background-dark/95 backdrop-blur-md px-4 py-3">
+        {actions}
+      </div>
+
+      {showReviewForm && (
+        <ReviewForm
+          professionalId={professionalId}
+          onClose={() => setShowReviewForm(false)}
+          onReviewSubmit={fetchProfessionalData}
+        />
+      )}
+
+      {lightboxImage && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Foto del trabajo"
+          onClick={() => setLightboxImage(null)}
+          className="fixed inset-0 bg-black/95 flex items-center justify-center z-[99999] cursor-pointer p-4"
+        >
+          <button
+            onClick={() => setLightboxImage(null)}
+            aria-label="Cerrar"
+            className="absolute top-6 right-6 text-white bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center size-11 border-none cursor-pointer"
+          >
+            <span className="material-symbols-outlined text-2xl" aria-hidden="true">close</span>
+          </button>
+          <img src={lightboxImage} onError={handleGalleryError} alt="Trabajo ampliado" className="max-w-full max-h-[85vh] object-contain rounded-xl" />
+        </div>
+      )}
     </>
   );
 }

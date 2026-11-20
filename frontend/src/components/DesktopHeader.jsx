@@ -157,7 +157,7 @@ function DesktopHeader() {
       {/* Right Controls */}
       <div className="flex items-center gap-4">
         {showSearch && (
-          <div className="w-56 lg:w-72">
+          <div className="hidden lg:block w-72">
             <SearchBar compact />
           </div>
         )}
