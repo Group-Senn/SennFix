@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useFeedback } from '../context/feedbackContext';
 import SearchBar from '../components/SearchBar';
 import { CredentialRow } from '../components/ProfessionalCredential';
 import { POPULAR_TRADES } from '../utils/trades';
@@ -11,6 +12,7 @@ import { getAbsoluteImageUrl, handleImageError, DEFAULT_AVATAR } from '../utils/
 
 function Home() {
   const { user, logout } = useAuth();
+  const { showToast } = useFeedback();
   const navigate = useNavigate();
   const [locationName, setLocationName] = useState('Buscando ubicación...');
   const [nearbyProfessionals, setNearbyProfessionals] = useState([]);
@@ -39,7 +41,7 @@ function Home() {
       if (!response.ok) throw new Error(data.message || 'No se pudo iniciar el chat de soporte.');
       navigate(`/chats/${data.conversationId}`);
     } catch (err) {
-      alert(`Error al abrir soporte: ${err.message}`);
+      showToast(`No pudimos abrir el chat de soporte. ${err.message}`);
     }
   };
 
@@ -222,7 +224,7 @@ function Home() {
                   className="w-full text-left px-4 py-3 text-xs font-bold text-primary/80 dark:text-slate-350 hover:bg-primary/5 dark:hover:bg-slate-750 flex items-center gap-2 transition-colors border-none bg-transparent cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[18px]">help</span>
-                  Soporte Técnico
+                  Soporte técnico
                 </button>
                  <hr className="border-outline-variant/10 dark:border-slate-700 my-1" />
                  {user && user.user_type === 'admin' && (
@@ -232,7 +234,7 @@ function Home() {
                      className="px-4 py-3 text-xs font-bold text-teal-600 dark:text-teal-400 hover:bg-teal-500/5 flex items-center gap-2 transition-colors"
                    >
                      <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
-                     Consola de Administración
+                     Consola de administración
                    </Link>
                  )}
                  <button
@@ -244,7 +246,7 @@ function Home() {
                    className="w-full text-left px-4 py-3 text-xs font-bold text-red-600 hover:bg-red-500/5 flex items-center gap-2 transition-colors border-none bg-transparent cursor-pointer"
                  >
                    <span className="material-symbols-outlined text-[18px]">logout</span>
-                   Cerrar Sesión
+                   Cerrar sesión
                  </button>
                </div>
              )}
@@ -260,7 +262,7 @@ function Home() {
                <div>
                  <h3 className="text-sm font-bold text-teal-800 dark:text-teal-450 flex items-center gap-1.5">
                    <span className="material-symbols-outlined text-lg">admin_panel_settings</span>
-                   Consola de Administración Activa
+                   Consola de administración Activa
                  </h3>
                  <p className="text-xs text-teal-900/70 dark:text-slate-350 mt-1">Gestiona solicitudes de profesionales, reportes, soporte y estadísticas.</p>
                </div>
@@ -268,7 +270,7 @@ function Home() {
                  to="/admin/dashboard" 
                  className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-xl font-bold text-xs transition-colors cursor-pointer border-none no-underline flex items-center gap-1.5 shrink-0"
                >
-                 Ir a la Consola
+                 Ir a la consola
                </Link>
              </div>
            )}

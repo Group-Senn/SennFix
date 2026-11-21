@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { getAbsoluteImageUrl } from '../utils/imageHelper';
 import SearchBar from '../components/SearchBar';
 import AdBanner from '../components/AdBanner';
+import ColdStartNote from '../components/ColdStartNote';
 import ExplorePostDialog from '../components/ExplorePostDialog';
 import ExploreUploadDialog from '../components/ExploreUploadDialog';
 
@@ -129,9 +130,12 @@ function ExplorePage() {
 
       <div className="mt-6">
         {loading ? (
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4" aria-busy="true" aria-label="Cargando trabajos">
-            {Array.from({ length: 8 }, (_, i) => <div key={i} className="aspect-square animate-pulse rounded-xl bg-slate-200/70 dark:bg-slate-800" />)}
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4" aria-busy="true" aria-label="Cargando trabajos">
+              {Array.from({ length: 8 }, (_, i) => <div key={i} className="aspect-square animate-pulse rounded-xl bg-slate-200/70 dark:bg-slate-800" />)}
+            </div>
+            <ColdStartNote />
+          </>
         ) : error ? (
           <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center dark:border-slate-700">
             <p className="font-semibold text-ink dark:text-slate-100">No pudimos cargar los trabajos.</p>

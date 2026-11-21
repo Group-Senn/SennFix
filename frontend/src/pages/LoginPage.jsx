@@ -11,6 +11,7 @@ function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [pendingMessage, setPendingMessage] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,6 +21,7 @@ function LoginPage() {
     e.preventDefault();
     setError('');
     setPendingMessage('');
+    setLoading(true);
 
     try {
       const response = await fetch(window.API_URL + '/api/login', {
@@ -54,6 +56,8 @@ function LoginPage() {
 
     } catch (err) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -67,8 +71,8 @@ function LoginPage() {
       <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background-light dark:bg-background-dark">
         <div className="w-full max-w-md p-6 sm:p-8 space-y-5 bg-white dark:bg-slate-800 rounded-3xl shadow-xl shadow-primary/5 dark:shadow-black/20">
           <div className="text-center">
-            <img src={logoNav} alt="SENN Fix Logo" className="h-14 w-auto mx-auto mb-4 object-contain dark:hidden" />
-            <img src={logoNavDark} alt="SENN Fix Logo" className="h-14 w-auto mx-auto mb-4 object-contain hidden dark:block" />
+            <img src={logoNav} alt="Logo de SENN Fix" className="h-14 w-auto mx-auto mb-4 object-contain dark:hidden" />
+            <img src={logoNavDark} alt="Logo de SENN Fix" className="h-14 w-auto mx-auto mb-4 object-contain hidden dark:block" />
             <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-primary dark:text-slate-100">Iniciar sesión</h1>
             <p className="text-sm text-muted dark:text-slate-400 mt-2 font-medium">Bienvenido de vuelta a SENN Fix</p>
           </div>
@@ -122,9 +126,9 @@ function LoginPage() {
 
             <button 
               type="submit" 
-              className="w-full py-3.5 px-4 bg-gradient-to-r from-primary to-teal-800 dark:from-teal-600 dark:to-teal-700 text-white rounded-2xl font-bold text-base transition-all duration-200 hover:opacity-95 hover:shadow-lg hover:shadow-primary/10 dark:hover:shadow-teal-500/10 active:scale-95 border-none cursor-pointer"
+              disabled={loading} className="w-full py-3.5 px-4 bg-gradient-to-r from-primary to-teal-800 dark:from-teal-600 dark:to-teal-700 text-white rounded-2xl font-bold text-base transition-all duration-200 hover:opacity-95 hover:shadow-lg hover:shadow-primary/10 dark:hover:shadow-teal-500/10 active:scale-95 border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              Entrar
+              {loading ? 'Entrando…' : 'Entrar'}
             </button>
           </form>
 

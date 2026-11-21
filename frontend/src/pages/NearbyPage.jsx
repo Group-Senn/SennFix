@@ -5,6 +5,7 @@ import L from 'leaflet';
 import { getAbsoluteImageUrl, handleImageError, DEFAULT_AVATAR } from '../utils/imageHelper';
 import ProfessionalCredential from '../components/ProfessionalCredential';
 import FilterChips from '../components/FilterChips';
+import ColdStartNote from '../components/ColdStartNote';
 import { useProFilters } from '../utils/professionalFilters';
 import 'leaflet/dist/leaflet.css';
 
@@ -221,8 +222,11 @@ function NearbyPage() {
               : `${filtered.length} ${filtered.length === 1 ? 'profesional' : 'profesionales'}${withoutLocation > 0 ? ` · ${withoutLocation} sin ubicación en el mapa` : ''}`}
           </p>
           {waiting ? (
-            <div className="space-y-3" aria-busy="true">
-              {[0, 1, 2].map(i => <div key={i} className="h-56 rounded-2xl bg-slate-200/70 dark:bg-slate-800 animate-pulse" />)}
+            <div aria-busy="true">
+              <div className="space-y-3">
+                {[0, 1, 2].map(i => <div key={i} className="h-56 rounded-2xl bg-slate-200/70 dark:bg-slate-800 animate-pulse" />)}
+              </div>
+              <ColdStartNote />
             </div>
           ) : error ? (
             <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-5 text-center">

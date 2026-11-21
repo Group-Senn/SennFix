@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import LocationPicker from '../components/LocationPicker';
 import { useAuth } from '../context/AuthContext';
+import { useFeedback } from '../context/feedbackContext';
 import { compressImage } from '../utils/imageCompressor';
 import PhoneVerification from '../components/PhoneVerification';
 import { toLocalBolivianNumber } from '../utils/phone';
@@ -9,6 +10,7 @@ import { toLocalBolivianNumber } from '../utils/phone';
 function EditProfessionalPage() {
   const { id } = useParams();
   const { user, login } = useAuth();
+  const { showToast } = useFeedback();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState(null);
@@ -112,7 +114,7 @@ function EditProfessionalPage() {
           console.error('Error al obtener ubicación:', err);
           // Si hay un error de permisos, detener el envío de ubicación
           if (err.code === err.PERMISSION_DENIED) {
-            alert('Permiso de ubicación denegado. No se podrá actualizar tu ubicación en tiempo real.');
+            showToast('Permiso de ubicación denegado. No podremos actualizar tu ubicación en tiempo real.');
             clearInterval(interval);
             setLocationInterval(null);
             setFormData(prev => ({ ...prev, is_online: false })); // Poner offline si no hay permisos
@@ -413,7 +415,7 @@ function EditProfessionalPage() {
                 type="submit" 
                 className="w-full py-3.5 px-4 bg-gradient-to-r from-primary to-teal-800 dark:from-teal-600 dark:to-teal-700 text-white rounded-2xl font-bold text-base transition-all duration-200 hover:opacity-95 hover:shadow-lg hover:shadow-primary/10 dark:hover:shadow-teal-500/10 active:scale-95 border-none cursor-pointer"
               >
-                Guardar Cambios
+                Guardar cambios
               </button>
             </div>
           </form>

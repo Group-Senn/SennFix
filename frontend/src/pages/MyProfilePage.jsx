@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useFeedback } from '../context/feedbackContext';
 import { getAbsoluteImageUrl, handleImageError, handleGalleryError } from '../utils/imageHelper';
 import { compressImage } from '../utils/imageCompressor';
 import PhoneVerification from '../components/PhoneVerification';
@@ -8,6 +9,7 @@ import { toLocalBolivianNumber } from '../utils/phone';
 
 // Componente para la vista del usuario autenticado
 function UserDashboard({ user, login, logout }) {
+  const { showToast, confirm } = useFeedback();
   const navigate = useNavigate();
   
   // Portafolio de fotos (para profesionales)
@@ -84,7 +86,7 @@ function UserDashboard({ user, login, logout }) {
   };
 
   const handleDeletePhoto = async (photoId) => {
-    if (!window.confirm('¿Estás seguro de eliminar esta foto de tu portafolio?')) return;
+    if (!(await confirm('¿Eliminar esta foto de tu portafolio?', { confirmLabel: 'Eliminar', danger: true }))) return;
     try {
       const response = await fetch(`${window.API_URL}/api/professionals/portfolio/${photoId}`, {
         method: 'DELETE',
@@ -104,8 +106,9 @@ function UserDashboard({ user, login, logout }) {
   };
 
   const handleDeleteAccount = async () => {
-    const confirmDelete = window.confirm(
-      '¿ESTÁS ABSOLUTAMENTE SEGURO? Esta acción es irreversible y eliminará todos tus datos personales, historial de trabajos y credenciales en cumplimiento con el Aviso de Privacidad (Art. 21 CPE).'
+    const confirmDelete = await confirm(
+      'Esta acción es irreversible: eliminará todos tus datos personales, historial de trabajos y credenciales, en cumplimiento del Aviso de Privacidad (Art. 21 CPE). ¿Quieres eliminar tu cuenta?',
+      { confirmLabel: 'Eliminar mi cuenta', danger: true }
     );
     if (!confirmDelete) return;
 
@@ -118,11 +121,11 @@ function UserDashboard({ user, login, logout }) {
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Error al eliminar cuenta.');
 
-      alert(data.message);
+      showToast(data.message, 'success');
       logout();
       navigate('/home');
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      showToast(err.message);
     }
   };
 
@@ -184,7 +187,7 @@ function UserDashboard({ user, login, logout }) {
   return (
     <>
       <header className="sticky top-0 z-40 flex items-center bg-background-light/80 dark:bg-background-dark/80 backdrop-blur-md px-4 py-4 justify-between border-b border-primary/10 dark:border-slate-700">
-        <h2 className="text-primary dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center">Mi Perfil</h2>
+        <h2 className="text-primary dark:text-slate-100 text-lg font-bold leading-tight tracking-tight flex-1 text-center">Mi perfil</h2>
       </header>
 
       <main className="flex-1 p-6 lg:p-8 pb-32 animate-page-entry space-y-6 max-w-2xl mx-auto">
@@ -302,7 +305,7 @@ function UserDashboard({ user, login, logout }) {
                   <span className="material-symbols-outlined text-2xl">admin_panel_settings</span>
                 </div>
                 <div className="flex-1 min-w-0 text-left">
-                  <h3 className="font-bold text-teal-800 dark:text-teal-450 text-sm leading-snug">Consola de Administración</h3>
+                  <h3 className="font-bold text-teal-800 dark:text-teal-450 text-sm leading-snug">Consola de administración</h3>
                   <p className="text-xs text-teal-900/70 dark:text-slate-350 mt-1 leading-snug">Gestionar verificaciones, buzón de reclamos, chats de soporte y estadísticas.</p>
                 </div>
                 <span className="material-symbols-outlined text-teal-800/40 dark:text-teal-400/40 text-lg shrink-0">chevron_right</span>
@@ -333,7 +336,7 @@ function UserDashboard({ user, login, logout }) {
                     <span className="material-symbols-outlined text-2xl">visibility</span>
                   </div>
                   <div className="flex-1 min-w-0 text-left">
-                    <h3 className="font-bold text-primary/95 dark:text-slate-100 text-sm leading-snug">Ver Mi Perfil Público</h3>
+                    <h3 className="font-bold text-primary/95 dark:text-slate-100 text-sm leading-snug">Ver Mi perfil Público</h3>
                     <p className="text-xs text-primary/70 dark:text-slate-350 mt-1 leading-snug">Revisar cómo visualizan los clientes tu perfil y reseñas.</p>
                   </div>
                   <span className="material-symbols-outlined text-primary/30 dark:text-slate-500 text-lg shrink-0">chevron_right</span>
@@ -367,7 +370,7 @@ function UserDashboard({ user, login, logout }) {
                     {portfolio.length < 6 && (
                       <label className={`cursor-pointer px-3.5 py-2 rounded-2xl bg-gradient-to-r from-primary to-teal-800 dark:from-teal-600 dark:to-teal-700 hover:shadow-lg hover:shadow-primary/10 text-white font-bold text-xs flex items-center gap-1.5 transition-all ${uploading ? 'opacity-50 pointer-events-none' : ''}`}>
                         <span className="material-symbols-outlined text-xs">upload</span>
-                        Subir Foto
+                        Subir foto
                         <input type="file" accept="image/*" onChange={handleUploadPhoto} className="hidden" />
                       </label>
                     )}
@@ -442,14 +445,14 @@ function UserDashboard({ user, login, logout }) {
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-primary/10 dark:border-slate-750 bg-slate-50/50 dark:bg-slate-900/50 hover:bg-primary/5 dark:hover:bg-slate-850 text-primary dark:text-slate-350 px-6 py-2.5 rounded-2xl font-bold text-xs transition-all cursor-pointer"
           >
             <span className="material-symbols-outlined text-sm">logout</span>
-            Cerrar Sesión
+            Cerrar sesión
           </button>
           <button
             onClick={handleDeleteAccount}
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 border border-red-500/15 hover:border-red-500/25 bg-red-500/5 hover:bg-red-500/10 text-red-650 dark:text-red-400 px-6 py-2.5 rounded-2xl font-bold text-xs transition-all cursor-pointer"
           >
             <span className="material-symbols-outlined text-sm">delete_forever</span>
-            Eliminar Cuenta
+            Eliminar cuenta
           </button>
         </div>
       </main>
@@ -483,7 +486,7 @@ function GuestPrompt() {
           to="/login"
           className="w-full bg-primary dark:bg-teal-600 hover:bg-primary/90 text-white py-3 rounded-xl flex items-center justify-center gap-2 font-bold transition-all"
         >
-          Iniciar Sesión
+          Iniciar sesión
         </Link>
         <Link
           to="/register"

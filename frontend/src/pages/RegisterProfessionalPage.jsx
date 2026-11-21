@@ -37,6 +37,7 @@ function RegisterProfessionalPage() {
   });
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [submitting, setSubmitting] = useState(false);
   const [profileImageFile, setProfileImageFile] = useState(null);
   const [defensoriaPermitFile, setDefensoriaPermitFile] = useState(null);
   const [ciFrontFile, setCiFrontFile] = useState(null);
@@ -225,6 +226,7 @@ function RegisterProfessionalPage() {
   const handleVerificationSuccess = async (phoneVerificationToken) => {
     setShowVerificationModal(false);
     setError('');
+    setSubmitting(true);
     setSuccess(phoneVerificationToken ? 'Celular verificado. Creando perfil profesional...' : 'Creando perfil profesional...');
 
     const submissionData = new FormData();
@@ -283,6 +285,7 @@ function RegisterProfessionalPage() {
     } catch (err) {
       setError(err.message);
       setSuccess('');
+      setSubmitting(false);
     }
   };
 
@@ -702,8 +705,8 @@ function RegisterProfessionalPage() {
                   Siguiente
                 </button>
               ) : (
-                <button type="submit" className="flex-1 w-full py-3.5 px-4 bg-gradient-to-r from-primary to-teal-800 dark:from-teal-600 dark:to-teal-700 text-white rounded-2xl font-bold text-base transition-all duration-200 hover:opacity-95 hover:shadow-lg hover:shadow-primary/10 dark:hover:shadow-teal-500/10 active:scale-95 border-none cursor-pointer">
-                  Crear perfil profesional
+                <button type="submit" disabled={submitting} className="flex-1 w-full py-3.5 px-4 bg-gradient-to-r from-primary to-teal-800 dark:from-teal-600 dark:to-teal-700 text-white rounded-2xl font-bold text-base transition-all duration-200 hover:opacity-95 hover:shadow-lg hover:shadow-primary/10 dark:hover:shadow-teal-500/10 active:scale-95 border-none cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
+                  {submitting ? 'Creando tu perfil…' : 'Crear perfil profesional'}
                 </button>
               )}
             </div>

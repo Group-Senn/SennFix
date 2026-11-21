@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useFeedback } from '../context/feedbackContext';
 import ThemeSwitcher from './ThemeSwitcher';
 import NotificationBell from './NotificationBell';
 import SearchBar from './SearchBar';
@@ -12,6 +13,7 @@ import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
 
 function DesktopHeader() {
   const { user, isAuthenticated, logout } = useAuth();
+  const { showToast } = useFeedback();
   const navigate = useNavigate();
   const location = useLocation();
   const showSearch = !['/home', '/search'].includes(location.pathname);
@@ -44,7 +46,7 @@ function DesktopHeader() {
       if (!response.ok) throw new Error(data.message || 'No se pudo iniciar el chat de soporte.');
       navigate(`/chats/${data.conversationId}`);
     } catch (err) {
-      alert(`Error al abrir soporte: ${err.message}`);
+      showToast(`No pudimos abrir el chat de soporte. ${err.message}`);
     }
   };
 
@@ -105,12 +107,12 @@ function DesktopHeader() {
         {/* Logo image responsive to dark mode */}
         <img 
           src={logoNav} 
-          alt="SENN Fix Logo" 
+          alt="Logo de SENN Fix" 
           className="h-8 w-auto object-contain transition-transform dark:hidden" 
         />
         <img 
           src={logoNavDark} 
-          alt="SENN Fix Logo" 
+          alt="Logo de SENN Fix" 
           className="h-8 w-auto object-contain transition-transform hidden dark:block" 
         />
         
@@ -217,7 +219,7 @@ function DesktopHeader() {
                   className="w-full text-left px-4 py-2.5 text-xs font-bold text-primary/80 dark:text-slate-350 hover:bg-primary/5 dark:hover:bg-slate-750 flex items-center gap-2.5 transition-colors border-none bg-transparent cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[18px]">help</span>
-                  Soporte Técnico
+                  Soporte técnico
                 </button>
               )}
               
@@ -228,7 +230,7 @@ function DesktopHeader() {
                   className="px-4 py-2.5 text-xs font-bold text-teal-600 dark:text-teal-400 hover:bg-teal-500/5 flex items-center gap-2.5 transition-colors"
                 >
                   <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
-                  Consola de Administración
+                  Consola de administración
                 </Link>
               )}
               

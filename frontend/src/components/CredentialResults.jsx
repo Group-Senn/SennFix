@@ -1,6 +1,7 @@
 import React from 'react';
 import ProfessionalCredential from './ProfessionalCredential';
 import FilterChips from './FilterChips';
+import ColdStartNote from './ColdStartNote';
 import { useProFilters } from '../utils/professionalFilters';
 
 // Grilla de credenciales con filtros; "empty" se muestra cuando no hay nadie que listar
@@ -9,11 +10,14 @@ function CredentialResults({ professionals, loading, empty }) {
 
   if (loading) {
     return (
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Cargando profesionales">
-        {Array.from({ length: 6 }, (_, i) => (
-          <div key={i} className="h-56 rounded-2xl bg-slate-200/70 dark:bg-slate-800 animate-pulse" />
-        ))}
-      </div>
+      <>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Cargando profesionales">
+          {Array.from({ length: 6 }, (_, i) => (
+            <div key={i} className="h-56 rounded-2xl bg-slate-200/70 dark:bg-slate-800 animate-pulse" />
+          ))}
+        </div>
+        <ColdStartNote />
+      </>
     );
   }
 

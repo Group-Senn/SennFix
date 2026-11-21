@@ -249,7 +249,7 @@ function JobCompletionPage() {
                 disabled={reviewSubmitLoading}
                 className="w-full bg-primary hover:bg-primary/95 text-white py-3 rounded-lg font-bold text-base transition-all active:scale-95 disabled:opacity-50"
               >
-                {reviewSubmitLoading ? 'Procesando Cierre...' : 'Confirmar y Enviar Reseña'}
+                {reviewSubmitLoading ? 'Procesando cierre…' : 'Confirmar y enviar reseña'}
               </button>
             </form>
           </div>

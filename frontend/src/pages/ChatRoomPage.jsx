@@ -244,7 +244,7 @@ function ChatRoomPage() {
                   className="w-full text-left px-4 py-2.5 text-sm font-semibold text-primary dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 flex items-center gap-2 border-none bg-transparent cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[18px]">person</span>
-                  Ver Perfil
+                  Ver perfil
                 </button>
               )}
               <button

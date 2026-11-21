@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import ColdStartNote from './ColdStartNote';
 import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
 
 // Credencial de oficio: la tarjeta con la que se muestra a cada trabajador en toda la app.
@@ -63,11 +64,14 @@ function ProfessionalCredential({ professional }) {
 export function CredentialRow({ professionals, loading, label }) {
   if (loading) {
     return (
-      <div className="flex gap-3 overflow-hidden lg:grid lg:grid-cols-4 lg:gap-4" aria-busy="true" aria-label={`Cargando ${label}`}>
-        {[0, 1, 2, 3].map(i => (
-          <div key={i} className="h-56 w-64 shrink-0 lg:w-auto rounded-2xl bg-slate-200/70 dark:bg-slate-800 animate-pulse" />
-        ))}
-      </div>
+      <>
+        <div className="flex gap-3 overflow-hidden lg:grid lg:grid-cols-4 lg:gap-4" aria-busy="true" aria-label={`Cargando ${label}`}>
+          {[0, 1, 2, 3].map(i => (
+            <div key={i} className="h-56 w-64 shrink-0 lg:w-auto rounded-2xl bg-slate-200/70 dark:bg-slate-800 animate-pulse" />
+          ))}
+        </div>
+        <ColdStartNote />
+      </>
     );
   }
   return (

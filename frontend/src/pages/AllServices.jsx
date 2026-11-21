@@ -1,26 +1,46 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import ColdStartNote from '../components/ColdStartNote';
+
+const CACHE_KEY = 'senn_services_cache';
+
+// Última lista guardada: la lista de oficios casi no cambia, así que se muestra al instante y se actualiza detrás
+function readCache() {
+  try {
+    const cached = JSON.parse(localStorage.getItem(CACHE_KEY));
+    return Array.isArray(cached) ? cached : null;
+  } catch {
+    return null;
+  }
+}
 
 // Compara sin tildes ni mayúsculas: "albanil" encuentra "Albañil"
 const normalize = (text) => text.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 function AllServices() {
-  const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [services, setServices] = useState(() => readCache() || []);
+  const [loading, setLoading] = useState(() => !readCache());
   const [error, setError] = useState(false);
   const [query, setQuery] = useState('');
 
   const fetchServices = async () => {
-    setLoading(true);
     setError(false);
+    if (!readCache()) setLoading(true);
     try {
       const response = await fetch(window.API_URL + '/api/services');
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const data = await response.json();
-      setServices(Array.isArray(data) ? data : []);
+      const list = Array.isArray(data) ? data : [];
+      setServices(list);
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify(list));
+      } catch {
+        // Sin espacio o modo privado: se sigue sin caché
+      }
     } catch (err) {
       console.error('Error al obtener los oficios:', err);
-      setError(true);
+      // Si ya hay una lista guardada se sigue mostrando en vez de reemplazarla por un error
+      if (!readCache()) setError(true);
     } finally {
       setLoading(false);
     }
@@ -68,11 +88,14 @@ function AllServices() {
       </div>
 
       {loading ? (
-        <div className="mt-8 grid gap-2 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Cargando oficios">
-          {Array.from({ length: 9 }, (_, i) => (
-            <div key={i} className="h-[72px] rounded-xl bg-slate-200/70 dark:bg-slate-800 animate-pulse" />
-          ))}
-        </div>
+        <>
+          <div className="mt-8 grid gap-2 sm:grid-cols-2 lg:grid-cols-3" aria-busy="true" aria-label="Cargando oficios">
+            {Array.from({ length: 9 }, (_, i) => (
+              <div key={i} className="h-[72px] rounded-xl bg-slate-200/70 dark:bg-slate-800 animate-pulse" />
+            ))}
+          </div>
+          <ColdStartNote />
+        </>
       ) : error ? (
         <div className="mt-8 rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-6 text-center">
           <p className="font-semibold text-ink dark:text-slate-100">No pudimos cargar los oficios.</p>

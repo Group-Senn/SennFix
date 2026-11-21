@@ -6,6 +6,7 @@ import { useAuth } from '../context/AuthContext';
 import StarRating from '../components/StarRating';
 import ReviewForm from '../components/ReviewForm';
 import ProfileSkeleton from '../components/ProfileSkeleton';
+import ColdStartNote from '../components/ColdStartNote';
 import MinorAlert from '../components/MinorAlert';
 import { getAbsoluteImageUrl, handleImageError, handleGalleryError } from '../utils/imageHelper';
 import AdBanner from '../components/AdBanner';
@@ -103,7 +104,14 @@ function Profile() {
     }
   };
 
-  if (loading) return <ProfileSkeleton />;
+  if (loading) {
+    return (
+      <>
+        <ProfileSkeleton />
+        <div className="mx-auto w-full max-w-6xl px-4 md:px-8"><ColdStartNote /></div>
+      </>
+    );
+  }
 
   if (error) {
     return (

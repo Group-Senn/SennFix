@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useFeedback } from '../context/feedbackContext';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -36,6 +37,7 @@ const goldIcon = new L.Icon({
 
 function AdminDashboardPage() {
   const { user, token, login, logout } = useAuth();
+  const { showToast, confirm } = useFeedback();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = searchParams.get('tab') || 'stats';
@@ -353,7 +355,7 @@ function AdminDashboardPage() {
       if (!response.ok) throw new Error('Error al verificar profesional.');
       fetchAdminData();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      showToast(err.message);
     }
   };
 
@@ -366,12 +368,12 @@ function AdminDashboardPage() {
       if (!response.ok) throw new Error('Error al verificar cliente.');
       fetchAdminData();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      showToast(err.message);
     }
   };
 
   const handleSuspendUser = async (userId) => {
-    if (!window.confirm('¿Estás seguro de suspender o rechazar esta cuenta?')) {
+    if (!(await confirm('¿Suspender o rechazar esta cuenta?', { confirmLabel: 'Suspender', danger: true }))) {
       return;
     }
     try {
@@ -382,7 +384,7 @@ function AdminDashboardPage() {
       if (!response.ok) throw new Error('Error al suspender cuenta.');
       fetchAdminData();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      showToast(err.message);
     }
   };
 
@@ -395,7 +397,7 @@ function AdminDashboardPage() {
       if (!response.ok) throw new Error('Error al marcar como resuelto.');
       fetchAdminData();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      showToast(err.message);
     }
   };
 
@@ -408,7 +410,7 @@ function AdminDashboardPage() {
       if (!response.ok) throw new Error('No se pudo resolver la alerta de seguridad.');
       fetchAdminData();
     } catch (err) {
-      alert(`Error: ${err.message}`);
+      showToast(err.message);
     }
   };
 
@@ -429,7 +431,7 @@ function AdminDashboardPage() {
       fetchAdminChats();
       setActiveTab('chat'); // Redirigir al panel de chat
     } catch (err) {
-      alert(`Error de mensajería: ${err.message}`);
+      showToast(`No se pudo enviar el mensaje. ${err.message}`);
     }
   };
 
@@ -487,7 +489,7 @@ function AdminDashboardPage() {
       // Recargar datos
       fetchAdminData();
     } catch (err) {
-      alert(err.message);
+      showToast(err.message);
     }
   };
 
@@ -507,7 +509,7 @@ function AdminDashboardPage() {
       // Recargar datos
       fetchAdminData();
     } catch (err) {
-      alert(err.message);
+      showToast(err.message);
     }
   };
 
@@ -709,7 +711,7 @@ function AdminDashboardPage() {
             }`}
           >
             <span className="material-symbols-outlined text-[20px]">manage_accounts</span>
-            <span className="flex-1 text-left">Mi Perfil Admin</span>
+            <span className="flex-1 text-left">Mi perfil Admin</span>
           </button>
         </nav>
 
@@ -760,7 +762,7 @@ function AdminDashboardPage() {
               <option value="complaints">Reclamos</option>
               <option value="chat">Mensajería Central</option>
               <option value="jobs">Trabajos</option>
-              <option value="profile">Mi Perfil</option>
+              <option value="profile">Mi perfil</option>
             </select>
           </div>
           
@@ -784,7 +786,7 @@ function AdminDashboardPage() {
                 : activeTab === 'chat' 
                 ? 'Mensajería Central' 
                 : activeTab === 'profile'
-                ? 'Mi Perfil Admin'
+                ? 'Mi perfil Admin'
                 : 'Logs de Trabajos'}
             </span>
           </div>
@@ -1913,7 +1915,7 @@ function AdminDashboardPage() {
                 <div>
                   <h2 className="text-xl font-bold font-display text-primary dark:text-slate-100 flex items-center gap-2">
                     <span className="material-symbols-outlined text-primary dark:text-teal-400">manage_accounts</span>
-                    Mi Perfil Admin
+                    Mi perfil Admin
                   </h2>
                   <p className="text-xs text-primary/70 dark:text-slate-400 mt-1">Actualiza tus credenciales exclusivas de administración del sistema.</p>
                 </div>
