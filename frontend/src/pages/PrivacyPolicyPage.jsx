@@ -77,7 +77,7 @@ function PrivacyPolicyPage() {
 
         <div className="pt-6 border-t border-primary/10 dark:border-slate-700 text-center">
           <p className="text-sm text-muted dark:text-slate-400">
-            En caso de querer ejercer su derecho de rectificación, actualización o eliminación definitiva de sus datos personales, puede eliminar su cuenta en la sección "Mi perfil" o escribir a soporte técnico.
+            En caso de querer ejercer su derecho de rectificación, actualización o eliminación definitiva de sus datos personales, puede eliminar su cuenta en la sección "Mi Perfil" o escribir a soporte técnico.
           </p>
         </div>
       </main>
