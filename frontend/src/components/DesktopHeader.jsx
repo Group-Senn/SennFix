@@ -99,9 +99,11 @@ function DesktopHeader() {
   const navItems = [
     { to: '/home', text: 'Inicio', icon: 'home' },
     { to: '/explore', text: 'Explorar', icon: 'explore' },
+    { to: '/map', text: 'Mapa', icon: 'location_on' },
     { to: '/chats', text: 'Chats', icon: 'forum', badge: unreadChats },
     { to: '/my-profile', text: 'Perfil', icon: 'person' },
   ];
+  const activeIndex = navItems.findIndex(i => location.pathname === i.to || location.pathname.startsWith(`${i.to}/`));
 
   return (
     <header className="sticky top-0 left-0 right-0 z-[2000] h-16 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm hidden md:flex items-center justify-between px-8">
@@ -133,32 +135,37 @@ function DesktopHeader() {
       </Link>
 
       {/* Centered Navigation Links */}
-      <nav aria-label="Navegación principal" className="flex shrink-0 items-center gap-1">
+      {/* Dock: todas las pestañas miden lo mismo, así el indicador amarillo solo se desliza (sin medir nada) */}
+      <nav aria-label="Navegación principal" className="relative flex shrink-0 rounded-full bg-primary p-1 ring-1 ring-white/10 shadow-[0_6px_18px_rgba(4,63,59,0.25)]">
+        <span
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-y-1 left-1 w-12 xl:w-24 2xl:w-[6.5rem] rounded-full bg-casco transition-[transform,opacity] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${activeIndex >= 0 ? 'opacity-100' : 'opacity-0'}`}
+          style={{ transform: `translateX(${Math.max(activeIndex, 0) * 100}%)` }}
+        />
         {navItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
+            title={item.text}
             aria-label={item.badge > 0 ? `${item.text}, ${item.badge} sin leer` : item.text}
             className={({ isActive }) =>
-              `relative inline-flex items-center gap-2 rounded-full px-3 lg:px-4 py-2 text-[15px] font-semibold transition-colors ${
-                isActive
-                  ? 'bg-primary text-white dark:bg-teal-400 dark:text-slate-900'
-                  : 'text-slate-700 hover:bg-primary/5 dark:text-slate-300 dark:hover:bg-slate-800'
+              `relative flex h-10 w-12 xl:w-24 2xl:w-[6.5rem] items-center justify-center gap-1.5 rounded-full text-sm transition-[color,transform] duration-150 active:scale-95 ${
+                isActive ? 'font-extrabold text-primary' : 'font-semibold text-white/80 hover:text-white'
               }`
             }
           >
             {({ isActive }) => (
               <>
                 <span
-                  className="material-symbols-outlined text-[22px]"
+                  className={`material-symbols-outlined text-[22px] ${isActive ? 'animate-nav-pop' : ''}`}
                   aria-hidden="true"
-                  style={{ fontVariationSettings: `'FILL' ${isActive ? 1 : 0}, 'wght' 500` }}
+                  style={{ fontVariationSettings: `'FILL' ${isActive ? 1 : 0}, 'wght' ${isActive ? 600 : 400}` }}
                 >
                   {item.icon}
                 </span>
                 <span className="hidden xl:inline">{item.text}</span>
                 {item.badge > 0 && (
-                  <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-red-700 text-white text-xs font-bold leading-[18px] text-center">
+                  <span className="absolute right-1 top-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-xs font-bold leading-[18px] text-center ring-2 ring-primary">
                     {item.badge > 9 ? '9+' : item.badge}
                   </span>
                 )}
@@ -171,7 +178,7 @@ function DesktopHeader() {
       {/* Right Controls */}
       <div className="flex items-center gap-4">
         {showSearch && (
-          <div className="hidden lg:block w-52 xl:w-60">
+          <div className="hidden lg:block w-48 xl:w-44 2xl:w-60">
             <SearchBar compact />
           </div>
         )}

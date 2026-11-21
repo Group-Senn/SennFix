@@ -176,7 +176,7 @@ function NearbyPage() {
     : 'bg-transparent text-muted hover:text-primary dark:text-slate-400 dark:hover:text-teal-400'}`;
 
   return (
-    <main className="flex flex-col h-[calc(100dvh-4.25rem-env(safe-area-inset-bottom))] md:h-[calc(100dvh-4rem)]">
+    <main className="flex flex-col h-[calc(100dvh-5.5rem-env(safe-area-inset-bottom))] md:h-[calc(100dvh-4rem)]">
       <div className="shrink-0 space-y-3 border-b border-slate-200 dark:border-slate-800 bg-background-light dark:bg-background-dark px-4 md:px-6 py-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="font-display text-xl md:text-2xl font-extrabold text-primary dark:text-white">Mapa de profesionales</h1>

@@ -71,7 +71,7 @@ function App() {
   return (
     <div className="relative w-full min-h-screen overflow-x-hidden bg-background-light dark:bg-background-dark flex flex-col">
       {showNav && <DesktopHeader />}
-      <div className={`flex-1 w-full flex flex-col ${showNav ? 'pb-[calc(4.25rem+env(safe-area-inset-bottom))] md:pb-0' : ''}`}>
+      <div className={`flex-1 w-full flex flex-col ${showNav ? 'pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-0' : ''}`}>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<LoginPage />} />

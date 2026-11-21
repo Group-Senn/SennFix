@@ -338,7 +338,7 @@ function Profile() {
       </main>
 
       {/* Celular: acciones fijas sobre la barra de pestañas, siempre visibles */}
-      <div className="md:hidden fixed inset-x-0 bottom-[calc(4.25rem+env(safe-area-inset-bottom))] z-40 flex gap-2 border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-background-dark/95 backdrop-blur-md px-4 py-3">
+      <div className="md:hidden fixed inset-x-0 bottom-[calc(5.25rem+env(safe-area-inset-bottom))] z-40 flex gap-2 border-t border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-background-dark/95 backdrop-blur-md px-4 py-3">
         {actions}
       </div>
 

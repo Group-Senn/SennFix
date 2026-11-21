@@ -216,6 +216,16 @@ body, header, footer, nav, aside, button, input, textarea, select, .bg-white, .d
   animation: stamp 0.42s cubic-bezier(0.2, 0, 0, 1) 0.15s both;
 }
 
+/* Pestaña recién elegida: se encoge y rebota (respuesta exagerada y rápida al toque) */
+@keyframes navPop {
+  0% { transform: scale(0.7); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+.animate-nav-pop {
+  animation: navPop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
 /* Quien pidió "reducir movimiento" en su sistema no ve animaciones ni transiciones */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

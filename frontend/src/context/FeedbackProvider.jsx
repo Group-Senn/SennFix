@@ -44,7 +44,7 @@ export function FeedbackProvider({ children }) {
         <div
           key={toast.id}
           role={toast.type === 'error' ? 'alert' : 'status'}
-          className={`animate-feedback fixed inset-x-0 mx-auto z-[3000] flex w-[calc(100%-2rem)] max-w-md items-start gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg bottom-[calc(5rem+env(safe-area-inset-bottom))] md:bottom-6 ${toast.type === 'error' ? 'bg-red-800' : 'bg-primary'}`}
+          className={`animate-feedback fixed inset-x-0 mx-auto z-[3000] flex w-[calc(100%-2rem)] max-w-md items-start gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-white shadow-lg bottom-[calc(6.5rem+env(safe-area-inset-bottom))] md:bottom-6 ${toast.type === 'error' ? 'bg-red-800' : 'bg-primary'}`}
         >
           <span className="flex-1">{toast.message}</span>
           <button onClick={() => setToast(null)} aria-label="Cerrar aviso" className="-m-1 flex size-8 shrink-0 items-center justify-center rounded-full border-none bg-transparent text-white cursor-pointer">
