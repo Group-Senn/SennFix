@@ -211,6 +211,9 @@ app.get('/uploads/:filename', async (req, res) => {
     const filePath = path.join(uploadsDir, safeFilename);
     if (fs.existsSync(filePath)) {
       res.sendFile(filePath);
+    } else if (process.env.ASSETS_FALLBACK_URL && process.env.NODE_ENV !== 'production') {
+      // Solo desarrollo: las fotos públicas que existen en producción pero no en este equipo se piden allá
+      res.redirect(`${process.env.ASSETS_FALLBACK_URL}/uploads/${encodeURIComponent(safeFilename)}`);
     } else {
       res.status(404).json({ message: 'Archivo no encontrado.' });
     }
@@ -2966,6 +2969,7 @@ app.get('/api/explore/posts', async (req, res) => {
         pt.professional_id,
         pt.image_url,
         pt.description,
+        pt.zone,
         pt.likes_count,
         pt.created_at,
         p.specialty,
@@ -3033,7 +3037,7 @@ app.post('/api/explore/posts/:id/like', authMiddleware, async (req, res) => {
 // Endpoint para crear una nueva publicación en Explorar (sólo profesionales)
 app.post('/api/explore/posts', authMiddleware, upload.single('image'), async (req, res) => {
   const professionalId = req.user.id;
-  const { description } = req.body;
+  const { description, zone } = req.body;
 
   if (req.user.user_type !== 'professional') {
     return res.status(403).json({ message: 'Solo los profesionales pueden crear publicaciones.' });
@@ -3051,8 +3055,8 @@ app.post('/api/explore/posts', authMiddleware, upload.single('image'), async (re
     const imageUrl = await saveUploadedFile(req.file, `explore-${professionalId}`);
 
     const { rows: [newPost] } = await db.query(
-      "INSERT INTO professional_posts (professional_id, image_url, description, likes_count, status) VALUES ($1, $2, $3, $4, 'pending') RETURNING *",
-      [professionalId, imageUrl, description || '', 0]
+      "INSERT INTO professional_posts (professional_id, image_url, description, zone, likes_count, status) VALUES ($1, $2, $3, $4, $5, 'pending') RETURNING *",
+      [professionalId, imageUrl, description || '', (zone || '').trim().slice(0, 80) || null, 0]
     );
 
     // Obtener información adicional para devolver un objeto completo de publicación
@@ -3062,6 +3066,7 @@ app.post('/api/explore/posts', authMiddleware, upload.single('image'), async (re
         pt.professional_id,
         pt.image_url,
         pt.description,
+        pt.zone,
         pt.likes_count,
         pt.created_at,
         p.specialty,
@@ -3104,6 +3109,8 @@ async function ensureSecuritySchema() {
         PRIMARY KEY (post_id, user_id)
       )
     `);
+    // Barrio o zona del trabajo (opcional): es lo único de ubicación que se muestra de una publicación
+    await db.query('ALTER TABLE professional_posts ADD COLUMN IF NOT EXISTS zone VARCHAR(80)');
   } catch (error) {
     console.error('Error al preparar tablas de seguridad (phone_verifications / post_likes):', error);
   }

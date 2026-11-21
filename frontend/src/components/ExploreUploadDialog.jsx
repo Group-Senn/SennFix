@@ -6,6 +6,7 @@ function ExploreUploadDialog({ onClose, onPublished }) {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [description, setDescription] = useState('');
+  const [zone, setZone] = useState('');
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -38,6 +39,7 @@ function ExploreUploadDialog({ onClose, onPublished }) {
     const formData = new FormData();
     formData.append('image', file);
     formData.append('description', description);
+    formData.append('zone', zone.trim());
     try {
       const response = await fetch(window.API_URL + '/api/explore/posts', {
         method: 'POST',
@@ -88,6 +90,12 @@ function ExploreUploadDialog({ onClose, onPublished }) {
         <div>
           <label htmlFor="upload-description" className="mb-1.5 block text-sm font-bold text-ink dark:text-slate-200">Cuéntanos del trabajo (opcional)</label>
           <textarea id="upload-description" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} maxLength={500} placeholder="Por ejemplo: mesa de algarrobo hecha a medida" className={field} />
+        </div>
+
+        <div>
+          <label htmlFor="upload-zone" className="mb-1.5 block text-sm font-bold text-ink dark:text-slate-200">Barrio o zona donde lo hiciste (opcional)</label>
+          <input id="upload-zone" type="text" value={zone} onChange={(e) => setZone(e.target.value)} maxLength={80} placeholder="Por ejemplo: Equipetrol, Plan 3000" className={field} />
+          <p className="mt-1 text-xs text-muted dark:text-slate-400">Pon el barrio, no tu dirección: así los clientes saben si trabajas cerca de ellos.</p>
         </div>
 
         <p className="text-sm text-muted dark:text-slate-400">Un administrador la revisa antes de que se vea en Explorar.</p>

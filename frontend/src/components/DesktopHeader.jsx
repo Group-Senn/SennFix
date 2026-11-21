@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useFeedback } from '../context/feedbackContext';
 import ThemeSwitcher from './ThemeSwitcher';
 import NotificationBell from './NotificationBell';
+import { useNotifications } from '../context/NotificationContext';
 import SearchBar from './SearchBar';
 import logoNav from '../assets/logoNav.svg';
 import logoNavDark from '../assets/logoNavDark.svg';
@@ -14,6 +15,8 @@ import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
 function DesktopHeader() {
   const { user, isAuthenticated, logout } = useAuth();
   const { showToast } = useFeedback();
+  const { notifications } = useNotifications();
+  const unreadChats = notifications.filter(n => !n.is_read && n.type === 'new_message').length;
   const navigate = useNavigate();
   const location = useLocation();
   const showSearch = !['/home', '/search'].includes(location.pathname);
@@ -94,60 +97,70 @@ function DesktopHeader() {
   }, [isAuthenticated]);
 
   const navItems = [
-    { to: '/home', text: 'Inicio' },
-    { to: '/explore', text: 'Explorar' },
-    { to: '/chats', text: 'Chats' },
-    { to: '/my-profile', text: 'Perfil' },
+    { to: '/home', text: 'Inicio', icon: 'home' },
+    { to: '/explore', text: 'Explorar', icon: 'explore' },
+    { to: '/chats', text: 'Chats', icon: 'forum', badge: unreadChats },
+    { to: '/my-profile', text: 'Perfil', icon: 'person' },
   ];
 
   return (
-    <header className="sticky top-0 left-0 right-0 z-[2000] h-16 w-full bg-[#F4F6F3]/80 dark:bg-[#0F1614]/80 backdrop-blur-md border-b border-primary/10 dark:border-slate-800 hidden md:flex items-center justify-between px-8">
+    <header className="sticky top-0 left-0 right-0 z-[2000] h-16 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm hidden md:flex items-center justify-between px-8">
       {/* Brand Identity / Logo */}
-      <Link to="/" className="flex items-center gap-2.5 group">
+      <Link to="/" className="flex shrink-0 items-center gap-2.5 group">
         {/* Logo image responsive to dark mode */}
         <img 
           src={logoNav} 
           alt="Logo de SENN Fix" 
-          className="h-8 w-auto object-contain transition-transform dark:hidden" 
+          className="h-9 w-auto object-contain transition-transform dark:hidden" 
         />
         <img 
           src={logoNavDark} 
           alt="Logo de SENN Fix" 
-          className="h-8 w-auto object-contain transition-transform hidden dark:block" 
+          className="h-9 w-auto object-contain transition-transform hidden dark:block" 
         />
         
         {/* Brand Text image responsive to dark mode */}
         <img 
           src={letra} 
           alt="SENN Fix" 
-          className="h-5 w-auto object-contain dark:hidden" 
+          className="h-6 w-auto object-contain dark:hidden" 
         />
         <img 
           src={letraDark} 
           alt="SENN Fix" 
-          className="h-5 w-auto object-contain hidden dark:block" 
+          className="h-6 w-auto object-contain hidden dark:block" 
         />
       </Link>
 
       {/* Centered Navigation Links */}
-      <nav className="flex items-center gap-8">
+      <nav aria-label="Navegación principal" className="flex shrink-0 items-center gap-1">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}
+            aria-label={item.badge > 0 ? `${item.text}, ${item.badge} sin leer` : item.text}
             className={({ isActive }) =>
-              `text-sm font-semibold transition-all relative py-1.5 px-1 hover:text-primary dark:hover:text-teal-400 ${
+              `relative inline-flex items-center gap-2 rounded-full px-3 lg:px-4 py-2 text-[15px] font-semibold transition-colors ${
                 isActive
-                  ? 'text-primary dark:text-teal-400'
-                  : 'text-muted dark:text-slate-400'
+                  ? 'bg-primary text-white dark:bg-teal-400 dark:text-slate-900'
+                  : 'text-slate-700 hover:bg-primary/5 dark:text-slate-300 dark:hover:bg-slate-800'
               }`
             }
           >
             {({ isActive }) => (
               <>
-                {item.text}
-                {isActive && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary dark:bg-teal-400 rounded-full animate-scale-up" />
+                <span
+                  className="material-symbols-outlined text-[22px]"
+                  aria-hidden="true"
+                  style={{ fontVariationSettings: `'FILL' ${isActive ? 1 : 0}, 'wght' 500` }}
+                >
+                  {item.icon}
+                </span>
+                <span className="hidden xl:inline">{item.text}</span>
+                {item.badge > 0 && (
+                  <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-red-700 text-white text-xs font-bold leading-[18px] text-center">
+                    {item.badge > 9 ? '9+' : item.badge}
+                  </span>
                 )}
               </>
             )}
@@ -158,7 +171,7 @@ function DesktopHeader() {
       {/* Right Controls */}
       <div className="flex items-center gap-4">
         {showSearch && (
-          <div className="hidden lg:block w-72">
+          <div className="hidden lg:block w-52 xl:w-60">
             <SearchBar compact />
           </div>
         )}
@@ -289,13 +302,14 @@ function DesktopHeader() {
           </Link>
         ) : (
           /* Iniciar sesión message in the navbar, shown ONLY when unauthenticated */
-          <Link
-            to="/login"
-            className="text-xs font-bold text-primary dark:text-teal-400 hover:underline flex items-center gap-1.5"
-          >
-            <span className="material-symbols-outlined text-[16px]">login</span>
-            Iniciar sesión
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link to="/login" className="whitespace-nowrap rounded-full border border-slate-300 dark:border-slate-600 px-4 py-2 text-sm font-bold text-primary dark:text-teal-400 hover:bg-primary/5 dark:hover:bg-slate-800 transition-colors">
+              Iniciar sesión
+            </Link>
+            <Link to="/register" className="hidden 2xl:inline-flex whitespace-nowrap rounded-full bg-primary dark:bg-teal-400 px-4 py-2 text-sm font-bold text-white dark:text-slate-900 hover:opacity-90 transition-opacity">
+              Registrarme
+            </Link>
+          </div>
         )}
       </div>
     </header>

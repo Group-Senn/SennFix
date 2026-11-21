@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 
-// Barra de pestañas estándar: fija, a ancho completo y con nombre visible en cada pestaña
+// Barra de pestañas de celular: sólida y elevada, con la pestaña activa dentro de una píldora de color
 function BottomNav() {
   const { user } = useAuth();
   const { notifications } = useNotifications();
@@ -24,30 +24,39 @@ function BottomNav() {
   return (
     <nav
       aria-label="Navegación principal"
-      className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-white/95 dark:bg-background-dark/95 backdrop-blur-md border-t border-slate-200 dark:border-slate-800 pb-[env(safe-area-inset-bottom)]"
+      className="fixed bottom-0 inset-x-0 z-[1100] md:hidden bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-700 shadow-[0_-6px_20px_rgba(4,63,59,0.10)] dark:shadow-[0_-6px_20px_rgba(0,0,0,0.5)] pb-[env(safe-area-inset-bottom)]"
     >
-      <ul className="flex h-16">
+      <ul className="flex h-[68px]">
         {navItems.map((item) => (
           <li key={item.to} className="flex-1 list-none">
-            <NavLink
-              to={item.to}
-              className={({ isActive }) =>
-                `flex flex-col items-center justify-center gap-0.5 h-full text-xs transition-colors ${isActive
-                  ? 'text-primary dark:text-teal-400 font-bold'
-                  : 'text-muted dark:text-slate-400 font-medium'
-                }`
-              }
-            >
-              <span className="relative">
-                <span className="material-symbols-outlined text-2xl block" aria-hidden="true">{item.icon}</span>
-                {item.badge > 0 && (
-                  <span className="absolute -top-1 -right-2.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-700 text-white text-xs font-bold leading-[18px] text-center">
-                    {item.badge > 9 ? '9+' : item.badge}
+            <NavLink to={item.to} className="flex h-full flex-col items-center justify-center gap-1">
+              {({ isActive }) => (
+                <>
+                  <span
+                    className={`relative flex h-8 w-16 items-center justify-center rounded-full transition-colors ${isActive
+                      ? 'bg-primary text-white dark:bg-teal-400 dark:text-slate-900'
+                      : 'text-slate-600 dark:text-slate-300'}`}
+                  >
+                    {/* Activa: ícono relleno; inactiva: solo contorno */}
+                    <span
+                      className="material-symbols-outlined text-[26px]"
+                      aria-hidden="true"
+                      style={{ fontVariationSettings: `'FILL' ${isActive ? 1 : 0}, 'wght' 500` }}
+                    >
+                      {item.icon}
+                    </span>
+                    {item.badge > 0 && (
+                      <span className="absolute -right-0.5 top-0 min-w-[18px] h-[18px] px-1 rounded-full bg-red-700 text-white text-xs font-bold leading-[18px] text-center ring-2 ring-white dark:ring-slate-900">
+                        {item.badge > 9 ? '9+' : item.badge}
+                      </span>
+                    )}
                   </span>
-                )}
-              </span>
-              {item.text}
-              {item.badge > 0 && <span className="sr-only">, {item.badge} sin leer</span>}
+                  <span className={`text-xs ${isActive ? 'font-extrabold text-primary dark:text-teal-400' : 'font-semibold text-slate-600 dark:text-slate-300'}`}>
+                    {item.text}
+                  </span>
+                  {item.badge > 0 && <span className="sr-only">, {item.badge} sin leer</span>}
+                </>
+              )}
             </NavLink>
           </li>
         ))}

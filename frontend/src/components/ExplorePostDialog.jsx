@@ -77,6 +77,12 @@ function ExplorePostDialog({ post, isOwn, chatError, onClose, onLike, onChat }) 
                 Sello de Oro
               </span>
             )}
+            {post.zone && (
+              <span className="inline-flex items-center gap-1 text-sm font-semibold text-ink dark:text-slate-200">
+                <span className="material-symbols-outlined text-base text-primary dark:text-teal-400" aria-hidden="true">location_on</span>
+                {post.zone}
+              </span>
+            )}
             <span className="text-xs text-muted dark:text-slate-400">{relativeTime(post.created_at)}</span>
           </div>
 

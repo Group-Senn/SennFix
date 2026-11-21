@@ -156,7 +156,7 @@ function ExplorePage() {
               <li key={post.id}>
                 <button
                   onClick={(e) => openPost(post, e.currentTarget)}
-                  aria-label={`${post.professional_name}, ${post.specialty}${post.description ? `: ${post.description}` : ''}`}
+                  aria-label={`${post.professional_name}, ${post.specialty}${post.zone ? `, en ${post.zone}` : ''}${post.description ? `: ${post.description}` : ''}`}
                   className="group relative block aspect-square w-full overflow-hidden rounded-xl border-none bg-slate-200 p-0 cursor-pointer dark:bg-slate-800"
                 >
                   {/* Si la foto no carga queda el recuadro neutro: una imagen de relleno haría pasar un trabajo falso por real */}
@@ -168,6 +168,12 @@ function ExplorePage() {
                   <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 pb-2.5 pt-8 text-left">
                     <span className="block truncate text-sm font-bold text-white">{post.professional_name}</span>
                     <span className="block truncate text-xs text-white/85">{post.specialty}</span>
+                    {post.zone && (
+                      <span className="mt-0.5 flex items-center gap-0.5 truncate text-xs text-white/85">
+                        <span className="material-symbols-outlined text-sm" aria-hidden="true">location_on</span>
+                        <span className="truncate">{post.zone}</span>
+                      </span>
+                    )}
                   </span>
                 </button>
               </li>

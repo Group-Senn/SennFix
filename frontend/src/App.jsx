@@ -21,6 +21,7 @@ import SearchResults from './pages/SearchResults';
 import AllServices from './pages/AllServices';
 import ProtectedRoute from './components/ProtectedRoute';
 import BottomNav from './components/BottomNav';
+import DesktopFooter from './components/DesktopFooter';
 import DesktopHeader from './components/DesktopHeader';
 import { useAuth } from './context/AuthContext';
 import NoLaborRelationshipPage from './pages/NoLaborRelationshipPage';
@@ -63,12 +64,14 @@ function App() {
 
   // Ocultamos la barra de navegación en ciertas páginas
   const isChatRoom = location.pathname.startsWith('/chats/');
+  // El mapa ocupa toda la pantalla: un pie de página debajo obligaría a bajar para nada
+  const isMap = location.pathname === '/map';
   const showNav = !['/', '/login', '/register', '/register-professional', '/legal/no-labor-relationship', '/legal/terms-and-conditions', '/legal/privacy-policy'].includes(location.pathname) && !isChatRoom;
 
   return (
     <div className="relative w-full min-h-screen overflow-x-hidden bg-background-light dark:bg-background-dark flex flex-col">
       {showNav && <DesktopHeader />}
-      <div className={`flex-1 w-full flex flex-col ${showNav ? 'pb-[calc(4rem+env(safe-area-inset-bottom))] md:pb-0' : ''}`}>
+      <div className={`flex-1 w-full flex flex-col ${showNav ? 'pb-[calc(4.25rem+env(safe-area-inset-bottom))] md:pb-0' : ''}`}>
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<LoginPage />} />
@@ -113,6 +116,7 @@ function App() {
         </Routes>
       </div>
       {showNav && <BottomNav />}
+      {showNav && !isMap && <DesktopFooter />}
       <CookieConsent />
       <Analytics />
     </div>
