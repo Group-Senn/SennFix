@@ -2,27 +2,9 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import DatePicker from '../components/DatePicker';
 import PhoneVerification from '../components/PhoneVerification';
+import { validatePassword, EMAIL_REGEX } from '../utils/validation';
 import logoNav from '../assets/logoNav.svg';
 import logoNavDark from '../assets/logoNavDark.svg';
-
-const validatePassword = (pwd) => {
-  if (pwd.length < 8) {
-    return 'La contraseña debe tener al menos 8 caracteres.';
-  }
-  if (!/[A-Z]/.test(pwd)) {
-    return 'La contraseña debe incluir al menos una letra mayúscula.';
-  }
-  if (!/[a-z]/.test(pwd)) {
-    return 'La contraseña debe incluir al menos una letra minúscula.';
-  }
-  if (!/\d/.test(pwd)) {
-    return 'La contraseña debe incluir al menos un número.';
-  }
-  if (!/[@$!%*?&._-]/.test(pwd)) {
-    return 'La contraseña debe incluir al menos un carácter especial (ej: @, $, !, %, *, ?, &, ., _, -).';
-  }
-  return null;
-};
 
 function RegisterPage() {
   const [name, setName] = useState('');
@@ -47,7 +29,7 @@ function RegisterPage() {
   // Valida al salir del campo para mostrar el error junto a él, sin esperar al envío
   const validateField = (field, value) => {
     let message = '';
-    if (field === 'email' && value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) message = 'Escribe un correo válido, por ejemplo nombre@correo.com.';
+    if (field === 'email' && value && !EMAIL_REGEX.test(value)) message = 'Escribe un correo válido, por ejemplo nombre@correo.com.';
     if (field === 'phone' && value && !/^[67]\d{7}$/.test(value)) message = 'Escribe 8 dígitos que empiecen con 6 o 7.';
     setFieldErrors(prev => ({ ...prev, [field]: message }));
   };
@@ -115,8 +97,8 @@ function RegisterPage() {
   return (
     <>
       <header className="absolute top-0 left-0 w-full p-4 z-10">
-        <Link to="/home" className="text-primary flex size-10 shrink-0 items-center justify-center rounded-full bg-white/50 hover:bg-white/80 dark:bg-slate-800/50 dark:hover:bg-slate-800/80 backdrop-blur-sm transition-colors">
-          <span className="material-symbols-outlined">close</span>
+        <Link to="/home" aria-label="Volver al inicio" className="text-primary flex size-10 shrink-0 items-center justify-center rounded-full bg-white/50 hover:bg-white/80 dark:bg-slate-800/50 dark:hover:bg-slate-800/80 backdrop-blur-sm transition-colors">
+          <span aria-hidden="true" className="material-symbols-outlined">close</span>
         </Link>
       </header>
       <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background-light dark:bg-background-dark">
@@ -132,12 +114,12 @@ function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Nombre Completo <span className="text-red-500">*</span></label>
+              <label htmlFor="reg-name" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Nombre completo <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span></label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">person</span>
+                <span aria-hidden="true" className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">person</span>
                 <input 
                   type="text" 
-                  value={name} autoComplete="name" 
+                  id="reg-name" value={name} autoComplete="name" 
                   onChange={e => setName(e.target.value)} 
                   required 
                   className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
@@ -146,12 +128,12 @@ function RegisterPage() {
               </div>
             </div>
             <div>
-              <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Correo Electrónico <span className="text-red-500">*</span></label>
+              <label htmlFor="reg-email" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Correo electrónico <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span></label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">alternate_email</span>
+                <span aria-hidden="true" className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">alternate_email</span>
                 <input 
                   type="email" 
-                  value={email} autoComplete="email" onBlur={e => validateField('email', e.target.value)} aria-invalid={!!fieldErrors.email} 
+                  id="reg-email" value={email} autoComplete="email" onBlur={e => validateField('email', e.target.value)} aria-invalid={!!fieldErrors.email} 
                   onChange={e => { setEmail(e.target.value); if (fieldErrors.email) validateField('email', e.target.value); }} 
                   required 
                   className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
@@ -162,8 +144,7 @@ function RegisterPage() {
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">
-                  Celular <span className="text-red-500">*</span>
+                <label htmlFor="reg-phone" className="">Celular <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span>
                 </label>
                 <div className="flex rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 focus-within:ring-4 focus-within:ring-primary/10 dark:focus-within:ring-teal-500/10 focus-within:border-primary dark:focus-within:border-teal-500 transition-all overflow-hidden">
                   <div className="flex items-center gap-1.5 px-3 bg-slate-200/40 dark:bg-slate-700 border-r border-primary/10 text-primary dark:text-slate-100 font-bold select-none text-sm sm:text-base">
@@ -173,7 +154,7 @@ function RegisterPage() {
                   <input
                     type="tel"
                     inputMode="numeric"
-                    value={phoneNumber}
+                    id="reg-phone" value={phoneNumber}
                     autoComplete="tel-national"
                     onBlur={e => validateField('phone', e.target.value)}
                     aria-invalid={!!fieldErrors.phone}
@@ -196,13 +177,13 @@ function RegisterPage() {
                   <DatePicker value={birthDate} onChange={setBirthDate} />
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">C.I. (Opcional)</label>
+                  <label htmlFor="reg-ci" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">C.I. (opcional)</label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">badge</span>
+                    <span aria-hidden="true" className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">badge</span>
                     <input 
                       type="text" 
                       maxLength={8} 
-                      value={identityCard} autoComplete="off" 
+                      id="reg-ci" value={identityCard} autoComplete="off" 
                       onChange={e => setIdentityCard(e.target.value.replace(/[^0-9]/g, ''))} 
                       placeholder="12345678"
                       className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
@@ -212,19 +193,19 @@ function RegisterPage() {
               </div>
             </div>
             <div>
-              <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Contraseña <span className="text-red-500">*</span></label>
+              <label htmlFor="reg-password" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Contraseña <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span></label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">lock</span>
+                <span aria-hidden="true" className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">lock</span>
                 <input 
                   type={showPassword ? 'text' : 'password'} 
-                  value={password} autoComplete="new-password" 
+                  id="reg-password" value={password} autoComplete="new-password" 
                   onChange={e => setPassword(e.target.value)} 
                   required 
                   className="w-full pl-11 pr-12 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
                   placeholder="••••••••"
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-455 hover:text-primary dark:hover:text-slate-200 transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center">
-                  <span className="material-symbols-outlined text-lg">{showPassword ? 'visibility_off' : 'visibility'}</span>
+                <button type="button" aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-455 hover:text-primary dark:hover:text-slate-200 transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center">
+                  <span aria-hidden="true" className="material-symbols-outlined text-lg">{showPassword ? 'visibility_off' : 'visibility'}</span>
                 </button>
               </div>
               
@@ -232,24 +213,24 @@ function RegisterPage() {
                 <div className="mt-2 text-xs space-y-1 bg-slate-50 dark:bg-slate-900/50 p-3.5 rounded-2xl border border-primary/5 dark:border-slate-700 animate-feedback">
                   <p className="font-semibold text-primary/80 dark:text-slate-300 mb-1">Requisitos de la contraseña:</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
-                    <div className={`flex items-center gap-1.5 ${password.length >= 8 ? 'text-green-600 dark:text-green-400' : 'text-red-500'}`}>
-                      <span className="material-symbols-outlined text-[14px] font-bold">{password.length >= 8 ? 'check' : 'close'}</span>
+                    <div className={`flex items-center gap-1.5 ${password.length >= 8 ? 'text-green-600 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[14px] font-bold">{password.length >= 8 ? 'check' : 'close'}</span>
                       <span>Mínimo 8 caracteres</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 ${/[A-Z]/.test(password) ? 'text-green-600 dark:text-green-400' : 'text-red-500'}`}>
-                      <span className="material-symbols-outlined text-[14px] font-bold">{/[A-Z]/.test(password) ? 'check' : 'close'}</span>
+                    <div className={`flex items-center gap-1.5 ${/[A-Z]/.test(password) ? 'text-green-600 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[14px] font-bold">{/[A-Z]/.test(password) ? 'check' : 'close'}</span>
                       <span>Una mayúscula (A-Z)</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 ${/[a-z]/.test(password) ? 'text-green-600 dark:text-green-400' : 'text-red-500'}`}>
-                      <span className="material-symbols-outlined text-[14px] font-bold">{/[a-z]/.test(password) ? 'check' : 'close'}</span>
+                    <div className={`flex items-center gap-1.5 ${/[a-z]/.test(password) ? 'text-green-600 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[14px] font-bold">{/[a-z]/.test(password) ? 'check' : 'close'}</span>
                       <span>Una minúscula (a-z)</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 ${/\d/.test(password) ? 'text-green-600 dark:text-green-400' : 'text-red-500'}`}>
-                      <span className="material-symbols-outlined text-[14px] font-bold">{/\d/.test(password) ? 'check' : 'close'}</span>
+                    <div className={`flex items-center gap-1.5 ${/\d/.test(password) ? 'text-green-600 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[14px] font-bold">{/\d/.test(password) ? 'check' : 'close'}</span>
                       <span>Un número (0-9)</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 ${/[@$!%*?&._-]/.test(password) ? 'text-green-600 dark:text-green-400' : 'text-red-500'}`}>
-                      <span className="material-symbols-outlined text-[14px] font-bold">{/[@$!%*?&._-]/.test(password) ? 'check' : 'close'}</span>
+                    <div className={`flex items-center gap-1.5 ${/[@$!%*?&._-]/.test(password) ? 'text-green-600 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[14px] font-bold">{/[@$!%*?&._-]/.test(password) ? 'check' : 'close'}</span>
                       <span>Carácter especial (@$!%*?&._-)</span>
                     </div>
                   </div>
@@ -272,19 +253,19 @@ function RegisterPage() {
                 <button type="button" onClick={() => setShowNoLaborModal(true)} className="font-bold text-primary dark:text-teal-400 underline hover:opacity-80 transition-opacity bg-transparent border-none p-0 inline cursor-pointer">
                   Términos de Deslinde Laboral
                 </button>{' '}
-                de SENN FIX. <span className="text-red-500">*</span>
+                de SENN FIX. <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span>
               </label>
             </div>
 
             {error && (
-              <div className="animate-feedback flex items-center gap-3 p-3 bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-400 rounded-xl text-sm font-semibold">
-                <span className="material-symbols-outlined shrink-0 text-xl">error</span>
+              <div role="alert" className="animate-feedback flex items-center gap-3 p-3 bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-400 rounded-xl text-sm font-semibold">
+                <span aria-hidden="true" className="material-symbols-outlined shrink-0 text-xl">error</span>
                 <span>{error}</span>
               </div>
             )}
             {success && (
-              <div className="animate-feedback flex items-center gap-3 p-3 bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400 rounded-xl text-sm font-semibold">
-                <span className="material-symbols-outlined shrink-0 text-xl">check_circle</span>
+              <div role="status" className="animate-feedback flex items-center gap-3 p-3 bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:text-teal-400 rounded-xl text-sm font-semibold">
+                <span aria-hidden="true" className="material-symbols-outlined shrink-0 text-xl">check_circle</span>
                 <span>{success}</span>
               </div>
             )}
@@ -321,7 +302,7 @@ function RegisterPage() {
                 onClick={() => setShowPrivacyModal(false)} 
                 className="text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 transition-colors flex items-center justify-center bg-transparent border-none cursor-pointer p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"
               >
-                <span className="material-symbols-outlined">close</span>
+                <span aria-hidden="true" className="material-symbols-outlined">close</span>
               </button>
             </div>
             <div className="space-y-4 text-sm leading-relaxed overflow-y-auto pr-2 max-h-[60vh] text-left">
@@ -401,7 +382,7 @@ function RegisterPage() {
                 onClick={() => setShowConditionsModal(false)} 
                 className="text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 transition-colors flex items-center justify-center bg-transparent border-none cursor-pointer p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"
               >
-                <span className="material-symbols-outlined">close</span>
+                <span aria-hidden="true" className="material-symbols-outlined">close</span>
               </button>
             </div>
             <div className="space-y-4 text-sm leading-relaxed overflow-y-auto pr-2 max-h-[60vh] text-left">
@@ -477,7 +458,7 @@ function RegisterPage() {
                 onClick={() => setShowNoLaborModal(false)} 
                 className="text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 transition-colors flex items-center justify-center bg-transparent border-none cursor-pointer p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"
               >
-                <span className="material-symbols-outlined">close</span>
+                <span aria-hidden="true" className="material-symbols-outlined">close</span>
               </button>
             </div>
             <div className="space-y-4 text-sm leading-relaxed overflow-y-auto pr-2 max-h-[60vh] text-left">

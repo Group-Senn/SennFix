@@ -179,19 +179,20 @@ function PhoneVerificationModal({ phoneNumber, onVerified, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-feedback">
+    <div role="dialog" aria-modal="true" aria-labelledby="phone-verification-title" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-feedback">
       <div className="relative w-full max-w-md bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 p-6 rounded-2xl shadow-2xl flex flex-col space-y-4">
         <div className="flex items-center justify-between border-b pb-3 border-slate-200 dark:border-slate-700">
-          <h3 className="font-display text-lg font-bold text-primary dark:text-slate-100">
+          <h3 id="phone-verification-title" className="font-display text-lg font-bold text-primary dark:text-slate-100">
             <span>Verificación por WhatsApp</span>
           </h3>
           <button
             type="button"
             onClick={onClose}
             disabled={loading}
+            aria-label="Cerrar"
             className="text-slate-400 hover:text-slate-600 dark:text-slate-400 dark:hover:text-slate-200 transition-colors flex items-center justify-center bg-transparent border-none cursor-pointer p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"
           >
-            <span className="material-symbols-outlined">close</span>
+            <span aria-hidden="true" className="material-symbols-outlined">close</span>
           </button>
         </div>
 
@@ -239,8 +240,8 @@ function PhoneVerificationModal({ phoneNumber, onVerified, onClose }) {
             )}
 
             {error && (
-              <div className="flex items-start gap-2.5 p-3 bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-400 rounded-lg text-xs leading-relaxed font-semibold animate-feedback">
-                <span className="material-symbols-outlined text-base mt-0.5 shrink-0">error</span>
+              <div role="alert" className="flex items-start gap-2.5 p-3 bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-400 rounded-lg text-xs leading-relaxed font-semibold animate-feedback">
+                <span aria-hidden="true" className="material-symbols-outlined text-base mt-0.5 shrink-0">error</span>
                 <span>{error}</span>
               </div>
             )}
@@ -263,7 +264,7 @@ function PhoneVerificationModal({ phoneNumber, onVerified, onClose }) {
                     </>
                   ) : (
                     <>
-                      <span className="material-symbols-outlined text-lg sm:text-xl">verified_user</span>
+                      <span aria-hidden="true" className="material-symbols-outlined text-lg sm:text-xl">verified_user</span>
                       <span>Confirmar Código</span>
                     </>
                   )}

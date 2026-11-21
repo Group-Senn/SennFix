@@ -60,8 +60,8 @@ function LoginPage() {
   return (
     <>
       <header className="absolute top-0 left-0 w-full p-4 z-10">
-        <Link to="/home" className="text-primary flex size-10 shrink-0 items-center justify-center rounded-full bg-white/50 hover:bg-white/80 dark:bg-slate-800/50 dark:hover:bg-slate-800/80 backdrop-blur-sm transition-colors">
-          <span className="material-symbols-outlined">close</span>
+        <Link to="/home" aria-label="Volver al inicio" className="text-primary flex size-10 shrink-0 items-center justify-center rounded-full bg-white/50 hover:bg-white/80 dark:bg-slate-800/50 dark:hover:bg-slate-800/80 backdrop-blur-sm transition-colors">
+          <span aria-hidden="true" className="material-symbols-outlined">close</span>
         </Link>
       </header>
       <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background-light dark:bg-background-dark">
@@ -69,18 +69,18 @@ function LoginPage() {
           <div className="text-center">
             <img src={logoNav} alt="SENN Fix Logo" className="h-14 w-auto mx-auto mb-4 object-contain dark:hidden" />
             <img src={logoNavDark} alt="SENN Fix Logo" className="h-14 w-auto mx-auto mb-4 object-contain hidden dark:block" />
-            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-primary dark:text-slate-100">Iniciar Sesión</h1>
+            <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-primary dark:text-slate-100">Iniciar sesión</h1>
             <p className="text-sm text-muted dark:text-slate-400 mt-2 font-medium">Bienvenido de vuelta a SENN Fix</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Correo Electrónico</label>
+              <label htmlFor="login-email" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Correo electrónico</label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">alternate_email</span>
+                <span aria-hidden="true" className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">alternate_email</span>
                 <input 
                   type="email" 
-                  value={email} 
+                  id="login-email" autoComplete="email" value={email} 
                   onChange={e => setEmail(e.target.value)} 
                   required 
                   className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
@@ -89,33 +89,33 @@ function LoginPage() {
               </div>
             </div>
             <div>
-              <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Contraseña</label>
+              <label htmlFor="login-password" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Contraseña</label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">lock</span>
+                <span aria-hidden="true" className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">lock</span>
                 <input 
-                  type={showPassword ? 'text' : 'password'} 
+                  id="login-password" autoComplete="current-password" type={showPassword ? 'text' : 'password'} 
                   value={password} 
                   onChange={e => setPassword(e.target.value)} 
                   required 
                   className="w-full pl-11 pr-12 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
                   placeholder="••••••••"
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-450 hover:text-primary dark:hover:text-slate-200 transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center">
-                  <span className="material-symbols-outlined text-lg">{showPassword ? 'visibility_off' : 'visibility'}</span>
+                <button type="button" aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-450 hover:text-primary dark:hover:text-slate-200 transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center">
+                  <span aria-hidden="true" className="material-symbols-outlined text-lg">{showPassword ? 'visibility_off' : 'visibility'}</span>
                 </button>
               </div>
             </div>
 
             {error && (
-              <div className="animate-feedback flex items-center gap-3 p-3 bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-400 rounded-xl text-sm font-semibold">
-                <span className="material-symbols-outlined shrink-0 text-xl">error</span>
+              <div role="alert" className="animate-feedback flex items-center gap-3 p-3 bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-400 rounded-xl text-sm font-semibold">
+                <span aria-hidden="true" className="material-symbols-outlined shrink-0 text-xl">error</span>
                 <span>{error}</span>
               </div>
             )}
 
             {pendingMessage && (
-              <div className="animate-feedback flex items-center gap-3 p-3 bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 rounded-xl text-sm font-semibold">
-                <span className="material-symbols-outlined shrink-0 text-xl">pending_actions</span>
+              <div role="status" className="animate-feedback flex items-center gap-3 p-3 bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 rounded-xl text-sm font-semibold">
+                <span aria-hidden="true" className="material-symbols-outlined shrink-0 text-xl">pending_actions</span>
                 <span>{pendingMessage}</span>
               </div>
             )}
@@ -135,14 +135,14 @@ function LoginPage() {
                 to="/register" 
                 className="flex flex-col items-center justify-center p-3 rounded-2xl border border-primary/10 dark:border-slate-700 hover:border-primary/20 dark:hover:border-teal-500/35 hover:bg-primary/5 dark:hover:bg-teal-500/5 transition-all text-center no-underline cursor-pointer"
               >
-                <span className="material-symbols-outlined text-xl text-primary dark:text-teal-400 mb-1">person</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-xl text-primary dark:text-teal-400 mb-1">person</span>
                 <span className="font-bold text-xs text-primary dark:text-slate-200">Cliente</span>
               </Link>
               <Link 
                 to="/register-professional" 
                 className="flex flex-col items-center justify-center p-3 rounded-2xl border border-primary/10 dark:border-slate-700 hover:border-primary/20 dark:hover:border-teal-500/35 hover:bg-primary/5 dark:hover:bg-teal-500/5 transition-all text-center no-underline cursor-pointer"
               >
-                <span className="material-symbols-outlined text-xl text-primary dark:text-teal-400 mb-1">construction</span>
+                <span aria-hidden="true" className="material-symbols-outlined text-xl text-primary dark:text-teal-400 mb-1">construction</span>
                 <span className="font-bold text-xs text-primary dark:text-slate-200">Profesional</span>
               </Link>
             </div>

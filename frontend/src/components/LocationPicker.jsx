@@ -223,6 +223,7 @@ function LocationPicker({ onLocationChange, address, onAddressChange }) {
           value={searchQuery}
           onChange={handleQueryChange}
           placeholder="Escribe una dirección para buscar..."
+          aria-label="Buscar la dirección del local"
           className="w-full px-4 py-3 rounded-lg bg-background-light dark:bg-slate-700 border-transparent focus:ring-2 focus:ring-primary"
         />
         {isSearching && <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted">Buscando...</span>}

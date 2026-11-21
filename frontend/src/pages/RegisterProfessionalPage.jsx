@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import LocationPicker from '../components/LocationPicker';
 import SpecialtyCombobox from '../components/SpecialtyCombobox';
@@ -6,6 +6,9 @@ import DatePicker from '../components/DatePicker';
 import PhoneVerification from '../components/PhoneVerification';
 import DocumentUploadCard from '../components/DocumentUploadCard';
 import { compressImage } from '../utils/imageCompressor';
+import { validatePassword, EMAIL_REGEX } from '../utils/validation';
+
+const STEP_TITLES = ['Tu cuenta', 'Tu identidad', 'Tu oficio'];
 
 function RegisterProfessionalPage() {
   const [showTermsModal, setShowTermsModal] = useState(false);
@@ -41,7 +44,9 @@ function RegisterProfessionalPage() {
   const [ciBackFile, setCiBackFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [isProfileSectionEnabled, setIsProfileSectionEnabled] = useState(false);
+  const [step, setStep] = useState(1);
+  const headingRef = useRef(null);
+  const firstRender = useRef(true);
   const [isMinor, setIsMinor] = useState(false);
   const [isCompany, setIsCompany] = useState(false);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
@@ -106,10 +111,15 @@ function RegisterProfessionalPage() {
       setFormData(prev => ({ ...prev, [name]: type === 'checkbox' ? checked : value }));
     }
 
-    if (name === 'password') {
-      setIsProfileSectionEnabled(value.trim().length > 0);
-    }
   };
+
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    headingRef.current?.focus();
+  }, [step]);
 
   const handleSpecialtyChange = (specialty) => {
     setFormData(prev => ({ ...prev, specialty }));
@@ -129,22 +139,6 @@ function RegisterProfessionalPage() {
       const file = e.target.files[0];
       const compressed = await compressImage(file);
       setDefensoriaPermitFile(compressed);
-    }
-  };
-
-  const handleCiFrontChange = async (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const compressed = await compressImage(file);
-      setCiFrontFile(compressed);
-    }
-  };
-
-  const handleCiBackChange = async (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      const compressed = await compressImage(file);
-      setCiBackFile(compressed);
     }
   };
 
@@ -171,68 +165,60 @@ function RegisterProfessionalPage() {
     }));
   };
 
+  // Cada paso valida solo lo suyo; el envío vuelve a revisar los tres. Devuelve el mensaje de error o null
+  const validateStep = (n) => {
+    const f = formData;
+    const empty = (key, label) => (!f[key] || !f[key].toString().trim()) && `El campo "${label}" es obligatorio.`;
+    if (n === 1) {
+      return empty('name', 'Nombre Completo')
+        || empty('email', 'Correo Electrónico')
+        || (!EMAIL_REGEX.test(f.email) && 'Escribe un correo válido, por ejemplo nombre@correo.com.')
+        || empty('password', 'Contraseña')
+        || validatePassword(f.password)
+        || empty('birth_date', 'Fecha de Nacimiento')
+        || (!profileImageFile && 'La foto de perfil del rostro es obligatoria para tu verificación.')
+        || null;
+    }
+    if (n === 2) {
+      return empty('identity_card', 'Carnet de Identidad')
+        || (!ciFrontFile && (isCompany ? 'Debes adjuntar la imagen del anverso del NIT o carnet.' : 'Debes adjuntar la imagen del anverso del carnet.'))
+        || (!ciBackFile && (isCompany ? 'Debes adjuntar el reverso o documento de respaldo de la empresa.' : 'Debes adjuntar la imagen del reverso del carnet.'))
+        || empty('phone_number', 'Número de Celular')
+        || (!/^[67]\d{7}$/.test(f.phone_number) && 'El número de celular debe ser un celular válido de Bolivia (8 dígitos, empezando con 6 o 7).')
+        || (isMinor && (
+          empty('tutor_name', 'Nombre del Tutor')
+          || empty('tutor_phone', 'Celular del Tutor')
+          || (!defensoriaPermitFile && 'Debes adjuntar el permiso de la defensoría para menores de edad.')))
+        || null;
+    }
+    return empty('specialty', 'Especialidad Principal')
+      || (f.specialty === 'Otro' && empty('customSpecialty', 'Escribe tu especialidad'))
+      || empty('bio', 'Biografía')
+      || (!f.legal_accepted && 'Debes aceptar la Política de No Relación Laboral.')
+      || null;
+  };
+
+  const goNext = () => {
+    const message = validateStep(step);
+    if (message) return setError(message);
+    setError('');
+    setStep(step + 1);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    setError('');
     setSuccess('');
+    // Enter en un paso intermedio avanza al siguiente en vez de enviar
+    if (step < STEP_TITLES.length) return goNext();
 
-    // --- Validación del lado del cliente para una mejor UX ---
-    const requiredFields = {
-      name: 'Nombre Completo',
-      email: 'Correo Electrónico',
-      password: 'Contraseña',
-      birth_date: 'Fecha de Nacimiento',
-      identity_card: 'Carnet de Identidad',
-      phone_number: 'Número de Celular',
-      specialty: 'Especialidad Principal',
-      bio: 'Biografía',
-    };
-
-    const validatePassword = (pwd) => {
-      if (pwd.length < 8) {
-        return 'La contraseña debe tener al menos 8 caracteres.';
-      }
-      if (!/[A-Z]/.test(pwd)) {
-        return 'La contraseña debe incluir al menos una letra mayúscula.';
-      }
-      if (!/[a-z]/.test(pwd)) {
-        return 'La contraseña debe incluir al menos una letra minúscula.';
-      }
-      if (!/\d/.test(pwd)) {
-        return 'La contraseña debe incluir al menos un número.';
-      }
-      if (!/[@$!%*?&._-]/.test(pwd)) {
-        return 'La contraseña debe incluir al menos un carácter especial (ej: @, $, !, %, *, ?, &, ., _, -).';
-      }
-      return null;
-    };
-
-    for (const field in requiredFields) {
-      if (!formData[field] || !formData[field].toString().trim()) {
-        return setError(`El campo "${requiredFields[field]}" es obligatorio.`);
+    for (let n = 1; n <= STEP_TITLES.length; n++) {
+      const message = validateStep(n);
+      if (message) {
+        setStep(n);
+        return setError(message);
       }
     }
-
-    if (formData.phone_number.length !== 8 || !/^[67]\d{7}$/.test(formData.phone_number)) {
-      return setError('El número de celular debe ser un celular válido de Bolivia (8 dígitos, empezando con 6 o 7).');
-    }
-
-    const pwdError = validatePassword(formData.password);
-    if (pwdError) return setError(pwdError);
-
-    if (!profileImageFile) return setError('La foto de perfil del rostro es obligatoria para tu verificación KYC.');
-    if (!ciFrontFile) return setError(isCompany ? 'Debes adjuntar la imagen del anverso del NIT o carnet.' : 'Debes adjuntar la imagen del anverso del carnet.');
-    if (!ciBackFile) return setError(isCompany ? 'Debes adjuntar el reverso o documento de respaldo de la empresa.' : 'Debes adjuntar la imagen del reverso del carnet.');
-
-    if (isMinor) {
-      if (!formData.tutor_name.trim()) return setError('El campo "Nombre del Tutor" es obligatorio para menores de edad.');
-      if (!formData.tutor_phone.trim()) return setError('El campo "Celular del Tutor" es obligatorio para menores de edad.');
-      if (!defensoriaPermitFile) return setError('Debes adjuntar el permiso de la defensoría para menores de edad.');
-    }
-
-    if (!formData.legal_accepted) return setError('Debes aceptar la Política de No Relación Laboral.');
-
-    // Abrir el modal de verificación (enviará el SMS automáticamente)
+    setError('');
     setShowVerificationModal(true);
   };
 
@@ -303,8 +289,8 @@ function RegisterProfessionalPage() {
   return (
     <>
       <header className="absolute top-0 left-0 w-full p-4 z-10">
-        <Link to="/" className="text-primary flex size-10 shrink-0 items-center justify-center rounded-full bg-white/50 hover:bg-white/80 dark:bg-slate-800/50 dark:hover:bg-slate-800/80 backdrop-blur-sm transition-colors">
-          <span className="material-symbols-outlined">close</span>
+        <Link to="/" aria-label="Volver al inicio" className="text-primary flex size-10 shrink-0 items-center justify-center rounded-full bg-white/50 hover:bg-white/80 dark:bg-slate-800/50 dark:hover:bg-slate-800/80 backdrop-blur-sm transition-colors">
+          <span aria-hidden="true" className="material-symbols-outlined">close</span>
         </Link>
       </header>
       <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-background-light dark:bg-background-dark">
@@ -314,32 +300,46 @@ function RegisterProfessionalPage() {
             <p className="text-sm text-muted dark:text-slate-400 mt-2 font-medium">Crea tu perfil para que miles de clientes te encuentren.</p>
           </div>
 
-          {/* Selector de imagen de perfil */}
-          <div className="flex flex-col items-center pt-2">
+          {/* Selector de imagen de perfil (solo en el primer paso) */}
+          {step === 1 && (
+          <div className="group/photo flex flex-col items-center pt-2">
             <label htmlFor="profileImage" className="cursor-pointer group">
-              <div className="w-24 h-24 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-muted dark:text-slate-400 ring-4 ring-primary/10 dark:ring-slate-700 overflow-hidden relative">
+              <div className="w-24 h-24 rounded-full bg-slate-50 dark:bg-slate-900 flex items-center justify-center text-muted dark:text-slate-400 ring-4 ring-primary/10 group-focus-within/photo:ring-primary dark:ring-slate-700 overflow-hidden relative">
                 {imagePreview ? (
                   <img src={imagePreview} alt="Vista previa" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="material-symbols-outlined text-5xl">add_a_photo</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-5xl">add_a_photo</span>
                 )}
                 <div className="absolute inset-0 bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span className="material-symbols-outlined">edit</span>
+                  <span aria-hidden="true" className="material-symbols-outlined">edit</span>
                 </div>
               </div>
             </label>
-            <input id="profileImage" name="profileImage" type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+            <input id="profileImage" name="profileImage" type="file" accept="image/*" onChange={handleImageChange} className="sr-only" />
             <p className="text-xs font-bold text-muted dark:text-slate-455 mt-2 uppercase tracking-wider">Añadir foto de perfil</p>
           </div>
+          )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <p className="text-xs font-bold text-muted dark:text-slate-455 uppercase tracking-wider pt-2 border-b border-primary/5 pb-1">Información de la Cuenta</p>
+          <form onSubmit={handleSubmit} noValidate className="space-y-4">
+            <div className="space-y-2">
+              <h2 ref={headingRef} tabIndex={-1} className="font-display text-xl font-extrabold text-primary dark:text-white focus:outline-none">
+                <span className="text-sm font-bold text-muted dark:text-slate-400 block">Paso {step} de {STEP_TITLES.length}</span>
+                {STEP_TITLES[step - 1]}
+              </h2>
+              <div role="progressbar" aria-label="Progreso del registro" aria-valuemin={1} aria-valuemax={STEP_TITLES.length} aria-valuenow={step} className="flex gap-1.5">
+                {STEP_TITLES.map((title, i) => (
+                  <span key={title} className={`h-1.5 flex-1 rounded-full ${i < step ? 'bg-primary dark:bg-teal-400' : 'bg-slate-200 dark:bg-slate-700'}`} />
+                ))}
+              </div>
+            </div>
+
+            <div hidden={step !== 1} className="space-y-4">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Nombre Completo o de Empresa <span className="text-red-500">*</span></label>
+                <label htmlFor="name" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Nombre Completo o de Empresa <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span></label>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">person</span>
-                  <input 
+                  <span aria-hidden="true" className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">person</span>
+                  <input id="name" 
                     type="text" 
                     name="name" 
                     value={formData.name} 
@@ -351,10 +351,10 @@ function RegisterProfessionalPage() {
                 </div>
               </div>
               <div>
-                <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Correo Electrónico <span className="text-red-500">*</span></label>
+                <label htmlFor="email" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Correo Electrónico <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span></label>
                 <div className="relative">
-                  <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">alternate_email</span>
-                  <input 
+                  <span aria-hidden="true" className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">alternate_email</span>
+                  <input id="email" 
                     type="email" 
                     name="email" 
                     value={formData.email} 
@@ -367,10 +367,10 @@ function RegisterProfessionalPage() {
               </div>
             </div>
             <div>
-              <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Contraseña <span className="text-red-500">*</span></label>
+              <label htmlFor="password" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Contraseña <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span></label>
               <div className="relative">
-                <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">lock</span>
-                <input 
+                <span aria-hidden="true" className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">lock</span>
+                <input id="password" 
                   type={showPassword ? 'text' : 'password'} 
                   name="password" 
                   value={formData.password} 
@@ -379,8 +379,8 @@ function RegisterProfessionalPage() {
                   className="w-full pl-11 pr-12 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
                   placeholder="••••••••"
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-455 hover:text-primary dark:hover:text-slate-200 transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center">
-                  <span className="material-symbols-outlined text-lg">{showPassword ? 'visibility_off' : 'visibility'}</span>
+                <button type="button" aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'} aria-pressed={showPassword} onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-455 hover:text-primary dark:hover:text-slate-200 transition-colors border-none bg-transparent cursor-pointer flex items-center justify-center">
+                  <span aria-hidden="true" className="material-symbols-outlined text-lg">{showPassword ? 'visibility_off' : 'visibility'}</span>
                 </button>
               </div>
 
@@ -388,24 +388,24 @@ function RegisterProfessionalPage() {
                 <div className="mt-2 text-xs space-y-1 bg-slate-50 dark:bg-slate-900/50 p-3.5 rounded-2xl border border-primary/5 dark:border-slate-700 animate-feedback">
                   <p className="font-semibold text-primary/80 dark:text-slate-350 mb-1">Requisitos de la contraseña:</p>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">
-                    <div className={`flex items-center gap-1.5 ${formData.password.length >= 8 ? 'text-green-600 dark:text-green-400' : 'text-red-500'}`}>
-                      <span className="material-symbols-outlined text-[14px] font-bold">{formData.password.length >= 8 ? 'check' : 'close'}</span>
+                    <div className={`flex items-center gap-1.5 ${formData.password.length >= 8 ? 'text-green-600 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[14px] font-bold">{formData.password.length >= 8 ? 'check' : 'close'}</span>
                       <span>Mínimo 8 caracteres</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 ${/[A-Z]/.test(formData.password) ? 'text-green-600 dark:text-green-400' : 'text-red-500'}`}>
-                      <span className="material-symbols-outlined text-[14px] font-bold">{/[A-Z]/.test(formData.password) ? 'check' : 'close'}</span>
+                    <div className={`flex items-center gap-1.5 ${/[A-Z]/.test(formData.password) ? 'text-green-600 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[14px] font-bold">{/[A-Z]/.test(formData.password) ? 'check' : 'close'}</span>
                       <span>Una mayúscula (A-Z)</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 ${/[a-z]/.test(formData.password) ? 'text-green-600 dark:text-green-400' : 'text-red-500'}`}>
-                      <span className="material-symbols-outlined text-[14px] font-bold">{/[a-z]/.test(formData.password) ? 'check' : 'close'}</span>
+                    <div className={`flex items-center gap-1.5 ${/[a-z]/.test(formData.password) ? 'text-green-600 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[14px] font-bold">{/[a-z]/.test(formData.password) ? 'check' : 'close'}</span>
                       <span>Una minúscula (a-z)</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 ${/\d/.test(formData.password) ? 'text-green-600 dark:text-green-400' : 'text-red-500'}`}>
-                      <span className="material-symbols-outlined text-[14px] font-bold">{/\d/.test(formData.password) ? 'check' : 'close'}</span>
+                    <div className={`flex items-center gap-1.5 ${/\d/.test(formData.password) ? 'text-green-600 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[14px] font-bold">{/\d/.test(formData.password) ? 'check' : 'close'}</span>
                       <span>Un número (0-9)</span>
                     </div>
-                    <div className={`flex items-center gap-1.5 ${/[@$!%*?&._-]/.test(formData.password) ? 'text-green-600 dark:text-green-400' : 'text-red-500'}`}>
-                      <span className="material-symbols-outlined text-[14px] font-bold">{/[@$!%*?&._-]/.test(formData.password) ? 'check' : 'close'}</span>
+                    <div className={`flex items-center gap-1.5 ${/[@$!%*?&._-]/.test(formData.password) ? 'text-green-600 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                      <span aria-hidden="true" className="material-symbols-outlined text-[14px] font-bold">{/[@$!%*?&._-]/.test(formData.password) ? 'check' : 'close'}</span>
                       <span>Carácter especial (@$!%*?&._-)</span>
                     </div>
                   </div>
@@ -415,12 +415,13 @@ function RegisterProfessionalPage() {
 
             {/* Selector de Tipo de Cuenta: Profesional Individual o Empresa/Negocio */}
             <div className="p-3.5 bg-slate-50/80 dark:bg-slate-900/50 rounded-2xl border border-primary/10 dark:border-slate-700 space-y-2">
-              <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase block">
-                Tipo de Registro
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <p id="tipo-registro" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase block">
+                Tipo de registro
+              </p>
+              <div role="group" aria-labelledby="tipo-registro" className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <button
                   type="button"
+                  aria-pressed={!isCompany}
                   onClick={() => setIsCompany(false)}
                   className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border ${
                     !isCompany
@@ -428,11 +429,12 @@ function RegisterProfessionalPage() {
                       : 'bg-white dark:bg-slate-800 text-primary/70 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/60'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-base">person</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-base">person</span>
                   <span>Profesional Individual</span>
                 </button>
                 <button
                   type="button"
+                  aria-pressed={isCompany}
                   onClick={() => setIsCompany(true)}
                   className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border ${
                     isCompany
@@ -440,7 +442,7 @@ function RegisterProfessionalPage() {
                       : 'bg-white dark:bg-slate-800 text-primary/70 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/60'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-base">domain</span>
+                  <span aria-hidden="true" className="material-symbols-outlined text-base">domain</span>
                   <span>Empresa o Negocio (NIT)</span>
                 </button>
               </div>
@@ -454,22 +456,20 @@ function RegisterProfessionalPage() {
               />
             </div>
 
-            <hr className="border-primary/5" />
+            </div>
 
-            <fieldset disabled={!isProfileSectionEnabled}>
-              <div className={`space-y-4 transition-opacity duration-500 ${!isProfileSectionEnabled ? 'opacity-50 cursor-not-allowed' : 'opacity-100'}`}>
-                <p className="text-xs font-bold text-muted dark:text-slate-455 uppercase tracking-wider border-b border-primary/5 pb-1">Información del Perfil Profesional</p>
+            <div hidden={step !== 2} className="space-y-4">
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">
-                      {isCompany ? "NIT de la Empresa" : "C.I. o NIT de la Empresa"} <span className="text-red-500">*</span>
+                    <label htmlFor="identity_card" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">
+                      {isCompany ? "NIT de la Empresa" : "C.I. o NIT de la Empresa"} <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span>
                     </label>
                     <div className="relative mb-3">
-                      <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">
+                      <span aria-hidden="true" className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">
                         {isCompany ? "domain" : "badge"}
                       </span>
-                      <input
+                      <input id="identity_card"
                         type="text"
                         inputMode="numeric"
                         name="identity_card"
@@ -505,13 +505,13 @@ function RegisterProfessionalPage() {
                     </div>
                   </div>
                   <div>
-                    <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Número de Celular <span className="text-red-500">*</span></label>
+                    <label htmlFor="phone_number" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Número de Celular <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span></label>
                     <div className="flex rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 focus-within:ring-4 focus-within:ring-primary/10 dark:focus-within:ring-teal-500/10 focus-within:border-primary dark:focus-within:border-teal-500 transition-all overflow-hidden">
                       <div className="flex items-center gap-1.5 px-3 bg-slate-200/40 dark:bg-slate-700 border-r border-primary/10 text-primary dark:text-slate-100 font-bold select-none text-sm">
                         <span>🇧🇴</span>
                         <span>+591</span>
                       </div>
-                      <input
+                      <input id="phone_number"
                         type="tel"
                         inputMode="numeric"
                         name="phone_number"
@@ -523,20 +523,56 @@ function RegisterProfessionalPage() {
                       />
                     </div>
                     <span className="text-xs text-muted dark:text-slate-450 block mt-1 leading-tight">
-                      Ingrese los 8 dígitos de su celular. Se enviará un SMS para verificar.
+                      Escribe los 8 dígitos de tu celular, sin el +591.
                     </span>
                   </div>
                 </div>
 
+            {isMinor && (
+              <div className="p-4 border-l-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-900/10 rounded-r-2xl space-y-4 my-4">
+                <p className="font-bold text-yellow-800 dark:text-yellow-300">Información Requerida para Menores de Edad</p>
                 <div>
-                  <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Especialidad Principal <span className="text-red-500">*</span></label>
-                  <SpecialtyCombobox onSpecialtyChange={handleSpecialtyChange} initialValue={formData.specialty} />
+                  <label htmlFor="tutor_name" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Nombre Completo del Padre/Madre o Tutor <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span></label>
+                  <input id="tutor_name" 
+                    type="text" 
+                    name="tutor_name" 
+                    value={formData.tutor_name} 
+                    onChange={handleChange} 
+                    required={isMinor} 
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
+                    placeholder="Nombre completo del tutor"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="tutor_phone" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Celular del Padre/Madre o Tutor <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span></label>
+                  <input id="tutor_phone" 
+                    type="tel" 
+                    name="tutor_phone" 
+                    value={formData.tutor_phone} 
+                    onChange={handleChange} 
+                    required={isMinor} 
+                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
+                    placeholder="7XXXXXXX"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="defensoriaPermit" className="text-xs font-bold text-primary/85 dark:text-slate-350 block mb-1">Permiso de la Defensoría (PDF o Imagen) <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span></label>
+                  <input id="defensoriaPermit" type="file" name="defensoriaPermit" onChange={handlePermitChange} required={isMinor} accept=".pdf,.jpg,.jpeg,.png" className="w-full text-xs text-primary/80 dark:text-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 dark:file:bg-white/10 file:text-primary dark:file:text-white hover:file:bg-primary/20 dark:hover:file:bg-white/20 transition-all cursor-pointer" />
+                </div>
+              </div>
+            )}
+            </div>
+
+            <div hidden={step !== 3} className="space-y-4">
+                <div>
+                  <label htmlFor="specialty" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Especialidad Principal <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span></label>
+                  <SpecialtyCombobox id="specialty" onSpecialtyChange={handleSpecialtyChange} initialValue={formData.specialty} />
                 </div>
 
                 {formData.specialty === 'Otro' && (
                   <div>
-                    <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Escribe tu especialidad</label>
-                    <input 
+                    <label htmlFor="customSpecialty" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Escribe tu especialidad</label>
+                    <input id="customSpecialty" 
                       type="text" 
                       name="customSpecialty" 
                       value={formData.customSpecialty} 
@@ -548,8 +584,8 @@ function RegisterProfessionalPage() {
                   </div>
                 )}
                 <div>
-                  <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Biografía o Descripción del Servicio <span className="text-red-500">*</span></label>
-                  <textarea 
+                  <label htmlFor="bio" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Biografía o Descripción del Servicio <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span></label>
+                  <textarea id="bio" 
                     name="bio" 
                     value={formData.bio} 
                     onChange={handleChange} 
@@ -560,8 +596,8 @@ function RegisterProfessionalPage() {
                   ></textarea>
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Otros servicios que ofreces (Opcional)</label>
-                  <textarea 
+                  <label htmlFor="services_offered" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Otros servicios que ofreces (Opcional)</label>
+                  <textarea id="services_offered" 
                     name="services_offered" 
                     value={formData.services_offered} 
                     onChange={handleChange} 
@@ -571,10 +607,10 @@ function RegisterProfessionalPage() {
                   ></textarea>
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Hashtags / Trabajos Especiales (Opcional)</label>
+                  <label htmlFor="hashtags" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Hashtags / Trabajos Especiales (Opcional)</label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">tag</span>
-                    <input
+                    <span aria-hidden="true" className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">tag</span>
+                    <input id="hashtags"
                       type="text"
                       name="hashtags"
                       value={formData.hashtags}
@@ -586,8 +622,8 @@ function RegisterProfessionalPage() {
                   <p className="text-xs text-muted dark:text-slate-450 mt-1 leading-tight">Añade palabras clave precedidas de # para destacar en servicios específicos.</p>
                 </div>
                 <div>
-                  <label className="text-xs font-bold text-primary/85 dark:text-slate-350 block mb-1">Certificado FELCC/REJAP (Opcional)</label>
-                  <input type="file" name="felcc_rejap" onChange={handleFelccRejapChange} accept=".pdf,.jpg,.jpeg,.png" className="w-full text-xs text-primary/80 dark:text-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 dark:file:bg-white/10 file:text-primary dark:file:text-white hover:file:bg-primary/20 dark:hover:file:bg-white/20 transition-all cursor-pointer" />
+                  <label htmlFor="felcc_rejap" className="text-xs font-bold text-primary/85 dark:text-slate-350 block mb-1">Certificado FELCC/REJAP (Opcional)</label>
+                  <input id="felcc_rejap" type="file" name="felcc_rejap" onChange={handleFelccRejapChange} accept=".pdf,.jpg,.jpeg,.png" className="w-full text-xs text-primary/80 dark:text-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 dark:file:bg-white/10 file:text-primary dark:file:text-white hover:file:bg-primary/20 dark:hover:file:bg-white/20 transition-all cursor-pointer" />
                 </div>
                 <div className="flex items-center gap-3 p-3 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-primary/5 dark:border-slate-750">
                   <input type="checkbox" name="has_store" id="has_store" checked={formData.has_store} onChange={handleChange} className="size-5 rounded text-primary focus:ring-primary" />
@@ -595,7 +631,7 @@ function RegisterProfessionalPage() {
                 </div>
                 {formData.has_store && (
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase block">Ubicación de la Tienda o Local</label>
+                    <p className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase block">Ubicación de la tienda o local</p>
                     <p className="text-xs text-muted dark:text-slate-400 mb-2 leading-tight">Busca una dirección o arrastra el marcador en el mapa para mayor precisión.</p>
                     <LocationPicker
                       onLocationChange={handleLocationChange}
@@ -605,10 +641,10 @@ function RegisterProfessionalPage() {
                   </div>
                 )}
                 <div>
-                  <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">
+                  <label htmlFor="action_radius" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">
                     Radio de Acción (km) (Opcional)
                   </label>
-                  <input
+                  <input id="action_radius"
                     type="number"
                     name="action_radius"
                     value={formData.action_radius}
@@ -619,43 +655,6 @@ function RegisterProfessionalPage() {
                   />
                   <span className="text-xs text-muted dark:text-slate-450 block mt-1">Ej: 10 (km)</span>
                 </div>
-              </div>
-            </fieldset>
-
-            {isMinor && (
-              <div className="p-4 border-l-4 border-yellow-500 bg-yellow-50 dark:bg-yellow-900/10 rounded-r-2xl space-y-4 my-4">
-                <p className="font-bold text-yellow-800 dark:text-yellow-300">Información Requerida para Menores de Edad</p>
-                <div>
-                  <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Nombre Completo del Padre/Madre o Tutor <span className="text-red-500">*</span></label>
-                  <input 
-                    type="text" 
-                    name="tutor_name" 
-                    value={formData.tutor_name} 
-                    onChange={handleChange} 
-                    required={isMinor} 
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
-                    placeholder="Nombre completo del tutor"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Celular del Padre/Madre o Tutor <span className="text-red-500">*</span></label>
-                  <input 
-                    type="tel" 
-                    name="tutor_phone" 
-                    value={formData.tutor_phone} 
-                    onChange={handleChange} 
-                    required={isMinor} 
-                    className="w-full px-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
-                    placeholder="7XXXXXXX"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-bold text-primary/85 dark:text-slate-350 block mb-1">Permiso de la Defensoría (PDF o Imagen) <span className="text-red-500">*</span></label>
-                  <input type="file" name="defensoriaPermit" onChange={handlePermitChange} required={isMinor} accept=".pdf,.jpg,.jpeg,.png" className="w-full text-xs text-primary/80 dark:text-slate-200 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/10 dark:file:bg-white/10 file:text-primary dark:file:text-white hover:file:bg-primary/20 dark:hover:file:bg-white/20 transition-all cursor-pointer" />
-                </div>
-              </div>
-            )}
-
             <div className="flex items-start gap-3 p-3 bg-slate-50 dark:bg-slate-900/40 rounded-2xl border border-primary/5 dark:border-slate-750">
               <input type="checkbox" name="legal_accepted" id="legal_accepted" checked={formData.legal_accepted} onChange={handleChange} required className="size-5 rounded text-primary focus:ring-primary mt-0.5 shrink-0" />
               <label htmlFor="legal_accepted" className="text-sm text-primary/70 dark:text-slate-350">
@@ -671,32 +670,47 @@ function RegisterProfessionalPage() {
                 <button type="button" onClick={() => setShowTermsModal(true)} className="font-bold text-primary dark:text-teal-400 underline hover:opacity-80 transition-opacity bg-transparent border-none p-0 inline cursor-pointer">
                   Política de No Relación Laboral
                 </button>{' '}
-                de SENN FIX. <span className="text-red-500">*</span>
+                de SENN FIX. <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span>
               </label>
+            </div>
             </div>
 
             {error && (
-              <div className="animate-feedback flex items-center gap-3 p-3 bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-400 rounded-xl text-sm font-semibold">
-                <span className="material-symbols-outlined shrink-0 text-xl">error</span>
+              <div role="alert" className="animate-feedback flex items-center gap-3 p-3 bg-red-500/10 border border-red-500/20 text-red-700 dark:text-red-400 rounded-xl text-sm font-semibold">
+                <span aria-hidden="true" className="material-symbols-outlined shrink-0 text-xl">error</span>
                 <span>{error}</span>
               </div>
             )}
             {success && (
-              <div className="animate-feedback flex items-center gap-3 p-3 bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:teal-400 rounded-xl text-sm font-semibold">
-                <span className="material-symbols-outlined shrink-0 text-xl">check_circle</span>
+              <div role="status" className="animate-feedback flex items-center gap-3 p-3 bg-teal-500/10 border border-teal-500/20 text-teal-700 dark:teal-400 rounded-xl text-sm font-semibold">
+                <span aria-hidden="true" className="material-symbols-outlined shrink-0 text-xl">check_circle</span>
                 <span>{success}</span>
               </div>
             )}
-            <button
-              type="submit"
-              className="w-full py-3.5 px-4 bg-gradient-to-r from-primary to-teal-800 dark:from-teal-600 dark:to-teal-700 text-white rounded-2xl font-bold text-base transition-all duration-200 hover:opacity-95 hover:shadow-lg hover:shadow-primary/10 dark:hover:shadow-teal-500/10 active:scale-95 border-none cursor-pointer"
-            >
-              Crear Perfil Profesional
-            </button>
+            <div className="flex gap-3">
+              {step > 1 && (
+                <button
+                  type="button"
+                  onClick={() => { setError(''); setStep(step - 1); }}
+                  className="px-5 py-3.5 rounded-2xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-primary dark:text-teal-400 font-bold text-base cursor-pointer"
+                >
+                  Atrás
+                </button>
+              )}
+              {step < STEP_TITLES.length ? (
+                <button type="button" onClick={goNext} className="flex-1 w-full py-3.5 px-4 bg-gradient-to-r from-primary to-teal-800 dark:from-teal-600 dark:to-teal-700 text-white rounded-2xl font-bold text-base transition-all duration-200 hover:opacity-95 hover:shadow-lg hover:shadow-primary/10 dark:hover:shadow-teal-500/10 active:scale-95 border-none cursor-pointer">
+                  Siguiente
+                </button>
+              ) : (
+                <button type="submit" className="flex-1 w-full py-3.5 px-4 bg-gradient-to-r from-primary to-teal-800 dark:from-teal-600 dark:to-teal-700 text-white rounded-2xl font-bold text-base transition-all duration-200 hover:opacity-95 hover:shadow-lg hover:shadow-primary/10 dark:hover:shadow-teal-500/10 active:scale-95 border-none cursor-pointer">
+                  Crear perfil profesional
+                </button>
+              )}
+            </div>
           </form>
           <div className="text-sm text-center space-y-3">
-            <p className="text-muted dark:text-slate-400">¿Ya tienes una cuenta? <Link to="/login" className="font-bold text-primary dark:text-teal-400 hover:underline">Inicia Sesión</Link></p>
-            <p className="text-xs text-muted dark:text-slate-455">¿Buscas ayuda o contratar un servicio? <Link to="/register" className="font-bold text-primary dark:text-teal-400 hover:underline">Regístrate como Cliente aquí</Link></p>
+            <p className="text-muted dark:text-slate-400">¿Ya tienes una cuenta? <Link to="/login" className="font-bold text-primary dark:text-teal-400 hover:underline">Inicia sesión</Link></p>
+            <p className="text-xs text-muted dark:text-slate-455">¿Buscas ayuda o contratar un servicio? <Link to="/register" className="font-bold text-primary dark:text-teal-400 hover:underline">Regístrate como cliente aquí</Link></p>
           </div>
         </div>
       </div>
@@ -718,7 +732,7 @@ function RegisterProfessionalPage() {
                 onClick={() => setShowTermsModal(false)}
                 className="text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 transition-colors flex items-center justify-center bg-transparent border-none cursor-pointer p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"
               >
-                <span className="material-symbols-outlined">close</span>
+                <span aria-hidden="true" className="material-symbols-outlined">close</span>
               </button>
             </div>
             <div className="space-y-4 text-sm leading-relaxed overflow-y-auto pr-2 max-h-[60vh]">
@@ -799,7 +813,7 @@ function RegisterProfessionalPage() {
                 onClick={() => setShowPrivacyModal(false)}
                 className="text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 transition-colors flex items-center justify-center bg-transparent border-none cursor-pointer p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"
               >
-                <span className="material-symbols-outlined">close</span>
+                <span aria-hidden="true" className="material-symbols-outlined">close</span>
               </button>
             </div>
             <div className="space-y-4 text-sm leading-relaxed overflow-y-auto pr-2 max-h-[60vh] text-left">
@@ -879,7 +893,7 @@ function RegisterProfessionalPage() {
                 onClick={() => setShowConditionsModal(false)}
                 className="text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 transition-colors flex items-center justify-center bg-transparent border-none cursor-pointer p-1 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700"
               >
-                <span className="material-symbols-outlined">close</span>
+                <span aria-hidden="true" className="material-symbols-outlined">close</span>
               </button>
             </div>
             <div className="space-y-4 text-sm leading-relaxed overflow-y-auto pr-2 max-h-[60vh] text-left">

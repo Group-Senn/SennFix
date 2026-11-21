@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useId } from 'react';
 
 const MONTHS = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
@@ -8,6 +8,7 @@ const MONTHS = [
 const DAYS_OF_WEEK = ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'];
 
 function DatePicker({ value, onChange, label = 'Fecha de nacimiento' }) {
+  const buttonId = useId();
   const [isOpen, setIsOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(value ? new Date(value + 'T00:00:00') : new Date(2000, 0, 1));
   const containerRef = useRef(null);
@@ -89,14 +90,17 @@ function DatePicker({ value, onChange, label = 'Fecha de nacimiento' }) {
 
   return (
     <div className="relative w-full" ref={containerRef}>
-      <label className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">{label} <span className="text-red-500">*</span></label>
+      <label htmlFor={buttonId} className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">{label} <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span></label>
       <button
+        id={buttonId}
         type="button"
+        aria-haspopup="dialog"
+        aria-expanded={isOpen}
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-background-light dark:bg-slate-700 text-primary dark:text-slate-100 border border-transparent focus:ring-2 focus:ring-primary text-left transition-all active:scale-98"
       >
         <span>{selectedDateStr}</span>
-        <span className="material-symbols-outlined text-muted dark:text-slate-400">calendar_month</span>
+        <span aria-hidden="true" className="material-symbols-outlined text-muted dark:text-slate-400">calendar_month</span>
       </button>
 
       {isOpen && (
@@ -105,15 +109,17 @@ function DatePicker({ value, onChange, label = 'Fecha de nacimiento' }) {
             <button
               type="button"
               onClick={() => changeMonth(-1)}
+              aria-label="Mes anterior"
               className="p-1 rounded-full hover:bg-primary/10 dark:hover:bg-slate-700 text-primary dark:text-slate-200"
             >
-              <span className="material-symbols-outlined">chevron_left</span>
+              <span aria-hidden="true" className="material-symbols-outlined">chevron_left</span>
             </button>
 
             <div className="flex gap-1">
               <select
                 value={month}
                 onChange={handleMonthChange}
+                aria-label="Mes"
                 className="bg-transparent text-primary dark:text-slate-100 font-bold text-sm border-none focus:ring-0 p-1 rounded hover:bg-primary/5 dark:hover:bg-slate-700"
               >
                 {MONTHS.map((m, idx) => (
@@ -123,6 +129,7 @@ function DatePicker({ value, onChange, label = 'Fecha de nacimiento' }) {
               <select
                 value={year}
                 onChange={handleYearChange}
+                aria-label="Año"
                 className="bg-transparent text-primary dark:text-slate-100 font-bold text-sm border-none focus:ring-0 p-1 rounded hover:bg-primary/5 dark:hover:bg-slate-700"
               >
                 {years.map(y => (
@@ -134,9 +141,10 @@ function DatePicker({ value, onChange, label = 'Fecha de nacimiento' }) {
             <button
               type="button"
               onClick={() => changeMonth(1)}
+              aria-label="Mes siguiente"
               className="p-1 rounded-full hover:bg-primary/10 dark:hover:bg-slate-700 text-primary dark:text-slate-200"
             >
-              <span className="material-symbols-outlined">chevron_right</span>
+              <span aria-hidden="true" className="material-symbols-outlined">chevron_right</span>
             </button>
           </div>
 

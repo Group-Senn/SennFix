@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useId } from 'react';
 import { compressImage, rotateImage } from '../utils/imageCompressor';
 
 function DocumentUploadCard({
@@ -12,6 +12,7 @@ function DocumentUploadCard({
 }) {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [rotating, setRotating] = useState(false);
+  const labelId = useId();
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -58,12 +59,12 @@ function DocumentUploadCard({
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
-        <label className="text-xs font-bold text-primary/85 dark:text-slate-350 block">
-          {label} {required && <span className="text-red-500">*</span>}
-        </label>
+        <span id={labelId} className="text-xs font-bold text-primary/85 dark:text-slate-350 block">
+          {label} {required && <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span>}
+        </span>
         {file && (
           <span className="text-xs text-teal-600 dark:text-teal-400 font-semibold flex items-center gap-1">
-            <span className="material-symbols-outlined text-[13px]">check_circle</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-[13px]">check_circle</span>
             Cargado ({(file.size / 1024).toFixed(0)} KB)
           </span>
         )}
@@ -73,6 +74,7 @@ function DocumentUploadCard({
         ref={fileInputRef}
         type="file"
         accept="image/*"
+        aria-labelledby={labelId}
         onChange={handleSelectFile}
         className="hidden"
       />
@@ -105,7 +107,7 @@ function DocumentUploadCard({
               title="Gira la foto 90 grados en sentido horario"
               className="flex-1 py-2 px-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-650 text-primary dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-xs"
             >
-              <span className="material-symbols-outlined text-base text-primary/70 dark:text-teal-400">rotate_right</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-base text-primary/70 dark:text-teal-400">rotate_right</span>
               <span>Rotar 90°</span>
             </button>
 
@@ -115,7 +117,7 @@ function DocumentUploadCard({
               title="Seleccionar otra imagen"
               className="flex-1 py-2 px-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-650 text-primary dark:text-slate-200 text-xs font-semibold flex items-center justify-center gap-1.5 transition-all active:scale-95 cursor-pointer shadow-xs"
             >
-              <span className="material-symbols-outlined text-base text-primary/70 dark:text-teal-400">change_circle</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-base text-primary/70 dark:text-teal-400">change_circle</span>
               <span>Cambiar foto</span>
             </button>
 
@@ -123,9 +125,10 @@ function DocumentUploadCard({
               type="button"
               onClick={onRemove}
               title="Eliminar esta imagen"
+              aria-label={`Eliminar: ${label}`}
               className="p-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-red-50 dark:hover:bg-red-950/40 border border-slate-200 dark:border-slate-650 text-slate-400 hover:text-red-600 dark:hover:text-red-400 transition-colors flex items-center justify-center cursor-pointer shadow-xs"
             >
-              <span className="material-symbols-outlined text-base">delete</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-base">delete</span>
             </button>
           </div>
         </div>
@@ -133,10 +136,11 @@ function DocumentUploadCard({
         <button
           type="button"
           onClick={handleTriggerUpload}
+          aria-describedby={labelId}
           className="w-full py-4 px-4 rounded-2xl border-2 border-dashed border-primary/20 dark:border-slate-700 hover:border-primary/50 dark:hover:border-teal-400/60 bg-slate-50/50 dark:bg-slate-900/30 hover:bg-primary/5 dark:hover:bg-slate-800/40 transition-all flex flex-col items-center justify-center gap-1.5 cursor-pointer group text-left"
         >
           <div className="size-9 rounded-full bg-primary/10 dark:bg-teal-400/10 text-primary dark:text-teal-400 flex items-center justify-center transition-transform">
-            <span className="material-symbols-outlined text-xl">{icon}</span>
+            <span aria-hidden="true" className="material-symbols-outlined text-xl">{icon}</span>
           </div>
           <div className="text-center">
             <span className="text-xs font-bold text-primary dark:text-slate-200 group-hover:underline block">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function SpecialtyCombobox({ onSpecialtyChange, initialValue = '' }) {
+function SpecialtyCombobox({ onSpecialtyChange, initialValue = '', id }) {
   const [services, setServices] = useState([]);
   const [query, setQuery] = useState(initialValue);
   const [selectedSpecialty, setSelectedSpecialty] = useState(initialValue);
@@ -97,10 +97,14 @@ function SpecialtyCombobox({ onSpecialtyChange, initialValue = '' }) {
   return (
     <div className="relative" ref={wrapperRef}>
       <div className="relative flex items-center">
-        <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 pointer-events-none text-lg">work</span>
+        <span aria-hidden="true" className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 pointer-events-none text-lg">work</span>
         <input
           ref={inputRef}
+          id={id}
           type="text"
+          role="combobox"
+          aria-expanded={showDropdown}
+          aria-autocomplete="list"
           value={query}
           onChange={handleInputChange}
           onFocus={handleFocus}
@@ -115,15 +119,17 @@ function SpecialtyCombobox({ onSpecialtyChange, initialValue = '' }) {
               type="button"
               onClick={handleClear}
               title="Borrar selección"
+              aria-label="Borrar selección"
               className="p-1 rounded-full text-slate-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors flex items-center justify-center border-none bg-transparent cursor-pointer"
             >
-              <span className="material-symbols-outlined text-base">close</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-base">close</span>
             </button>
           )}
           <button
             type="button"
             onClick={toggleDropdown}
             title={showDropdown ? "Cerrar opciones" : "Ver todas las especialidades"}
+            aria-label={showDropdown ? "Cerrar opciones" : "Ver todas las especialidades"}
             className="p-1 text-muted dark:text-slate-400 hover:text-primary dark:hover:text-slate-200 transition-colors flex items-center justify-center border-none bg-transparent cursor-pointer"
           >
             <span className={`material-symbols-outlined transition-transform duration-200 ${showDropdown ? 'rotate-180' : ''}`}>expand_more</span>
@@ -147,7 +153,7 @@ function SpecialtyCombobox({ onSpecialtyChange, initialValue = '' }) {
                 >
                   <span>{service.name}</span>
                   {isSelected && (
-                    <span className="material-symbols-outlined text-base text-primary dark:text-teal-400">check</span>
+                    <span aria-hidden="true" className="material-symbols-outlined text-base text-primary dark:text-teal-400">check</span>
                   )}
                 </li>
               );
@@ -157,7 +163,7 @@ function SpecialtyCombobox({ onSpecialtyChange, initialValue = '' }) {
               onClick={() => handleSelect(query)}
               className="px-4 py-3 cursor-pointer hover:bg-primary/10 text-primary dark:text-teal-400 font-semibold text-xs flex items-center gap-2"
             >
-              <span className="material-symbols-outlined text-base">add_circle</span>
+              <span aria-hidden="true" className="material-symbols-outlined text-base">add_circle</span>
               <span>Usar "{query}" como especialidad personalizada</span>
             </li>
           ) : (
