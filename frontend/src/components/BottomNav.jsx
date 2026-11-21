@@ -34,13 +34,13 @@ function BottomNav() {
       {/* Indicador deslizante: se mueve con un pequeño rebote al cambiar de pestaña */}
       <span
         aria-hidden="true"
-        className={`pointer-events-none absolute top-2 flex w-1/5 justify-center transition-[left,opacity] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${showIndicator ? 'opacity-100' : 'opacity-0'}`}
+        className={`pointer-events-none absolute top-3 flex w-1/5 justify-center transition-[left,opacity] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${showIndicator ? 'opacity-100' : 'opacity-0'}`}
         style={{ left: `${Math.max(activeIndex, 0) * 20}%` }}
       >
         <span className="h-8 w-14 rounded-full bg-casco" />
       </span>
 
-      <ul className="relative grid h-16 grid-cols-5">
+      <ul className="relative grid h-14 grid-cols-5">
         {TABS.map((tab) => {
           const badge = tab.to === '/chats' ? unreadChats : 0;
           return (
@@ -48,13 +48,14 @@ function BottomNav() {
               <NavLink
                 to={tab.to}
                 aria-label={badge > 0 ? `${tab.text}, ${badge} sin leer` : tab.text}
-                className="group flex h-full flex-col items-center justify-end gap-0.5 pb-2"
+                title={tab.text}
+                className="group flex h-full items-center justify-center"
               >
                 {({ isActive }) => (
                   <>
                     {tab.center ? (
                       <span
-                        className={`-mt-7 mb-0.5 flex size-14 items-center justify-center rounded-full bg-casco text-primary ring-[5px] ring-surface dark:ring-background-dark shadow-lg transition-transform duration-150 group-active:scale-90 ${isActive ? 'animate-nav-pop' : ''}`}
+                        className={`-translate-y-4 flex size-14 items-center justify-center rounded-full bg-casco text-primary ring-[5px] ring-surface dark:ring-background-dark shadow-lg transition-transform duration-150 group-active:scale-90 ${isActive ? 'animate-nav-pop' : ''}`}
                       >
                         <span className="material-symbols-outlined text-[30px]" aria-hidden="true" style={{ fontVariationSettings: "'FILL' 1, 'wght' 600" }}>
                           {tab.icon}
@@ -63,7 +64,7 @@ function BottomNav() {
                     ) : (
                       <span className="relative flex h-8 w-14 items-center justify-center transition-transform duration-150 group-active:scale-90">
                         <span
-                          className={`material-symbols-outlined text-[26px] ${isActive ? 'text-primary animate-nav-pop' : 'text-white/75'}`}
+                          className={`material-symbols-outlined text-[26px] ${isActive ? 'text-primary animate-nav-pop' : 'text-white/80'}`}
                           aria-hidden="true"
                           style={{ fontVariationSettings: `'FILL' ${isActive ? 1 : 0}, 'wght' ${isActive ? 600 : 400}` }}
                         >
@@ -76,9 +77,6 @@ function BottomNav() {
                         )}
                       </span>
                     )}
-                    <span className={`text-xs leading-none ${isActive ? 'font-extrabold text-white' : 'font-semibold text-white/75'}`}>
-                      {tab.text}
-                    </span>
                   </>
                 )}
               </NavLink>

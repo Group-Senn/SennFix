@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { flushSync } from 'react-dom';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getAbsoluteImageUrl } from '../utils/imageHelper';
@@ -50,17 +51,51 @@ function ExplorePage() {
     return () => clearTimeout(timer);
   }, [published]);
 
+  // Si se llega desde "Trabajos recientes" del inicio, se abre esa foto
+  const openFromHome = location.state?.openPost;
+  const openedFromHome = useRef(false);
+  useEffect(() => {
+    if (openedFromHome.current || !openFromHome || !posts.some(p => p.id === openFromHome)) return;
+    // Una sola vez por visita: al cerrar la ficha o recargar la lista no vuelve a abrirse
+    openedFromHome.current = true;
+    setSelectedId(openFromHome);
+  }, [openFromHome, posts]);
+
   const selectedPost = posts.find(p => p.id === selectedId) || null;
+
+  // La miniatura y la foto de la ficha comparten nombre: el navegador anima una hacia la otra.
+  // Sin soporte (o con "reducir movimiento") simplemente se abre, como antes.
+  const morph = (thumb, update) => {
+    const canAnimate = document.startViewTransition && thumb && !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!canAnimate) return update();
+    thumb.style.viewTransitionName = 'explore-photo';
+    const transition = document.startViewTransition(() => {
+      thumb.style.viewTransitionName = '';
+      flushSync(update);
+    });
+    return transition;
+  };
 
   const openPost = (post, element) => {
     triggerRef.current = element;
     setChatError('');
-    setSelectedId(post.id);
+    morph(element.querySelector('img'), () => setSelectedId(post.id));
   };
 
   const closePost = useCallback(() => {
-    setSelectedId(null);
-    triggerRef.current?.focus();
+    const trigger = triggerRef.current;
+    const thumb = trigger?.querySelector('img');
+    if (document.startViewTransition && thumb && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      // Al cerrar es al revés: la foto de la ficha vuelve a su lugar en el mosaico
+      const transition = document.startViewTransition(() => {
+        flushSync(() => setSelectedId(null));
+        thumb.style.viewTransitionName = 'explore-photo';
+      });
+      transition.finished.finally(() => { thumb.style.viewTransitionName = ''; });
+    } else {
+      setSelectedId(null);
+    }
+    trigger?.focus();
   }, []);
 
   const handleLike = async (post) => {
@@ -157,7 +192,7 @@ function ExplorePage() {
                 <button
                   onClick={(e) => openPost(post, e.currentTarget)}
                   aria-label={`${post.professional_name}, ${post.specialty}${post.zone ? `, en ${post.zone}` : ''}${post.description ? `: ${post.description}` : ''}`}
-                  className="group relative block aspect-square w-full overflow-hidden rounded-xl border-none bg-slate-200 p-0 cursor-pointer dark:bg-slate-800"
+                  className="group relative block aspect-square w-full overflow-hidden rounded-xl border-none bg-slate-200 p-0 cursor-pointer transition-transform duration-150 ease-out active:scale-[0.96] dark:bg-slate-800"
                 >
                   {/* Si la foto no carga queda el recuadro neutro: una imagen de relleno haría pasar un trabajo falso por real */}
                   <img src={getAbsoluteImageUrl(post.image_url)} onError={(e) => { e.target.style.visibility = 'hidden'; }} alt="" loading="lazy" className="h-full w-full object-cover" />
@@ -186,6 +221,7 @@ function ExplorePage() {
         <ExplorePostDialog
           post={selectedPost}
           isOwn={String(user?.id) === String(selectedPost.professional_id)}
+          canLike={isAuthenticated}
           chatError={chatError}
           onClose={closePost}
           onLike={handleLike}

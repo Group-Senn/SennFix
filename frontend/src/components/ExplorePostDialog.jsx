@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getAbsoluteImageUrl, handleImageError } from '../utils/imageHelper';
 
@@ -11,8 +11,10 @@ const relativeTime = (iso) => {
 };
 
 // Ficha de una publicación: quién la hizo, qué trabajo es, me gusta y cómo contactarle
-function ExplorePostDialog({ post, isOwn, chatError, onClose, onLike, onChat }) {
+function ExplorePostDialog({ post, isOwn, canLike, chatError, onClose, onLike, onChat }) {
   const closeRef = useRef(null);
+  // Cada me gusta nuevo lanza un "+1" (la clave distinta reinicia la animación)
+  const [plusOnes, setPlusOnes] = useState(0);
 
   useEffect(() => {
     closeRef.current?.focus();
@@ -41,6 +43,7 @@ function ExplorePostDialog({ post, isOwn, chatError, onClose, onLike, onChat }) 
             onError={(e) => { e.target.style.visibility = 'hidden'; }}
             alt={post.description || `Trabajo de ${post.professional_name}`}
             className="absolute inset-0 h-full w-full object-cover"
+            style={{ viewTransitionName: 'explore-photo' }}
           />
         </div>
 
@@ -90,14 +93,29 @@ function ExplorePostDialog({ post, isOwn, chatError, onClose, onLike, onChat }) 
 
           <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2">
             <button
-              onClick={() => onLike(post)}
+              onClick={() => {
+                if (canLike && !post.liked_by_me) setPlusOnes(n => n + 1);
+                onLike(post);
+              }}
               aria-pressed={Boolean(post.liked_by_me)}
-              className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-bold cursor-pointer ${post.liked_by_me
+              className={`relative inline-flex items-center gap-1.5 whitespace-nowrap rounded-full border px-4 py-2 text-sm font-bold cursor-pointer ${post.liked_by_me
                 ? 'border-red-700 bg-red-50 text-red-700 dark:border-red-400 dark:bg-red-950/40 dark:text-red-300'
                 : 'border-slate-300 bg-white text-ink dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200'}`}
             >
-              <span className="material-symbols-outlined text-xl" aria-hidden="true" style={{ fontVariationSettings: `'FILL' ${post.liked_by_me ? 1 : 0}` }}>favorite</span>
+              <span
+                key={post.liked_by_me ? 'si' : 'no'}
+                className={`material-symbols-outlined text-xl ${post.liked_by_me ? 'animate-nav-pop' : ''}`}
+                aria-hidden="true"
+                style={{ fontVariationSettings: `'FILL' ${post.liked_by_me ? 1 : 0}` }}
+              >
+                favorite
+              </span>
               Me gusta
+              {plusOnes > 0 && (
+                <span key={plusOnes} aria-hidden="true" className="animate-plus-one pointer-events-none absolute -top-3 left-3 text-base font-extrabold text-red-600 dark:text-red-400">
+                  +1
+                </span>
+              )}
             </button>
             <span className="text-sm text-muted dark:text-slate-400" role="status">
               {likes === 0 ? 'Sé la primera persona en dar me gusta' : `${likes} me gusta`}

@@ -216,6 +216,44 @@ body, header, footer, nav, aside, button, input, textarea, select, .bg-white, .d
   animation: stamp 0.42s cubic-bezier(0.2, 0, 0, 1) 0.15s both;
 }
 
+/* La foto de Explorar crece desde su lugar en el mosaico hasta la ficha (y vuelve al cerrar) */
+::view-transition-group(explore-photo) {
+  animation-duration: 0.38s;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.25s;
+}
+
+/* "+1" que sube y se desvanece al dar me gusta */
+@keyframes plusOne {
+  0% { opacity: 0; transform: translateY(4px) scale(0.8); }
+  25% { opacity: 1; transform: translateY(-6px) scale(1.1); }
+  100% { opacity: 0; transform: translateY(-28px) scale(1); }
+}
+.animate-plus-one {
+  animation: plusOne 0.8s cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+/* El sello "Verificado" brilla una sola vez al aparecer */
+.verified-seal {
+  position: relative;
+  overflow: hidden;
+}
+.verified-seal::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(242, 179, 61, 0.7) 50%, transparent 70%);
+  transform: translateX(-130%);
+  animation: sealShine 0.9s ease-out 0.7s forwards;
+  pointer-events: none;
+}
+@keyframes sealShine {
+  to { transform: translateX(130%); }
+}
+
 /* Pestaña recién elegida: se encoge y rebota (respuesta exagerada y rápida al toque) */
 @keyframes navPop {
   0% { transform: scale(0.7); }

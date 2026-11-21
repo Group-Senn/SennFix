@@ -6,6 +6,7 @@ import SearchBar from '../components/SearchBar';
 import { CredentialRow } from '../components/ProfessionalCredential';
 import { POPULAR_TRADES } from '../utils/trades';
 import AdBanner from '../components/AdBanner';
+import RecentWork from '../components/RecentWork';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import NotificationBell from '../components/NotificationBell';
 import { getAbsoluteImageUrl, handleImageError, DEFAULT_AVATAR } from '../utils/imageHelper';
@@ -311,6 +312,8 @@ function Home() {
               ))}
             </ul>
           </section>
+
+          <RecentWork />
 
           <AdBanner />
 
