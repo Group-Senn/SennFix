@@ -8,7 +8,7 @@ import fs from 'fs';
 import 'dotenv/config';
 import db from './db.js';
 import { watermarkAndSave } from './imageService.js';
-import { containsBlacklistedWords, validatePassword } from './validationService.js';
+import { containsBlacklistedWords, validatePassword, validateBirthDate, blacklistError } from './validationService.js';
 import { startGoldSealCron } from './cronService.js';
 import { fileURLToPath } from 'url';
 import rateLimit from 'express-rate-limit';
@@ -125,10 +125,15 @@ if (!fs.existsSync(privateUploadsDir)) {
 
 // Configuración de Multer para guardar archivos en memoria para poder procesarlos
 const storage = multer.memoryStorage();
-const upload = multer({
+const multerUpload = multer({
   storage: storage,
   limits: { fileSize: 10 * 1024 * 1024, files: 6 } // Máx. 10 MB por archivo (evita agotar la memoria del servidor)
 });
+// Los formularios con archivos se leen recién aquí (después del saneado global): se sanean de nuevo
+const upload = {
+  single: (...args) => [multerUpload.single(...args), sanitizeMiddleware],
+  fields: (...args) => [multerUpload.fields(...args), sanitizeMiddleware],
+};
 import { uploadToS3, deleteFromS3, getFromS3, BUCKET_NAME, PRIVATE_BUCKET_NAME } from './s3Service.js';
 
 // Wrappers para manejo persistente de imágenes/documentos en S3
@@ -416,6 +421,20 @@ function calculateAge(birthDateString) {
   return age;
 }
 
+// Radio de acción en km: entero entre 1 y 50 (10 si no viene o no es un número)
+function clampRadius(value) {
+  const n = parseInt(value, 10);
+  return Number.isNaN(n) ? 10 : Math.min(50, Math.max(1, n));
+}
+
+// Coordenadas válidas (o ausentes): evita guardar texto, valores fuera de rango o "Infinity"
+function invalidCoordinates(lat, lng) {
+  const missing = (v) => v === undefined || v === null || v === '' || v === 'null';
+  if (missing(lat) && missing(lng)) return false;
+  const la = Number(lat), lo = Number(lng);
+  return !Number.isFinite(la) || !Number.isFinite(lo) || Math.abs(la) > 90 || Math.abs(lo) > 180;
+}
+
 // Helper function para normalizar hashtags
 function normalizeHashtags(str) {
   if (!str) return '';
@@ -577,8 +596,11 @@ app.post('/api/professionals/:id/reviews', authMiddleware, async (req, res) => {
   const reviewerId = req.user.id;
   const { rating, comment } = req.body;
 
-  if (!rating || rating < 1 || rating > 5) {
+  if (!Number.isInteger(Number(rating)) || Number(rating) < 1 || Number(rating) > 5) {
     return res.status(400).json({ message: 'La calificación debe ser un número entre 1 y 5.' });
+  }
+  if (blacklistError(comment)) {
+    return res.status(400).json({ message: blacklistError(comment) });
   }
 
   if (Number(reviewerId) === Number(revieweeId)) {
@@ -850,8 +872,11 @@ app.post('/api/jobs/:id/client-confirm', authMiddleware, upload.single('reviewPh
   const { rating, comment, tags } = req.body;
   const userId = req.user.id;
 
-  if (!rating || rating < 1 || rating > 5) {
+  if (!Number.isInteger(Number(rating)) || Number(rating) < 1 || Number(rating) > 5) {
     return res.status(400).json({ message: 'La calificación es obligatoria y debe estar entre 1 y 5.' });
+  }
+  if (blacklistError(comment)) {
+    return res.status(400).json({ message: blacklistError(comment) });
   }
 
   const client = await db.connect();
@@ -1071,6 +1096,11 @@ app.post('/api/jobs', authMiddleware, async (req, res) => {
 
   if (!service_id || !description || !approximate_zone) {
     return res.status(400).json({ message: 'ID del servicio, descripción y zona aproximada son requeridos.' });
+  }
+  const jobTextError = blacklistError(description, approximate_zone)
+    || (invalidCoordinates(latitude, longitude) && 'La ubicación no es válida.');
+  if (jobTextError) {
+    return res.status(400).json({ message: jobTextError });
   }
 
   try {
@@ -1652,6 +1682,9 @@ app.put('/api/users/profile', authMiddleware, upload.single('avatar'), async (re
   if (!name || !email) {
     return res.status(400).json({ message: 'Nombre y correo electrónico son requeridos.' });
   }
+  if (blacklistError(name)) {
+    return res.status(400).json({ message: blacklistError(name) });
+  }
 
   try {
     const phoneUpdate = await resolvePhoneUpdate(userId, req.body.phone_number, phone_verification_token);
@@ -1988,6 +2021,14 @@ app.post('/api/register', registerLimiter, async (req, res) => {
     return res.status(400).json({ message: passwordError });
   }
 
+  const inputError = validateBirthDate(birth_date)
+    || (identity_card && !/^[0-9A-Za-z-]{4,20}$/.test(identity_card) && 'El número de C.I. solo puede tener números, letras y guiones.')
+    || (String(name).trim().length > 100 && 'El nombre es demasiado largo.')
+    || blacklistError(name);
+  if (inputError) {
+    return res.status(400).json({ message: inputError });
+  }
+
   // Con WhatsApp configurado el celular debe estar verificado (no hay forma de omitirlo)
   const phoneVerified = phoneVerification.isPhoneVerified(phone_verification_token, phone_number);
   if (!phoneVerified && isPhoneVerificationRequired()) {
@@ -2077,6 +2118,17 @@ app.post('/api/register-professional', registerLimiter, upload.fields([
   }
 
   const isCompany = is_company === 'true' || is_company === true;
+
+  const birthError = validateBirthDate(birth_date, { isCompany });
+  if (birthError) {
+    return res.status(400).json({ message: birthError });
+  }
+  if (tutor_phone && !normalizeBolivianPhone(tutor_phone)) {
+    return res.status(400).json({ message: 'El celular del tutor debe ser un celular válido de Bolivia (8 dígitos, empezando con 6 o 7).' });
+  }
+  if (blacklistError(name)) {
+    return res.status(400).json({ message: blacklistError(name) });
+  }
 
   // --- Validación de Contenido ---
   const contentToValidate = `${bio || ''} ${services_offered || ''} ${specialty || ''}`;
@@ -2257,7 +2309,7 @@ app.post('/api/register-professional', registerLimiter, upload.fields([
         is_online,
         null,
         null,
-        parseInt(action_radius) || 10,
+        clampRadius(action_radius),
         normalizedHashtags
       ]
     );
@@ -2314,6 +2366,11 @@ app.put('/api/professionals/:id', authMiddleware, upload.fields([
   // --- Validación de Contenido ---
   const contentToValidate = `${bio || ''} ${services_offered || ''} ${specialty || ''}`;
   const hasBlacklistedContent = containsBlacklistedWords(contentToValidate);
+
+  if (blacklistError(name) || invalidCoordinates(latitude, longitude)) {
+    client.release();
+    return res.status(400).json({ message: blacklistError(name) || 'La ubicación no es válida.' });
+  }
 
   try {
     const phoneUpdate = await resolvePhoneUpdate(userId, req.body.phone_number, phone_verification_token);
@@ -2387,7 +2444,7 @@ app.put('/api/professionals/:id', authMiddleware, upload.fields([
         name = $1, specialty = $2, bio = $3, services_offered = $4, 
         has_store = $5, store_address = $6, latitude = $7, longitude = $8, "imageUrl" = $9,
         felcc_rejap_url = $10, action_radius = $11, hashtags = $12 WHERE id = $13`,
-      [name, specialty, bio, services_offered, has_store === 'true', store_address, latitude, longitude, newImageUrl, newFelccRejapUrl, parseInt(action_radius) || 10, normalizedHashtags, id]
+      [name, specialty, bio, services_offered, has_store === 'true', store_address, latitude, longitude, newImageUrl, newFelccRejapUrl, clampRadius(action_radius), normalizedHashtags, id]
     );
 
     // 2. Actualizar la tabla 'users' para mantener la consistencia
@@ -2464,6 +2521,9 @@ app.put('/api/professionals/:id/location', authMiddleware, async (req, res) => {
 
   if (id !== req.user.id) {
     return res.status(403).json({ message: 'No tienes permiso para actualizar esta ubicación.' });
+  }
+  if (latitude == null || longitude == null || invalidCoordinates(latitude, longitude)) {
+    return res.status(400).json({ message: 'La ubicación no es válida.' });
   }
 
   try {
@@ -2624,7 +2684,7 @@ app.get('/api/chats/:conversationId', authMiddleware, async (req, res) => {
 
     // Obtener datos del otro usuario para la cabecera del chat
     const otherUserId = userId == conversation.user1_id ? conversation.user2_id : conversation.user1_id;
-    const { rows: [otherUser] } = await db.query('SELECT id, name, "imageUrl", birth_date, user_type FROM users WHERE id = $1', [otherUserId]);
+    const { rows: [otherUser] } = await db.query('SELECT id, name, "imageUrl", user_type FROM users WHERE id = $1', [otherUserId]);
 
     res.json({ messages, otherUser });
   } catch (error) {
@@ -3045,6 +3105,10 @@ app.post('/api/explore/posts', authMiddleware, upload.single('image'), async (re
 
   if (!req.file) {
     return res.status(400).json({ message: 'La imagen de la publicación es requerida.' });
+  }
+
+  if (blacklistError(description, zone)) {
+    return res.status(400).json({ message: blacklistError(description, zone) });
   }
 
   if (!isValidImage(req.file)) {

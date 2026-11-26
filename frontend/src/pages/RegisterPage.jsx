@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import DatePicker from '../components/DatePicker';
 import PhoneVerification from '../components/PhoneVerification';
-import { validatePassword, EMAIL_REGEX } from '../utils/validation';
+import { validatePassword, EMAIL_REGEX, birthDateError } from '../utils/validation';
 import logoNav from '../assets/logoNav.svg';
 import logoNavDark from '../assets/logoNavDark.svg';
 
@@ -49,6 +49,8 @@ function RegisterPage() {
     }
 
     if (!birthDate) return setError('El campo "Fecha de Nacimiento" es obligatorio.');
+    const dateError = birthDateError(birthDate);
+    if (dateError) return setError(dateError);
     if (!password) return setError('El campo "Contraseña" es obligatorio.');
 
     const pwdError = validatePassword(password);

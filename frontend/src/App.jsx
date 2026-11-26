@@ -83,7 +83,7 @@ function App() {
           <Route path="/services/*" element={<ProfessionalsByCategoryPage />} />
           <Route path="/services" element={<AllServices />} />
           <Route path="/search" element={<SearchResults />} />
-          <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+          <Route path="/admin/dashboard" element={<ProtectedRoute role="admin"><AdminDashboardPage /></ProtectedRoute>} />
           <Route path="/legal/no-labor-relationship" element={<NoLaborRelationshipPage />} />
           <Route path="/legal/terms-and-conditions" element={<TermsAndConditionsPage />} />
           <Route path="/legal/privacy-policy" element={<PrivacyPolicyPage />} />

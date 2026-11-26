@@ -23,9 +23,8 @@ export function sanitizeMiddleware(req, res, next) {
     req.body = sanitizeValue(req.body);
   }
   if (req.query) {
-    for (const key in req.query) {
-      req.query[key] = sanitizeValue(req.query[key]);
-    }
+    // En Express 5 req.query se recalcula en cada lectura: se fija la versión saneada
+    Object.defineProperty(req, 'query', { value: sanitizeValue({ ...req.query }), writable: true, configurable: true });
   }
   if (req.params) {
     for (const key in req.params) {

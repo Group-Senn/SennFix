@@ -50,3 +50,26 @@ export function validatePassword(pwd) {
   if (!/[@$!%*?&._-]/.test(pwd)) return 'La contraseña debe incluir al menos un carácter especial (ej: @, $, !, %, *, ?, &, ., _, -).';
   return null;
 }
+
+/**
+ * Fecha de nacimiento (o de fundación) válida: formato AAAA-MM-DD, real, no futura y,
+ * para personas, de hace 100 años como máximo.
+ * @returns {string|null} Mensaje de error, o `null` si es válida.
+ */
+export function validateBirthDate(value, { isCompany = false } = {}) {
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return 'La fecha de nacimiento no es válida.';
+  const date = new Date(`${value}T00:00:00Z`);
+  if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== value) return 'La fecha de nacimiento no es válida.';
+  if (date > new Date()) return 'La fecha de nacimiento no puede estar en el futuro.';
+  const oldest = new Date();
+  oldest.setUTCFullYear(oldest.getUTCFullYear() - (isCompany ? 200 : 100));
+  if (date < oldest) return isCompany ? 'La fecha de fundación no es válida.' : 'La edad no puede ser mayor a 100 años. Revisa la fecha de nacimiento.';
+  return null;
+}
+
+// Texto que se mostrará a otras personas: rechaza palabras prohibidas. Devuelve el mensaje de error o null.
+export function blacklistError(...texts) {
+  return containsBlacklistedWords(texts.filter(Boolean).join(' '))
+    ? 'Tu texto incluye palabras no permitidas en SENN Fix. Revísalo e inténtalo de nuevo.'
+    : null;
+}

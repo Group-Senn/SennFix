@@ -6,7 +6,7 @@ import DatePicker from '../components/DatePicker';
 import PhoneVerification from '../components/PhoneVerification';
 import DocumentUploadCard from '../components/DocumentUploadCard';
 import { compressImage } from '../utils/imageCompressor';
-import { validatePassword, EMAIL_REGEX } from '../utils/validation';
+import { validatePassword, EMAIL_REGEX, birthDateError } from '../utils/validation';
 
 const STEP_TITLES = ['Tu cuenta', 'Tu identidad', 'Tu oficio'];
 
@@ -71,7 +71,7 @@ function RegisterProfessionalPage() {
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    if (name === 'identity_card' || name === 'phone_number') {
+    if (name === 'identity_card' || name === 'phone_number' || name === 'tutor_phone') {
       const numericValue = value.replace(/[^0-9]/g, '');
       const maxLen = name === 'identity_card' ? 15 : 8;
       if (numericValue.length <= maxLen) {
@@ -177,6 +177,7 @@ function RegisterProfessionalPage() {
         || empty('password', 'Contraseña')
         || validatePassword(f.password)
         || empty('birth_date', 'Fecha de Nacimiento')
+        || birthDateError(f.birth_date, { isCompany })
         || (!profileImageFile && 'La foto de perfil del rostro es obligatoria para tu verificación.')
         || null;
     }
@@ -189,6 +190,7 @@ function RegisterProfessionalPage() {
         || (isMinor && (
           empty('tutor_name', 'Nombre del Tutor')
           || empty('tutor_phone', 'Celular del Tutor')
+          || (!/^[67]\d{7}$/.test(f.tutor_phone) && 'El celular del tutor debe tener 8 dígitos y empezar con 6 o 7.')
           || (!defensoriaPermitFile && 'Debes adjuntar el permiso de la defensoría para menores de edad.')))
         || null;
     }
@@ -550,6 +552,8 @@ function RegisterProfessionalPage() {
                   <label htmlFor="tutor_phone" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Celular del Padre/Madre o Tutor <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span></label>
                   <input id="tutor_phone" 
                     type="tel" 
+                    inputMode="numeric"
+                    maxLength={8}
                     name="tutor_phone" 
                     value={formData.tutor_phone} 
                     onChange={handleChange} 
