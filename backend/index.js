@@ -1821,6 +1821,67 @@ app.get('/api/professionals/:id/portfolio', async (req, res) => {
 });
 
 // 3. Obtener todas las fotos del portafolio del profesional logueado (Privado)
+// Panel del profesional: clientes, trabajos, posición en su oficio y últimas reseñas (solo sus propios datos)
+app.get('/api/professionals/me/dashboard', authMiddleware, async (req, res) => {
+  if (req.user.user_type !== 'professional') {
+    return res.status(403).json({ message: 'Solo los profesionales tienen panel.' });
+  }
+  const me = req.user.id;
+  try {
+    const [jobs, clients, ranking, reviews, likes] = await Promise.all([
+      db.query(`
+        SELECT
+          COUNT(*) FILTER (WHERE status = 'completed')::int AS completed,
+          COUNT(*) FILTER (WHERE status = 'waiting_confirmation')::int AS waiting_confirmation,
+          COUNT(*) FILTER (WHERE status = 'in_progress')::int AS in_progress,
+          COUNT(*) FILTER (WHERE status = 'dispute')::int AS dispute
+        FROM jobs WHERE professional_id = $1`, [me]),
+      // Clientes = quienes te contrataron o te escribieron por chat (sin contar soporte ni admins)
+      db.query(`
+        SELECT COUNT(DISTINCT client_id)::int AS total FROM (
+          SELECT client_id FROM jobs WHERE professional_id = $1
+          UNION
+          SELECT CASE WHEN c.user1_id = $1 THEN c.user2_id ELSE c.user1_id END
+          FROM conversations c WHERE c.user1_id = $1 OR c.user2_id = $1
+        ) t
+        JOIN users u ON u.id = t.client_id
+        WHERE u.user_type = 'client'`, [me]),
+      // Posición entre los profesionales activos del mismo oficio: calificación y luego cantidad de reseñas
+      db.query(`
+        WITH same AS (
+          SELECT p.id, p.specialty,
+            RANK() OVER (ORDER BY COALESCE(p.rating, 0) DESC, COALESCE(p.reviews, 0) DESC) AS position,
+            COUNT(*) OVER () AS total
+          FROM professionals p JOIN users u ON u.id = p.id
+          WHERE u.account_status = 'active'
+            AND p.specialty = (SELECT specialty FROM professionals WHERE id = $1)
+        )
+        SELECT specialty, position::int, total::int FROM same WHERE id = $1`, [me]),
+      db.query(`
+        SELECT r.id, r.rating, r.comment, r.created_at, u.name AS client_name
+        FROM reviews r JOIN users u ON u.id = r.reviewer_id
+        WHERE r.reviewee_id = $1
+        ORDER BY r.created_at DESC LIMIT 5`, [me]),
+      db.query(`SELECT COALESCE(SUM(likes_count), 0)::int AS total FROM professional_posts WHERE professional_id = $1 AND status = 'approved'`, [me]),
+    ]);
+    const { rows: [profile] } = await db.query('SELECT rating, reviews, is_verified FROM professionals WHERE id = $1', [me]);
+
+    res.json({
+      clients: clients.rows[0].total,
+      jobs: jobs.rows[0],
+      ranking: ranking.rows[0] || null,
+      rating: Number(profile?.rating) || 0,
+      reviewCount: Number(profile?.reviews) || 0,
+      verified: Boolean(profile?.is_verified),
+      likes: likes.rows[0].total,
+      latestReviews: reviews.rows,
+    });
+  } catch (error) {
+    console.error('Error al cargar el panel del profesional:', error);
+    res.status(500).json({ message: 'No pudimos cargar tu panel.' });
+  }
+});
+
 app.get('/api/professionals/my-portfolio', authMiddleware, async (req, res) => {
   const professionalId = req.user.id;
   try {

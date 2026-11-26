@@ -50,6 +50,26 @@ function RegisterProfessionalPage() {
   const firstRender = useRef(true);
   const [isMinor, setIsMinor] = useState(false);
   const [isCompany, setIsCompany] = useState(false);
+  // Todo lo que se pide y cómo se llama depende de si se registra una persona o un negocio
+  const labels = isCompany
+    ? {
+      name: 'Nombre del negocio', namePlaceholder: 'Ej: Ferretería El Tornillo',
+      date: 'Fecha de fundación del negocio',
+      doc: 'NIT del negocio', docPlaceholder: 'Ej: 1028465029', docIcon: 'domain',
+      front: 'Documento del NIT', frontIcon: 'receipt_long',
+      back: 'Carnet del representante legal', backIcon: 'badge',
+      frontMissing: 'Debes adjuntar el documento del NIT.',
+      backMissing: 'Debes adjuntar el carnet del representante legal.',
+    }
+    : {
+      name: 'Nombre completo', namePlaceholder: 'Tu nombre completo',
+      date: 'Fecha de nacimiento',
+      doc: 'Carnet de identidad (C.I.)', docPlaceholder: 'Ej: 12345678', docIcon: 'badge',
+      front: 'Anverso del carnet de identidad', frontIcon: 'badge',
+      back: 'Reverso del carnet de identidad', backIcon: 'badge',
+      frontMissing: 'Debes adjuntar la imagen del anverso del carnet.',
+      backMissing: 'Debes adjuntar la imagen del reverso del carnet.',
+    };
   const [showVerificationModal, setShowVerificationModal] = useState(false);
   const navigate = useNavigate();
 
@@ -171,20 +191,20 @@ function RegisterProfessionalPage() {
     const f = formData;
     const empty = (key, label) => (!f[key] || !f[key].toString().trim()) && `El campo "${label}" es obligatorio.`;
     if (n === 1) {
-      return empty('name', 'Nombre Completo')
+      return empty('name', labels.name)
         || empty('email', 'Correo Electrónico')
         || (!EMAIL_REGEX.test(f.email) && 'Escribe un correo válido, por ejemplo nombre@correo.com.')
         || empty('password', 'Contraseña')
         || validatePassword(f.password)
-        || empty('birth_date', 'Fecha de Nacimiento')
+        || empty('birth_date', labels.date)
         || birthDateError(f.birth_date, { isCompany })
         || (!profileImageFile && 'La foto de perfil del rostro es obligatoria para tu verificación.')
         || null;
     }
     if (n === 2) {
-      return empty('identity_card', 'Carnet de Identidad')
-        || (!ciFrontFile && (isCompany ? 'Debes adjuntar la imagen del anverso del NIT o carnet.' : 'Debes adjuntar la imagen del anverso del carnet.'))
-        || (!ciBackFile && (isCompany ? 'Debes adjuntar el reverso o documento de respaldo de la empresa.' : 'Debes adjuntar la imagen del reverso del carnet.'))
+      return empty('identity_card', labels.doc)
+        || (!ciFrontFile && labels.frontMissing)
+        || (!ciBackFile && labels.backMissing)
         || empty('phone_number', 'Número de Celular')
         || (!/^[67]\d{7}$/.test(f.phone_number) && 'El número de celular debe ser un celular válido de Bolivia (8 dígitos, empezando con 6 o 7).')
         || (isMinor && (
@@ -339,9 +359,44 @@ function RegisterProfessionalPage() {
             </div>
 
             <div hidden={step !== 1} className="space-y-4">
+            {/* Primero se elige el tipo: de eso dependen los nombres de los campos que siguen */}
+            <div className="p-3.5 bg-slate-50/80 dark:bg-slate-900/50 rounded-2xl border border-primary/10 dark:border-slate-700 space-y-2">
+              <p id="tipo-registro" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase block">
+                ¿Cómo te registras?
+              </p>
+              <div role="group" aria-labelledby="tipo-registro" className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  aria-pressed={!isCompany}
+                  onClick={() => setIsCompany(false)}
+                  className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border ${
+                    !isCompany
+                      ? 'bg-primary text-white border-primary shadow-sm'
+                      : 'bg-white dark:bg-slate-800 text-primary/70 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/60'
+                  }`}
+                >
+                  <span aria-hidden="true" className="material-symbols-outlined text-base">person</span>
+                  <span>Profesional individual</span>
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={isCompany}
+                  onClick={() => setIsCompany(true)}
+                  className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border ${
+                    isCompany
+                      ? 'bg-primary text-white border-primary shadow-sm'
+                      : 'bg-white dark:bg-slate-800 text-primary/70 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/60'
+                  }`}
+                >
+                  <span aria-hidden="true" className="material-symbols-outlined text-base">domain</span>
+                  <span>Negocio</span>
+                </button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="name" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">Nombre Completo o de Empresa <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span></label>
+                <label htmlFor="name" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">{labels.name} <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span></label>
                 <div className="relative">
                   <span aria-hidden="true" className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">person</span>
                   <input id="name" 
@@ -351,7 +406,7 @@ function RegisterProfessionalPage() {
                     onChange={handleChange} 
                     required 
                     className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200" 
-                    placeholder="Tu nombre completo"
+                    placeholder={labels.namePlaceholder}
                   />
                 </div>
               </div>
@@ -418,44 +473,9 @@ function RegisterProfessionalPage() {
               )}
             </div>
 
-            {/* Selector de Tipo de Cuenta: Profesional Individual o Empresa/Negocio */}
-            <div className="p-3.5 bg-slate-50/80 dark:bg-slate-900/50 rounded-2xl border border-primary/10 dark:border-slate-700 space-y-2">
-              <p id="tipo-registro" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase block">
-                Tipo de registro
-              </p>
-              <div role="group" aria-labelledby="tipo-registro" className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  aria-pressed={!isCompany}
-                  onClick={() => setIsCompany(false)}
-                  className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border ${
-                    !isCompany
-                      ? 'bg-primary text-white border-primary shadow-sm'
-                      : 'bg-white dark:bg-slate-800 text-primary/70 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/60'
-                  }`}
-                >
-                  <span aria-hidden="true" className="material-symbols-outlined text-base">person</span>
-                  <span>Profesional Individual</span>
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={isCompany}
-                  onClick={() => setIsCompany(true)}
-                  className={`py-2.5 px-3 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer border ${
-                    isCompany
-                      ? 'bg-primary text-white border-primary shadow-sm'
-                      : 'bg-white dark:bg-slate-800 text-primary/70 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700/60'
-                  }`}
-                >
-                  <span aria-hidden="true" className="material-symbols-outlined text-base">domain</span>
-                  <span>Empresa o Negocio (NIT)</span>
-                </button>
-              </div>
-            </div>
-
             <div>
               <DatePicker
-                label={isCompany ? "Fecha de Fundación de la Empresa" : "Fecha de Nacimiento o Fundación"}
+                label={labels.date}
                 value={formData.birth_date}
                 onChange={(dateStr) => setFormData(prev => ({ ...prev, birth_date: dateStr }))}
               />
@@ -468,11 +488,11 @@ function RegisterProfessionalPage() {
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="identity_card" className="text-xs font-bold text-primary/80 dark:text-slate-350 tracking-wider uppercase mb-1.5 block">
-                      {isCompany ? "NIT de la Empresa" : "C.I. o NIT de la Empresa"} <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span>
+                      {labels.doc} <span className="text-red-700 dark:text-red-400" aria-hidden="true">*</span>
                     </label>
                     <div className="relative mb-3">
                       <span aria-hidden="true" className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-muted dark:text-slate-400 text-lg">
-                        {isCompany ? "domain" : "badge"}
+                        {labels.docIcon}
                       </span>
                       <input id="identity_card"
                         type="text"
@@ -481,7 +501,7 @@ function RegisterProfessionalPage() {
                         maxLength={15}
                         value={formData.identity_card}
                         onChange={handleChange}
-                        placeholder={isCompany ? "Ej: 1028465029" : "Ej: 12345678 o 1028465029"}
+                        placeholder={labels.docPlaceholder}
                         required
                         className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-50/50 dark:bg-slate-900/50 border border-primary/10 dark:border-slate-700 text-primary dark:text-slate-100 placeholder:text-slate-500 dark:placeholder:text-slate-500 focus:border-primary dark:focus:border-teal-500 focus:ring-4 focus:ring-primary/10 dark:focus:ring-teal-500/10 focus:outline-none transition-all duration-200"
                       />
@@ -489,23 +509,23 @@ function RegisterProfessionalPage() {
                     
                     <div className="space-y-3">
                       <DocumentUploadCard
-                        label={isCompany ? "Anverso del NIT o C.I. del Representante" : "Anverso del Carnet de Identidad (C.I.)"}
+                        label={labels.front}
                         file={ciFrontFile}
                         onFileChange={(newFile) => setCiFrontFile(newFile)}
                         onRemove={() => setCiFrontFile(null)}
                         required={true}
                         helpText="Foto nítida del frente del documento"
-                        icon={isCompany ? "receipt_long" : "badge"}
+                        icon={labels.frontIcon}
                       />
 
                       <DocumentUploadCard
-                        label={isCompany ? "Reverso o Documento de Respaldo de Empresa" : "Reverso del Carnet de Identidad (C.I.)"}
+                        label={labels.back}
                         file={ciBackFile}
                         onFileChange={(newFile) => setCiBackFile(newFile)}
                         onRemove={() => setCiBackFile(null)}
                         required={true}
                         helpText="Foto nítida de la parte posterior"
-                        icon={isCompany ? "description" : "badge"}
+                        icon={labels.backIcon}
                       />
                     </div>
                   </div>

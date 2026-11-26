@@ -39,7 +39,10 @@ function SpecialtyCombobox({ onSpecialtyChange, initialValue = '', id }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [wrapperRef]);
 
-  const safeServices = Array.isArray(services) ? services : [];
+  // "Otro" no va en la lista que se desplaza: queda fijo al pie del desplegable, siempre a la vista
+  const OTHER = 'Otro';
+  const safeServices = (Array.isArray(services) ? services : []).filter(service => service?.name !== OTHER);
+  const hasOther = Array.isArray(services) && services.some(service => service?.name === OTHER);
 
   // Si no está escribiendo activamente, o si el texto es la especialidad seleccionada,
   // mostrar todas las opciones para que pueda cambiar de opinión con 1 clic.
@@ -137,7 +140,8 @@ function SpecialtyCombobox({ onSpecialtyChange, initialValue = '', id }) {
         </div>
       </div>
       {showDropdown && (
-        <ul className="absolute top-full left-0 right-0 mt-1.5 bg-white dark:bg-slate-800 border border-primary/10 dark:border-slate-700 rounded-2xl shadow-xl z-30 max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700/50 animate-feedback">
+        <div className="absolute top-full left-0 right-0 mt-1.5 bg-white dark:bg-slate-800 border border-primary/10 dark:border-slate-700 rounded-2xl shadow-xl z-30 overflow-hidden animate-feedback">
+        <ul className="max-h-60 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-700/50">
           {filteredServices.length > 0 ? (
             filteredServices.map(service => {
               const isSelected = selectedSpecialty === service.name;
@@ -172,6 +176,22 @@ function SpecialtyCombobox({ onSpecialtyChange, initialValue = '', id }) {
             </li>
           )}
         </ul>
+        {hasOther && (
+          <button
+            type="button"
+            onClick={() => handleSelect(OTHER)}
+            className={`flex w-full items-center gap-2 border-0 border-t border-slate-200 dark:border-slate-700 px-4 py-3 text-left text-sm font-bold cursor-pointer ${
+              selectedSpecialty === OTHER
+                ? 'bg-primary/10 text-primary dark:bg-teal-500/15 dark:text-teal-300'
+                : 'bg-slate-50 text-primary hover:bg-primary/5 dark:bg-slate-900/60 dark:text-teal-400 dark:hover:bg-slate-700/60'
+            }`}
+          >
+            <span aria-hidden="true" className="material-symbols-outlined text-lg">edit_note</span>
+            <span className="flex-1">Otro: no encuentro mi oficio</span>
+            {selectedSpecialty === OTHER && <span aria-hidden="true" className="material-symbols-outlined text-base">check</span>}
+          </button>
+        )}
+        </div>
       )}
     </div>
   );

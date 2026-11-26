@@ -5,13 +5,15 @@ import { useNotifications } from '../context/NotificationContext';
 
 // Dock flotante de celular: el indicador amarillo se desliza a la pestaña activa y el mapa
 // (lo que más se usa para encontrar a alguien cerca) es el botón central, el más fácil de alcanzar con el pulgar
-const TABS = [
+const CLIENT_TABS = [
   { to: '/home', icon: 'home', text: 'Inicio' },
   { to: '/explore', icon: 'explore', text: 'Explorar' },
   { to: '/map', icon: 'location_on', text: 'Cerca', center: true },
   { to: '/chats', icon: 'forum', text: 'Chats' },
   { to: '/my-profile', icon: 'person', text: 'Perfil' },
 ];
+// El profesional no busca a otros en el mapa: en el centro tiene su panel
+const PRO_TABS = CLIENT_TABS.map(t => (t.center ? { to: '/panel', icon: 'insights', text: 'Mi panel', center: true } : t));
 
 function BottomNav() {
   const { user } = useAuth();
@@ -22,6 +24,7 @@ function BottomNav() {
     return null;
   }
 
+  const TABS = user?.user_type === 'professional' ? PRO_TABS : CLIENT_TABS;
   const unreadChats = notifications.filter(n => !n.is_read && n.type === 'new_message').length;
   const activeIndex = TABS.findIndex(t => pathname === t.to || pathname.startsWith(`${t.to}/`));
   const showIndicator = activeIndex >= 0 && !TABS[activeIndex].center;

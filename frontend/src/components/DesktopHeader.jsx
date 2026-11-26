@@ -99,7 +99,9 @@ function DesktopHeader() {
   const navItems = [
     { to: '/home', text: 'Inicio', icon: 'home' },
     { to: '/explore', text: 'Explorar', icon: 'explore' },
-    { to: '/map', text: 'Mapa', icon: 'location_on' },
+    user?.user_type === 'professional'
+      ? { to: '/panel', text: 'Panel', icon: 'insights' }
+      : { to: '/map', text: 'Mapa', icon: 'location_on' },
     { to: '/chats', text: 'Chats', icon: 'forum', badge: unreadChats },
     { to: '/my-profile', text: 'Perfil', icon: 'person' },
   ];

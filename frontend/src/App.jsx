@@ -17,6 +17,7 @@ import MyProfilePage from './pages/MyProfilePage';
 import ChatsPage from './pages/ChatsPage';
 import ChatRoomPage from './pages/ChatRoomPage';
 import AdminDashboardPage from './pages/AdminDashboardPage';
+import ProDashboardPage from './pages/ProDashboardPage';
 import SearchResults from './pages/SearchResults';
 import AllServices from './pages/AllServices';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -79,6 +80,7 @@ function App() {
           <Route path="/register-professional" element={<RegisterProfessionalPage />} />
           <Route path="/home" element={<Home />} />
           <Route path="/map" element={<NearbyPage />} />
+          <Route path="/panel" element={<ProtectedRoute role="professional"><ProDashboardPage /></ProtectedRoute>} />
           <Route path="/profile/:id" element={<Profile />} />
           <Route path="/services/*" element={<ProfessionalsByCategoryPage />} />
           <Route path="/services" element={<AllServices />} />
